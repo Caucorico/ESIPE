@@ -1,0 +1,23 @@
+Savoir si on a installez un paquet 
+1)Mettre à jour Debian :(sudo) apt-get update 
+2)Listez les paquets : dpkg -l
+3)Consultez la liste des sources : cat /etc/apt/sources.list
+4)Installation paquet : (sudo) : apt-get install nom_pack
+5)Vérifiez son installation : cat dpkg -l | grep nom_pack
+6)Connaitre les informations relative à un package : (sudo) apt-cache show cowsay | less 
+le langage utilisé est perl, son responsable est Tony Maillefaud
+7)Installation htop: refer 4)
+8)Installation jdk : default-jdk ,refer 4)
+9)Recherchez un paquet qui permet d'être client d'une machine Samba ou Windows : apt-cache search client | grep "windows"
+10)Affichez le détail des informations sur ce paquet : apt-cache show rdesktop
+11)cherchez si xterm est dispo pr Debian et affichez le détail : apt-cache search xterm | grep "xterm"
+12)Cherchez les prog de bureaucratique :apt-cache search libreoffice | grep "^libreofafice" | less 
+ evolution
+
+INSTALLATION INTERFACE GRAPHIQUE
+1)Cherchez les paquets contenant le mot window ou ceux contenant xorg : apt-cache search xorg | grep xorg | less 
+2)apt-cache show xorg 
+3)apt-get install xorg
+4)apt-get install ___
+5)apt-get install evolution
+6)apt-get install gkrellm;
