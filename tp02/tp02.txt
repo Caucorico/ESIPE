@@ -1,0 +1,81 @@
+
+REDIRECTIONS
+
+1. echo "Phrase"
+
+2. echo "Phrase" > nom_fichier
+   cal <mois> <annee> > nom_fichier
+
+3. ls -al > nom_fichier
+
+4. who -a >> nom_fichier
+
+5. ls -R /etc/ 2> /dev/null 
+
+6. ls -R / | grep "Permission denied"
+ 
+7. echo "-------------" >> <nom_fichier>
+
+8. df -a > <fichier>
+   echo "" > <fichier>
+   mount > <fichier>
+   echo "" > <fichier>
+   uptime > <fichier>
+   echo "" > <fichier>
+
+10. (voir fichier bc_file)
+
+11. cat <fichier>
+
+12. bc <fichier>
+
+13. bc <fichier> > <output file>
+
+14. mail <addr mail>  
+
+(bonus)
+    cat sans argument attend que l'on tape un mot sur le clavier
+    cat affiche sur la sorti standard le contenu du ficher passer en argument
+    
+    cat > fichier: écrase le contenu du fichier par ce qui est tapé au clavier
+    cat >> fichier: ajoute à al fin du fichier, ce qui est tapé à l'écran
+
+
+    sort: sort lines of text files
+    sort sans argument attend des entrees au clavier, et les tries
+    sort > fichier : attend des entrees au clavier, les tries et les insère dans le fichier
+
+
+
+PIPES
+
+1. who > <filename>
+
+2. who | sort 
+
+3. who | sort > <filename>
+
+4.
+
+5. ls <rep> | wc -l
+
+6. cat *.txt
+
+7. getent passwd | sed "s/:/%/" | cut -d '%' -f1
+
+8. cat <filename> | wc -l
+
+9. ps -A
+
+10. ps -A | grep "bash"
+
+11. ps -A | grep "bash" | sort 
+
+12. nc <server> <port>
+
+13. nc -l localhost -p 8500 -> ouvrir le service
+    nc localhost 8500 < <filename> -> envoyer le fichie au service 
+
+14. nc -l localhost -p 8500 > <output file> -> ouvrir le service
+    nc localhost 8500 < <filename> -> envoyer le fichie au service 
+
