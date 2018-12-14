@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Rapport du TP-03</title>
+	<meta charset="utf-8">
+</head>
+<body>
+	<h1>Dessiner sur des canvas </h1>
+	<p>Guillaume Cau</p>
+
+	<h2>Exercice 1 - Horloge</h2>
+	<ol>
+		<li>
+			<h3>
+				Recopiez la page Web exo1.html. <br>
+				Que se passe-t-il lorsque l'on la visualise ? <br>
+				Note: regardez la console ! <br>
+				Expliquez ce que fait la balise &ltbody onload="loaded()"&gt. 
+			</h3>
+			<p>
+				Lorsque la page est chargée, le programme JavaScript affiche "tick !" dans la console. <br>
+				L'attribut "onload" permet d'éxécuter du code JavaScript lorsque la balise sur lequel l'attribut est définie est chargée ( toute les données ont été reçues).
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Comment faire pour afficher un "tick" toutes les secondes en utilisant setTimeout ? 
+			</h3>
+			<p>
+				
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				En fait, il existe un appel window.setInterval() qui va appeler la fonction pris en paramètre de façon répétée. Transformez le code pour utiliser window.setInterval(). 
+			</h3>
+			<p></p>
+		</li>
+		<li>
+			<h3>
+				Transformez le code pour afficher la date courante avec new Date(). <br>
+				Puis changez encore le code pour afficher l'heure (getHours()), les minutes (getMinutes()) et les secondes (getSeconds()) sur la console
+			</h3>
+			<p></p>
+		</li>
+
+		<li>
+			<h3>
+				Retirez les commentaires autour du code en bas du fichier. Que fait ce code ? <br>
+				Modifiez-le pour afficher une aiguille indiquant midi (ou 0 minute, ou 0 seconde)
+			</h3>
+			<p>
+				Ce code créer une ligne dans le canvas puis demande à ce quelle soit afficher.
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Dessinez un cercle de rayon 220 pixels centré dans le canvas. Il servira de cadre à notre horloge. 
+			</h3>
+			<p>
+				<pre>
+					<code>
+context.beginPath();
+context.arc(300,300,220,0, 2 * Math.PI);
+context.stroke();
+					</code>
+				</pre>
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Indiquez les formules mathématiques qui permettent pour une valeur de 0 à 60 secondes de trouver les coordonnées x et y du sommet de l'aiguille. 
+			</h3>
+			<p>
+				Pour trouver le l'angle en radian de l'heure, il faut faire le calcul suivant : g = ( second * PI ) / 30 , obtenu en simplifiant ( seconde * 2PI ) / 60. <br>
+				Pour obtenir les x, il faut faire le calcul suivant : centerX + cos(g) * radius; <br>
+				Pour obtenir les y, il faut faire le calcul suivant : centerY + sin(g) * radius;
+			</p>
+		</li>
+	</ol>
+</body>
+</html>
