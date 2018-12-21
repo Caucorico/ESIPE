@@ -1,0 +1,8 @@
+\i <nom de fichier>
+	Dump le fichier SQL dans la base
+
+\d
+	Affiche les tables
+
+\dt
+	Affiche les tables
