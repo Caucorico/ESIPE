@@ -34,3 +34,11 @@ DELETE FROM carte_fidelite
 WHERE numcli=(
 	SELECT numcli FROM client WHERE nom='Gallois' AND prenom='Noémie'
 );
+
+DROP TABLE carte_fidelite;
+DROP TABLE contient;
+DROP TABLE facture;
+DROP TABLE stocke;
+DROP TABLE client;
+DROP TABLE magasin;
+DROP TABLE produit;
