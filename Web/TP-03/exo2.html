@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+   <meta charset="utf-8">
+   <script>
+    "use strict";
+
+    function getCanvasSizeForClock(canvas)
+    {
+      if ( canvas.height == canvas.width )
+      {
+        return canvas.height;
+      }
+      else
+      {
+        return Math.min(canvas.height, canvas.width);
+      }
+    }
+
+    function startClock(clockId) {
+      var canvas = document.getElementById(clockId);
+      var clockSize = getCanvasSizeForClock(canvas);
+      var context = canvas.getContext("2d");
+      window.setInterval(refreshClock, 1000, canvas, context, clockSize/2, clockSize/2, clockSize/2-1, 4);
+    }
+
+    /* ###################################################################### */
+    /*                           Old functions                                */
+    /* ###################################################################### */
+
+     function refreshClock(canvas, context, x, y, radius, graduationSize) {
+      var today = new Date();
+      displayDate(today);
+      context.clearRect(0,0,canvas.width, canvas.height);
+      drawBorder(context, x, y, radius);
+      drawNeedles(context, x, y, radius, today);
+      drawGraduation(context, x, y, radius, graduationSize);
+    }
+
+    function displayDate(today) {
+      console.log("h:"+today.getHours()+" m:"+today.getMinutes()+" s:"+today.getSeconds());
+    }
+
+    function drawBorder(context, x, y, radius) {
+      context.beginPath();
+      context.lineWidth = 2;
+      context.strokeStyle = "blue";
+      context.arc(x, y, radius, 0, 2 * Math.PI);
+      context.stroke();
+    }
+
+    function drawGraduation(context, x, y, radius, size) {
+      context.beginPath();
+      context.lineWidth = 1;
+      context.strokeStyle = "black";
+      for (var i = 0; i < 24; i++) {
+        var g = ( i * Math.PI ) / 12;
+        context.moveTo(x+Math.cos(g)*(radius-size), y+Math.sin(g)*(radius-size));
+        context.lineTo(x+Math.cos(g)*radius, y+Math.sin(g)*radius)
+      }
+      context.stroke();
+    }
+
+    function drawNeedles(context, x, y, radius, today)
+    {
+      /* Seconds : */
+      var g = (today.getSeconds()*Math.PI)/30 -Math.PI/2;
+      drawNeedle(context, x, y, radius, 1, 1, 'red', g);
+
+      /* Minutes : */
+      g = (today.getMinutes()*Math.PI)/30 -Math.PI/2;
+      drawNeedle(context, x, y, radius, 3, 0.9, 'blue', g);
+
+      /* Hour : */
+      g = (today.getHours()*Math.PI)/6 -Math.PI/2;
+      drawNeedle(context, x, y, radius, 5, 0.3, 'blue', g);
+
+    }
+
+    function drawNeedle(context, x, y, radius, width, size, color, g)
+    {
+      context.beginPath();
+      context.lineWidth = width;
+      context.strokeStyle = color;
+      context.moveTo(x,y);
+      context.lineTo(x+Math.cos(g)*radius*size, y+Math.sin(g)*radius*size);
+      context.stroke();
+    }
+   </script>
+ </head>
+ <body>
+  <h2>Horloge 2</h2>
+  <canvas id="clock1" width="200" height="200">
+  </canvas>
+  <canvas id="clock2" width="300" height="400">
+  </canvas>
+  <script>
+    startClock('clock1');
+    startClock('clock2');
+  </script>
+ 
+
+</body></html>

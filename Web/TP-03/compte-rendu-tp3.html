@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Rapport du TP-03</title>
+	<meta charset="utf-8">
+</head>
+<body>
+	<h1>Dessiner sur des canvas </h1>
+	<p>Guillaume Cau</p>
+
+	<h2>Exercice 1 - Horloge</h2>
+	<ol>
+		<li>
+			<h3>
+				Recopiez la page Web exo1.html. <br>
+				Que se passe-t-il lorsque l'on la visualise ? <br>
+				Note: regardez la console ! <br>
+				Expliquez ce que fait la balise &ltbody onload="loaded()"&gt. 
+			</h3>
+			<p>
+				Lorsque la page est chargée, le programme JavaScript affiche "tick !" dans la console. <br>
+				L'attribut "onload" permet d'éxécuter du code JavaScript lorsque la balise sur lequel l'attribut est définie est chargée ( toute les données ont été reçues).
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Comment faire pour afficher un "tick" toutes les secondes en utilisant setTimeout ? 
+			</h3>
+			<p>
+				Pour afficher un tick toutes les secondes en utilisant setTimeout, il faut appeler la fonction comme suit : 
+				<code>
+					<pre>
+displayTick();
+function displayTick() {
+	console.log('tick');
+	setTimeout(displayTick, 1000);
+}
+					</pre>
+				</code>
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				En fait, il existe un appel window.setInterval() qui va appeler la fonction pris en paramètre de façon répétée. Transformez le code pour utiliser window.setInterval(). 
+			</h3>
+			<p>
+				Pour afficher un tick toutes les secondes en utilisant window.setInterval(), il faut appeler la fonction comme suit : 
+				<code>
+					<pre>
+window.setInterval(function() {
+	console.log('tick');
+}, 1000);
+					</pre>
+				</code>
+			</p>
+		</li>
+		<li>
+			<h3>
+				Transformez le code pour afficher la date courante avec new Date(). <br>
+				Puis changez encore le code pour afficher l'heure (getHours()), les minutes (getMinutes()) et les secondes (getSeconds()) sur la console
+			</h3>
+			<p>
+				Pour afficher la date, il faut créer un objet Date et le donner en argument à la fonction console.log(). <br>
+				Pour afficher les heures, les minutes et les secondes, il faut faire comme suit :
+				<code>
+					<pre>
+var today = new Date();
+console.log("h:"+today.getHours()+" m:"+today.getMinutes()+" s:"+today.getSeconds());
+					</pre>
+				</code>
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Retirez les commentaires autour du code en bas du fichier. Que fait ce code ? <br>
+				Modifiez-le pour afficher une aiguille indiquant midi (ou 0 minute, ou 0 seconde). 
+			</h3>
+			<p>
+				Ce code créer une ligne dans le canvas puis demande à ce quelle soit afficher. <br>
+				Pour créer une aiguille indiquant midi, il suffit de dessiner une ligne verticale avec lineTo.
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Dessinez un cercle de rayon 220 pixels centré dans le canvas. Il servira de cadre à notre horloge. 
+			</h3>
+			<p>
+				Pour créer le cercle qui servira de cadre à notre horloge, il faut dessiner un cercle avec la fonction arc. <br>
+				La code ainsi obtenu est le suivant : 
+				<code>
+					<pre>
+context.beginPath();
+context.arc(300,300,220,0, 2 * Math.PI);
+context.stroke();
+					</pre>
+				</code>
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Indiquez les formules mathématiques qui permettent pour une valeur de 0 à 60 secondes de trouver les coordonnées x et y du sommet de l'aiguille. 
+			</h3>
+			<p>
+				Pour trouver le l'angle en radian de l'heure, il faut faire le calcul suivant : g = ( second * PI ) / 30 , obtenu en simplifiant ( seconde * 2PI ) / 60. <br>
+				Pour obtenir les x, il faut faire le calcul suivant : centerX + cos(g) * radius; <br>
+				Pour obtenir les y, il faut faire le calcul suivant : centerY + sin(g) * radius;
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Modifiez le code pour faire bouger la trotteuse (nom de l'aiguille des secondes) en fonction des secondes. <br>
+				Note: context.clearRect(...) permet d'effacer le canvas. 
+			</h3>
+			<p>
+				Pour ce faire, il suffit d'appeller la fonction qui dessine les aiguilles toutes les secondes en utilisant la fonction setInterval. <br>
+				Chaque seconde, il est nécessaire de recalculer l'angle d'inclinaison de l'aiguille pour qu'elle "bouge". <br>
+				Il est nécessaire d'appeler la fonction clearRect au début de la fonction pour éviter que les ancinnes aiguilles se superposent sur l'horloge.
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Modifiez votre code pour afficher la trotteuse en rouge et le cadre en bleu.
+				Réglez à 2 pixels l'épaisseur du trait du cadre.
+			</h3>
+			<p>
+				Il existe des méthodes simples du contexte pour changer l'épaisseur et la couleur d'un trait. <br>
+				Ces méthodes sont : <b>context.lineWidth </b> et <b>context.strokeStyle</b>.
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Affichez en plus de la trotteuse, l'aiguille des minutes (la grande aiguille). <br>
+				Note: pitié, ne dupliquez pas le code ! 
+			</h3>
+			<p>
+				Comme indiqué, j'ai u'ilisé la m^eme fonction mais avec des param^etres différents.
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Ajoutez l'aiguille des heures, qui doit être d'une longueur inférieure aux deux autres aiguilles (disons 70%), mais plus large, toujours en essayant de 'factoriser' le code. 
+			</h3>
+			<p>
+				Encore une fois, le code a été réutilisé.
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Ajoutez 24 traits de graduation ('ticks'), autour du cadre de l'horloge. Un trait aura une longueur de 4 pixels, par exemple. 
+			</h3>
+			<p>
+				Pour ce faire, au lieu de dessiner un trait du centre vers l'extérieur, il faut d'abord utiliser la méthode moveTo 4 pixel devant le cadre puis utiliser la méthode lineTo comme d'habitude.
+			</p>
+		</li>
+	</ol>
+
+	<h2>Exercice 2 - Horloges de différentes tailles</h2>
+	<ol>
+		<li>
+			<h3>
+				Faites en sorte que la taille de l'horloge puisse varier en fonction de la taille du canvas <br>
+				Un canvas a une propriété width et une propriété height. <br>
+				Dans le cas où la largeur et la hauteur d'un canvas n'est pas la même, prenez la valeur minimum entre les deux et laisser des bandes de chaque coté. <br>
+			</h3>
+			<p>
+				Une fonction a été créer pour suivre ce comprtement.
+				<code>
+					<pre>
+function getCanvasSizeForClock(canvas)
+{
+  if ( canvas.height == canvas.width )
+  {
+    return canvas.height;
+  }
+  else
+  {
+    return Math.min(canvas.height, canvas.width);
+  }
+}
+					</pre>
+				</code>
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Faites en sorte d'avoir une fonction startClock qui prend en paramètre l'id d'un canvas qui sert d'unique point d'entrée pour faire fonctionner une horloge. <br>
+				Testez avec l'affichage des 2 horloges de tailles différentes (on est d'accord, on peut en ajouter plus !). 
+			</h3>
+			<p>
+				La fonction startClock a été créée pour démarer une horloge.
+				<code>
+					<pre>
+function startClock(clockId) {
+  var canvas = document.getElementById(clockId);
+  var clockSize = getCanvasSizeForClock(canvas);
+  var context = canvas.getContext("2d");
+  window.setInterval(refreshClock, 1000, canvas, context, clockSize/2, clockSize/2, clockSize/2-1, 4);
+}
+					</pre>
+				</code>
+				Et on est d'accord, cette fonction peut ^etre appelé pour un grand nombre d'horloges.
+			</p>
+		</li>
+
+		<li>
+			<h3>
+				Question top moumoute, faites en sorte de garantir que les aiguilles des différentes horloges soient synchrones (i.e. misent à jour toutes en même temps). 
+			</h3>
+		</li>
+	</ol>
+</body>
+</html>
