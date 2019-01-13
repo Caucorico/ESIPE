@@ -1,0 +1,341 @@
+Finalement, lancer ./bench -a et comparer les temps d'exécution entre la version triée et la version non triée. 
+
+On remarque que la recherche dans le tableau trié est plus rapide que dans le tableau non trié. Cependant, l'insertion dans un tableau non-trié est beaucoup plus rapide
+que dans un tableau trié.
+
+############################
+
+Vérifier que les temps d'exécution sont cohérents avec les complexités des fonctions.
+Y a-t-il un cas de test (parmi 6-10) où l'insertion puis la recherche est plus rapide dans un tableau non trié ? Pourquoi ? 
+
+Dans le cas n°10, l'insertion puis la recherche dans le tableau non trié est plus rapide que dans le tableau trié.
+L'insertion dans le tableau trié est plus lente que dans le tableau non trié. Et étant donné le faible nombre de valeur du tableau, la recherche linéaire prend approximativement
+un temps équivalent à la recherche dichotomique pour trouver l'élément demandé.
+
+
+############################
+
+Resultats des tests  :
+
+
+*** TEST 1, UNSORTED ***
+testing with random elements from 0..19
+10 insertions, 3 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 1 END ***
+
+*** TEST 1, SORTED ***
+testing with random elements from 0..19
+10 insertions, 3 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 1 END ***
+
+*** TEST 2, UNSORTED ***
+testing with random elements from 0..0
+20 insertions, 10 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 2 END ***
+
+*** TEST 2, SORTED ***
+testing with random elements from 0..0
+20 insertions, 10 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 2 END ***
+
+*** TEST 3, UNSORTED ***
+testing with random elements from 0..9
+0 insertions, 10 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 3 END ***
+
+*** TEST 3, SORTED ***
+testing with random elements from 0..9
+0 insertions, 10 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 3 END ***
+
+*** TEST 4, UNSORTED ***
+testing with random elements from 0..9
+1 insertions, 10 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 4 END ***
+
+*** TEST 4, SORTED ***
+testing with random elements from 0..9
+1 insertions, 10 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 4 END ***
+
+*** TEST 5, UNSORTED ***
+testing with random elements from 0..19
+10 insertions, 100 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 5 END ***
+
+*** TEST 5, SORTED ***
+testing with random elements from 0..19
+10 insertions, 100 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 0 ms
+find (student)
+find ok
+time: 0 ms
+*** TEST 5 END ***
+
+*** TEST 6, UNSORTED ***
+testing with random elements from 0..1999
+1000 insertions, 1000000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 2051 ms
+find (student)
+find ok
+time: 2000 ms
+*** TEST 6 END ***
+
+*** TEST 6, SORTED ***
+testing with random elements from 0..1999
+1000 insertions, 1000000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 111 ms
+find (student)
+find ok
+time: 126 ms
+*** TEST 6 END ***
+
+*** TEST 7, UNSORTED ***
+testing with random elements from 0..19999
+10000 insertions, 20000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 398 ms
+find (student)
+find ok
+time: 400 ms
+*** TEST 7 END ***
+
+*** TEST 7, SORTED ***
+testing with random elements from 0..19999
+10000 insertions, 20000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 71 ms
+insertion (student)
+insertion ok
+time: 69 ms
+find (reference)
+time: 3 ms
+find (student)
+find ok
+time: 3 ms
+*** TEST 7 END ***
+
+*** TEST 8, UNSORTED ***
+testing with random elements from 0..59999
+30000 insertions, 60000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 3565 ms
+find (student)
+find ok
+time: 3683 ms
+*** TEST 8 END ***
+
+*** TEST 8, SORTED ***
+testing with random elements from 0..59999
+30000 insertions, 60000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 675 ms
+insertion (student)
+insertion ok
+time: 657 ms
+find (reference)
+time: 11 ms
+find (student)
+find ok
+time: 12 ms
+*** TEST 8 END ***
+
+*** TEST 9, UNSORTED ***
+testing with random elements from 0..119999
+60000 insertions, 120000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 0 ms
+find (reference)
+time: 14963 ms
+find (student)
+find ok
+time: 14388 ms
+*** TEST 9 END ***
+
+*** TEST 9, SORTED ***
+testing with random elements from 0..119999
+60000 insertions, 120000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 2522 ms
+insertion (student)
+insertion ok
+time: 2459 ms
+find (reference)
+time: 22 ms
+find (student)
+find ok
+time: 25 ms
+*** TEST 9 END ***
+
+*** TEST 10, UNSORTED ***
+testing with random elements from 0..49
+100000 insertions, 200000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 0 ms
+insertion (student)
+insertion ok
+time: 1 ms
+find (reference)
+time: 26 ms
+find (student)
+find ok
+time: 27 ms
+*** TEST 10 END ***
+
+*** TEST 10, SORTED ***
+testing with random elements from 0..49
+100000 insertions, 200000 calls to find
+*** BEGIN ***
+insertion (reference)
+time: 6926 ms
+insertion (student)
+insertion ok
+time: 6836 ms
+find (reference)
+time: 11 ms
+find (student)
+find ok
+time: 12 ms
+*** TEST 10 END ***
+
+10 of 10 tests passed
