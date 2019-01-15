@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 int array_size(int* array)
 {
@@ -88,6 +89,18 @@ int* copy_array(int* array)
   return copy;
 }
 
+int* copy_cut_array(int* array, int size)
+{
+  int buf;
+  int* tab;
+
+  buf = array[size];
+  array[size] = -1;
+  tab = copy_array(array);
+  array[size] = buf;
+  return tab;
+}
+
 /* Free an integer array */
 void free_integer_array(int* tab){
   free(tab);
@@ -168,22 +181,84 @@ int* concat_array(int* first, int* second)
 	return tab;
 }
 
+int* merge_sorted_arrays(int* first, int* second)
+{
+  int i, j, k;
+  int size1 , size2;
+  int* sorted;
+
+  size1 = array_size(first);
+  size2 = array_size(second);
+
+  sorted = allocate_integer_array(size1+size2);
+
+  j = k = 0;
+ 
+  for ( i = 0 ; j < size1 && k < size2; i++ )
+  {
+    if ( first[j] < second[k] )
+    {
+      sorted[i] = first[j];
+      j++;
+    }
+    else
+    {
+      sorted[i] = second[k];
+      k++;
+    }
+  }
+  sorted[i] = -1;
+  if ( j == size1 )
+  {
+    sorted = concat_array(sorted, &second[k]);
+  }
+  else
+  {
+    sorted = concat_array(sorted, &first[j]);
+  }
+
+  return sorted;
+}
+
+void split_arrays(int* array, int** first, int** second)
+{
+  int size;
+  size = array_size(array);
+
+  *first = copy_cut_array(array, (size/2)+(size%2));
+  *second = copy_array(&array[(size/2)+(size%2)]); 
+}
+
+int* merge_sort(int* array)
+{
+  int* t1;
+  int* t2;
+
+  if ( array_size(array) == 1 )
+  {
+    return array;
+  }
+
+  split_arrays(array, &t1, &t2);
+
+  return merge_sorted_arrays(merge_sort(t1),merge_sort(t2));
+}
+
 /* An empty main to test the compilation of the allocation and free
    functions. */
 int main(int argc, char* argv[]){
 
 	int* test;
-	int* test2;
 
 	srand(time(NULL));
 
-	test2 = random_array(5, 30);
-	print_array(test2);
-	test = random_array(5, 30);
-	print_array(test);
+  test = random_array(100, 32000);
+  print_array(test);
 
-	test = concat_array(test, test2);
-	print_array(test);
+  test = merge_sort(test);
+  print_array(test);
+
+  free_integer_array(test);
 
   return 0;
 }
