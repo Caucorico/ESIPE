@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
 	tab_qsort = create_array(size);
 	tab = create_array(size);
 
+	printf("test tri insertion : \n");
+
 	/* test avec beaucoup de taille de tableau différente. */
 	for ( i = 0 ; i < size ; i++ )
 	{
@@ -42,7 +44,7 @@ int main(int argc, char *argv[]) {
 		copy_array(tab_ref, tab_qsort, i);
 
 		/* tri du tableau de travail */
-		selection_sort(tab, i);
+		insertion_sort(tab, i);
 		qsort(tab_qsort, i, sizeof(int), compare);
 
 		res += compare_array(tab, tab_qsort, i);
@@ -62,7 +64,7 @@ int main(int argc, char *argv[]) {
 
 		copy_array(tab_ref, tab, i);
 
-		selection_sort(tab, i);
+		insertion_sort(tab, i);
 		qsort(tab_qsort, i, sizeof(int), compare);
 
 		res += compare_array(tab, tab_qsort, i);
@@ -83,7 +85,7 @@ int main(int argc, char *argv[]) {
 
 		copy_array(tab_ref, tab, i);
 
-		selection_sort(tab, i);
+		insertion_sort(tab, i);
 		qsort(tab_qsort, i, sizeof(int), compare);
 
 		res += compare_array(tab, tab_qsort, i);
@@ -104,7 +106,93 @@ int main(int argc, char *argv[]) {
 
 		copy_array(tab_ref, tab, i);
 
-		selection_sort(tab, i);
+		insertion_sort(tab, i);
+		qsort(tab_qsort, i, sizeof(int), compare);
+
+		res += compare_array(tab, tab_qsort, i);
+
+	}
+
+	printf("Notre fonction de tri a obtenue %d resultat identiques a qsort  sur %d pour des tableaux repetitifs de taille %d a %d.\n", res, size, 0, size-1);
+
+	printf("test tri rapide : \n");
+
+	/* test avec beaucoup de taille de tableau différente. */
+	for ( i = 0 ; i < size ; i++ )
+	{
+		/* initialisation de la référence avec des valeurs aléatoires */
+		fill_random_array(tab_ref, i, max_value);
+
+		/* initialisation du tableau de travail avec les valeurs de référence */
+		copy_array(tab_ref, tab, i);
+
+		/* initialisation du tableau qsort avec les valeurs de référence */
+		copy_array(tab_ref, tab_qsort, i);
+
+		/* tri du tableau de travail */
+		quick_sort(tab, i);
+		qsort(tab_qsort, i, sizeof(int), compare);
+
+		res += compare_array(tab, tab_qsort, i);
+	}
+
+	printf("Notre fonction de tri a obtenue %d resultat identiques a qsort  sur %d pour des tableaux aléatoire de taille %d a %d.\n", res, size, 0, size-1);
+
+	res = 0;
+	for ( i = 0; i < size ; i++)
+	{
+		for ( j = 0 ; j < i ; j++ )
+		{
+			tab_ref[j] = j;
+		}
+
+		copy_array(tab_ref, tab_qsort, i);
+
+		copy_array(tab_ref, tab, i);
+
+		quick_sort(tab, i);
+		qsort(tab_qsort, i, sizeof(int), compare);
+
+		res += compare_array(tab, tab_qsort, i);
+
+	}
+
+	printf("Notre fonction de tri a obtenue %d resultat identiques a qsort  sur %d pour des tableaux tries de taille %d a %d.\n", res, size, 0, size-1);
+
+	res = 0;
+	for ( i = 0; i < size ; i++)
+	{
+		for ( j = i ; j >= 0 ; j-- )
+		{
+			tab_ref[j] = j;
+		}
+
+		copy_array(tab_ref, tab_qsort, i);
+
+		copy_array(tab_ref, tab, i);
+
+		quick_sort(tab, i);
+		qsort(tab_qsort, i, sizeof(int), compare);
+
+		res += compare_array(tab, tab_qsort, i);
+
+	}
+
+	printf("Notre fonction de tri a obtenue %d resultat identiques a qsort  sur %d pour des tableaux inverses de taille %d a %d.\n", res, size, 0, size-1);
+
+	res = 0;
+	for ( i = 0; i < size ; i++)
+	{
+		for ( j = i ; j >= 0 ; j-- )
+		{
+				tab_ref[j] = j%2;
+		}
+
+		copy_array(tab_ref, tab_qsort, i);
+
+		copy_array(tab_ref, tab, i);
+
+		quick_sort(tab, i);
 		qsort(tab_qsort, i, sizeof(int), compare);
 
 		res += compare_array(tab, tab_qsort, i);
