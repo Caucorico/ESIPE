@@ -5,10 +5,13 @@
 
 int main(int argc, char* argv[]){
   Board B;
+  int i;
 
   fread_board(argv[1], B);
 
-  print_board(B);
+  i = board_solver(B, 0, 80);
+
+  printf("result = %d", i);
 
   return 0;
 }
