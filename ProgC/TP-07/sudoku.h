@@ -7,5 +7,6 @@ void initialize_empty_board(Board grid);
 void print_board(Board grid);
 int board_ok(Board grid);
 int board_solver(Board grid, int position, int max);
+int board_finish(Board grid);
 
 #endif

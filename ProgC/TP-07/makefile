@@ -1,12 +1,12 @@
 CC=gcc
-CFLAGS=-Wall -ansi -lMLV
-LDFLAGS=-lMLV
+CFLAGS=-Wall -ansi
+LDFLAGS=$(shell pkg-config --libs-only-l MLV)
 OBJ=sudoku.o main.o in_out.o graph.o
 
 sudoku: $(OBJ)
-	$(CC) -o sudoku $(OBJ) $(CFLAGS)
+	$(CC) -o sudoku $(OBJ) $(LDFLAGS)
 
-graph.o: graph.c graph.h
+graph.o: graph.c graph.h sudoku.h
 	$(CC) -c graph.c $(CFLAGS)
 
 main.o: main.c sudoku.h in_out.h graph.h

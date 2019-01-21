@@ -121,3 +121,20 @@ int board_solver(Board grid, int position, int max)
 	return nbr;
 }	
 
+int board_finish(Board grid)
+{
+	int i,j;
+
+	for ( i = 0 ; i < 9 ; i++ )
+	{
+		for ( j = 0 ; j < 9 ; j++ )
+		{
+			if ( grid[i][j] == 0 )
+			{
+				return 0;
+			}
+		}
+	}
+
+	return 1;
+}
