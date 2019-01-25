@@ -125,12 +125,16 @@ void loop( Board grid )
 		}
 		if ( x > 500 && x < 650 && y > 150 && y < 300 && state == 1 )
 		{
-			grid[x2][y2] = determine_selector_y(y)*3 + 1+determine_selector_x(x);
+			printf("test : %d\n", determine_selector_y(y)*3 + 1+determine_selector_x(x));
+			grid[y2][x2] = determine_selector_y(y)*3 + 1+determine_selector_x(x);
 			draw_char_in_case(x2,y2,'0'+determine_selector_y(y)*3 + 1+determine_selector_x(x));
 			MLV_actualise_window();
 
 			state = 0;
 		}
+
+		printf(" finish ? : %d\n", board_finish(grid));
+		printf("ok ? %d\n", board_ok(grid));
 		
 	}
 
