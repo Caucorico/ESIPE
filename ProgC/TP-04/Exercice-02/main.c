@@ -10,6 +10,11 @@ int main(int argc, char* argv[]){
   char str_action[256];
   int action=-1;
 
+  printf("########################################\n");
+  printf("TP-04 Exercice-02. \nBut : Utiliser une pile graphique en polonais inverse. \n\n");
+
+  /* Zone TP */
+
   stack_init();
 
   create_windows();
@@ -29,5 +34,9 @@ int main(int argc, char* argv[]){
     }
   }
   quit_action();
+
+  /* Fin zone TP */
+
+  printf("\n\n########################################\n");
   return 0;
 }

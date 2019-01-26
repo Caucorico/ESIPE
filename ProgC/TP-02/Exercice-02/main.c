@@ -6,7 +6,7 @@ int main( int argc, char *argv[] )
   int a, b;
 
   printf("########################################\n");
-  printf("TP-01 Exercice-02. \nBut : Afficher la somme de deux entiers passés en parametre. \n\n");
+  printf("TP-02 Exercice-02. \nBut : Afficher la somme de deux entiers passés en parametre. \n\n");
 
   /* Zone TP */
   if ( argc != 3 )

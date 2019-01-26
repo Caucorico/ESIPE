@@ -6,7 +6,7 @@ int main(void)
   char a;
 
   printf("########################################\n");
-  printf("TP-01 Exercice-05. \nBut : Afficher le code source du programme. \n\n");
+  printf("TP-02 Exercice-05. \nBut : Afficher le code source du programme. \n\n");
 
   /* Zone TP */
 

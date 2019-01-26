@@ -29,7 +29,7 @@ int main( int argc, char *argv[] )
   int k;
 
   printf("########################################\n");
-  printf("TP-01 Exercice-03. \nBut : Afficher la suite  n n-1 n-2 .. 0 .. n-2 n-1 n de facon iterative puis recursif. \n\n");
+  printf("TP-02 Exercice-03. \nBut : Afficher la suite  n n-1 n-2 .. 0 .. n-2 n-1 n de facon iterative puis recursif. \n\n");
 
   /* Zone TP */
   if ( argc != 2 )

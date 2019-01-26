@@ -69,6 +69,8 @@ int* copy_array(int* array)
     copy[i] = array[i];
   }
   copy[i+1] = -1;
+
+  return copy;
 }
 
 /* Allocate memory for an array which can contain `size`
@@ -92,7 +94,15 @@ void free_integer_array(int* tab){
 
 /* An empty main to test the compilation of the allocation and free
    functions. */
-int main(int argc, char* argv[]){
+int main(void)
+{
+  printf("########################################\n");
+  printf("TP-04 Exercice-03. \nBut : Ajouter les operations ! et %% en polonais inverse. \n\n");
 
+  /* Zone TP */
+
+  /* Fin zone TP */
+
+  printf("\n\n########################################\n");
   return 0;
 }

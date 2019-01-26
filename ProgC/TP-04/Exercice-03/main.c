@@ -10,6 +10,9 @@ int main(int argc, char* argv[]){
   char str_action[256];
   int action=-1;
 
+  printf("########################################\n");
+  printf("TP-04 Exercice-03. \nBut : Ajouter les operations ! et %% en polonais inverse. \n\n");
+
   stack_init();
 
   create_windows();
@@ -29,5 +32,7 @@ int main(int argc, char* argv[]){
     }
   }
   quit_action();
+
+  printf("\n\n########################################\n");
   return 0;
 }

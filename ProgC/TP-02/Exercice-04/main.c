@@ -21,7 +21,7 @@ int main( int argc, char *argv[] )
   int* p=&a;
 
   printf("########################################\n");
-  printf("TP-01 Exercice-04. \nBut : Comprendre les pointeurs. \n\n");
+  printf("TP-02 Exercice-04. \nBut : Comprendre les pointeurs. \n\n");
 
   print_var(a);
   a = 53;
