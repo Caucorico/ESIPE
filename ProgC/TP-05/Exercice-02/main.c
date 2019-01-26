@@ -19,12 +19,16 @@ void print_array(int* array)
   }
   else
   {
-    printf("array = { ");
+    printf("array = {");
     for ( i = 0 ; i < array_size(array) ; i++ )
     {
-      printf("%d, ", array[i]);
+      printf(" %d", array[i]);
+      if ( i < array_size(array)-1)
+      {
+        putchar(',');
+      }
     }
-    printf("}\n");
+    printf(" }\n");
   }
 }
 
@@ -100,7 +104,7 @@ int* fill_array(void)
 
   do
   {
-    printf("Vous allez creer un tableau. \n Veuillez rentrer la taille (positive) de ce tableau : ");
+    printf("Vous allez creer un tableau. \nVeuillez rentrer la taille (positive) de ce tableau : ");
     scanf("%d", &size);
   }
   while( size < 0 );
@@ -170,18 +174,31 @@ int* concat_array(int* first, int* second)
 
 /* An empty main to test the compilation of the allocation and free
    functions. */
-int main(int argc, char* argv[]){
+int main( void )
+{
 
 	int* test;
 	int* test2;
 
+  printf("########################################\n");
+  printf("TP-05 Exercice-02. \nBut : Creer des fonctions de manipulation de tableau d'entiers finissant par -1. \n\n");
+
+  /* Initialisation de l'aleatoire */
 	srand(time(NULL));
 
+  printf("Test de fill_array : \n");
+  test = fill_array();
+  printf("Tableau obtenu : \n");
+  print_array(test);
+
+  printf("\n\nTest de random_array sur un tableau de taille 5 pour des entiers inclut dans [[0, 30]] :\n");
 	test2 = random_array(5, 30);
 	print_array(test2);
+  printf("\n\nMeme test sur un deuxieme tableau : \n");
 	test = random_array(5, 30);
 	print_array(test);
 
+  printf("\n\nLa concatenation des deux tableaux precedants en utilisant concat_array donne : \n");
 	test = concat_array(test, test2);
 	print_array(test);
 

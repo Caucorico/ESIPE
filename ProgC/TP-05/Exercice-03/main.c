@@ -20,12 +20,16 @@ void print_array(int* array)
   }
   else
   {
-    printf("array = { ");
+    printf("array = {");
     for ( i = 0 ; i < array_size(array) ; i++ )
     {
-      printf("%d, ", array[i]);
+      printf(" %d", array[i]);
+      if ( i < array_size(array)-1)
+      {
+        putchar(',');
+      }
     }
-    printf("}\n");
+    printf(" }\n");
   }
 }
 
@@ -246,7 +250,8 @@ int* merge_sort(int* array)
 
 /* An empty main to test the compilation of the allocation and free
    functions. */
-int main(int argc, char* argv[]){
+int main( void )
+{
 
 	int* test;
 
