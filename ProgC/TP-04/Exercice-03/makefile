@@ -24,3 +24,6 @@ clean:
 	rm -f *.o
 	rm -f calc
 	rm -f *~
+
+run:
+	./calc
