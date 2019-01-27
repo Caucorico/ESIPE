@@ -131,7 +131,6 @@ int board_finish(Board grid)
 		{
 			if ( grid[i][j] == 0 )
 			{
-				printf("grid[%d][%d] = %d\n",i,j,grid[i][j] );
 				return 0;
 			}
 		}

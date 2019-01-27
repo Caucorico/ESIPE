@@ -5,11 +5,12 @@
 
 int main(int argc, char* argv[]){
   Board B;
+  int tab[9][9];
 
   fread_board(argv[1], B);
 
-  start(B);
-  loop(B);
+  start(B, tab);
+  loop(B, tab);
 
 
   return 0;

@@ -95,8 +95,26 @@ void draw_char_in_case(int x, int y, char c)
 	MLV_actualise_window();
 }
 
-void start( Board grid )
+void get_default_tab_info(int tab[9][9], Board grid)
 {
+	int i, j;
+
+	for ( i = 0 ; i < 9 ; i++ )
+	{
+		for ( j = 0 ; j < 9 ; j++ )
+		{
+			tab[i][j] = 0;
+			if ( grid[i][j] != 0 )
+			{
+				tab[i][j] = 1;
+			}
+		}
+	}
+}
+
+void start( Board grid, int tab[9][9] )
+{
+	get_default_tab_info(tab, grid);
 	initialize_window("test", "test", 750, 500);
 	create_grid();
 	fill_grid ( grid );
@@ -104,7 +122,17 @@ void start( Board grid )
 	MLV_actualise_window();
 }
 
-void loop( Board grid )
+
+void end( void )
+{
+	char msg[6] = { 'g', 'a', 'g', 'n', 'e', '\0' };
+	MLV_draw_filled_rectangle(0, 0, 750, 500, MLV_COLOR_BLACK);
+	MLV_draw_text(375, 250, msg, MLV_COLOR_BLUE);
+	MLV_actualise_window();
+	MLV_wait_seconds(3);
+}
+
+void loop( Board grid, int tab[9][9] )
 {
 	int x,y;
 	int x2, y2;
@@ -118,6 +146,7 @@ void loop( Board grid )
 			x2 = determine_case(x);
 			y2 = determine_case(y);
 
+			if ( tab[y2][x2] == 1 ) continue;
 			draw_char_in_case(x2,y2,'?');
 
 			state = 1;
@@ -125,17 +154,15 @@ void loop( Board grid )
 		}
 		if ( x > 500 && x < 650 && y > 150 && y < 300 && state == 1 )
 		{
-			printf("test : %d\n", determine_selector_y(y)*3 + 1+determine_selector_x(x));
 			grid[y2][x2] = determine_selector_y(y)*3 + 1+determine_selector_x(x);
 			draw_char_in_case(x2,y2,'0'+determine_selector_y(y)*3 + 1+determine_selector_x(x));
 			MLV_actualise_window();
 
 			state = 0;
 		}
-
-		printf(" finish ? : %d\n", board_finish(grid));
-		printf("ok ? %d\n", board_ok(grid));
 		
 	}
+
+	end();
 
 }

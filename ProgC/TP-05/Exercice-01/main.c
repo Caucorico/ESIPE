@@ -119,6 +119,8 @@ int main(void)
   printf("La copie de array 1 vers array4 donne : \n");
   print_array(array4);
 
+  free_integer_array(array4);
+
   /* Fin zone TP */
 
   printf("\n\n########################################\n");

@@ -1,46 +1,25 @@
 #include <stdio.h>
-#define SIZE 9
 
-void zeroing(int tab[SIZE][SIZE], int size)
-{
-	int i,j;
-	for ( i = 0 ; i < size ; i++ )
-	{
-		for ( j = 0 ; j < size ; j++ )
-		{
-			tab[i][j] = 0;
-		}
-	}
-}
+#include "sudoku.h"
+#include "in_out.h"
 
-void solving(int tab[SIZE][SIZE], int current, int max)
-{
-	if ( current > max )
-	{
-		/* do some code here */
-	}
+int main(int argc, char* argv[]){
+  Board B;
+  int i;
 
-	for ( i = 0 ; i < max ; i++ )
-	{
-		for ( j = 0 ; j < max ; j++ )
-		{
-			if ( tab[i][j] == 0 )
-			{
-				tab[i][j] = current;
-				solving(tab, current+1, max);
-				tab[i][j] = 0;
-			}
-		}
-	}
-}
+  printf("########################################\n");
+  printf("TP-06 Exercice-03. \nBut : Trouver le ou les solutions d'une grille de sudoku. \n\n");
 
-int main(void)
-{
-	int i,j;
-	int test[SIZE][SIZE];
-	zeroing(test, SIZE);
+  /* Zone TP */
 
+  fread_board(argv[1], B);
 
+  i = board_solver(B, 0, 80);
 
-	return 0;
+  printf("result = %d", i);
+
+  /* Fin zone TP */
+
+  printf("\n\n########################################\n");
+  return 0;
 }

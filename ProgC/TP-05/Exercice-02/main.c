@@ -202,5 +202,11 @@ int main( void )
 	test = concat_array(test, test2);
 	print_array(test);
 
+  free_integer_array(test);
+  free_integer_array(test2);
+
+  /* Fin zone TP */
+
+  printf("\n\n########################################\n");
   return 0;
 }
