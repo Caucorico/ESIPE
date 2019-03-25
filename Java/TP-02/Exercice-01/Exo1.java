@@ -27,9 +27,18 @@ public class Exo1 {
 
 		System.out.println(s6 == s7);
 	}
+	/* Les String ne doivent pas ^etre mutable pour eviter les effets de bords. Il serait embettant de modifier tous les utilisateur toto en voulant ne changer qu'un seul toto */
+
+	/* Le code suivant affiche hello. En effet, l'objet String etant non mutable, la methode toUpperCase qui est cense la modifiee renvoie un nouvel objet String, s8 n'est donc pas modifie */
+	public static void question5()
+	{
+		String s8 = "hello";
+		s8.toUpperCase();
+		System.out.println(s8);
+	}
 
 	public static void main(String[] args)
 	{
-		Exo1.question3();
+		Exo1.question5();
 	}
 }
