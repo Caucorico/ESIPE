@@ -10,11 +10,13 @@
 #define N_VENDORS 3
 #define ARRIVAL_RATE (1.0/60)
 #define MEAN_SERVICE_TIME 150
+#define CLOSING_TIME 1000
 
 prioqueue*  event_queue;
 queue*      customer_queue;
 customer*   vendor[N_VENDORS];
 int current_time;
+int nbr_served_customer;
 
 double normal_delay( double mean )
 {
@@ -48,7 +50,7 @@ void add_customer(customer* c)
 		if ( vendor[i] == NULL )
 		{
 			vendor[i] = c;
-			new_e = create_departure( current_time+150, c );
+			new_e = create_departure( current_time+normal_delay(MEAN_SERVICE_TIME), c );
 			insert_pq(event_queue, new_e);
 			return;
 		}
@@ -67,6 +69,7 @@ void remove_customer(customer* c)
 	while( vendor[i] != c ) i++;
 	vendor[i] = NULL;
 	free_customer(c);
+	nbr_served_customer++;
 
 	if ( size_q(customer_queue) > 0 )
 	{
@@ -112,6 +115,8 @@ void init_simu( void )
 	}
 
 	current_time = 0;
+
+	nbr_served_customer = 0;
 }
 
 void treat_event_queue( void )
@@ -133,20 +138,20 @@ void treat_event_queue( void )
 		display_state();
 	}
 
+	printf("Customer served : %d \n", nbr_served_customer);
+
 }
 
 int main() {
 	customer* c;
 	event* e;
-	/*srand(time(NULL));*/
+	srand(time(NULL));
 
 	init_simu();
 
 	c = create_customer(42);
 	e = create_arrival(42, c);
 	insert_pq(event_queue, e);
-
-	/*printf("debug");*/
 
 	treat_event_queue();
 

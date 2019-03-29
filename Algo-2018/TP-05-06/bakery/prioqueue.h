@@ -29,6 +29,11 @@ int size_pq(prioqueue *q);
 void insert_pq(prioqueue *q, event *e);
 
 /**
+ * Display the priority queue in the standard output
+ */
+void display_pq(prioqueue *pq);
+
+/**
  * Remove and a return a pointer to the event with the 
  * lowest even time.
  */
