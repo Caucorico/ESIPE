@@ -5,6 +5,11 @@ int main(void)
   FILE* file_stream;
   char a;
 
+  printf("########################################\n");
+  printf("TP-02 Exercice-05. \nBut : Afficher le code source du programme. \n\n");
+
+  /* Zone TP */
+
   file_stream = fopen("main.c","r");
   if( file_stream == NULL )
   {
@@ -17,6 +22,10 @@ int main(void)
     putchar(a);
   }
   fclose(file_stream);
+
+  /* Fin zone TP */
+
+  printf("\n\n########################################\n");
 
   return 0;
 }

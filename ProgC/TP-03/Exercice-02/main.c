@@ -95,7 +95,16 @@ int main( void )
 {
   struct file_data file_data;
 
+  printf("########################################\n");
+  printf("TP-03 Exercice-02. \nBut : compter le nombre de caracteres arrivant sur l'entree standard. (ctrl+D pour terminer) \n\n");
+
+  /* Zone TP */
+
   file_data = wc_stdin();
   printf("c : %d, w: %d, l: %d \n", file_data.c, file_data.w, file_data.l );
+
+  /* Fin zone TP */
+
+  printf("\n\n########################################\n");
   return 0;
 }

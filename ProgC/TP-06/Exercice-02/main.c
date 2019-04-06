@@ -36,9 +36,19 @@ void permutations(int buffer[], int current, int max)
 	}
 }
 
-int main(int argc, char const *argv[])
+int main(void)
 {
 	int buffer[3] = { 0, 0, 0 };
+
+	printf("########################################\n");
+  printf("TP-06 Exercice-02. \nBut : Lister toutes les permutations possible d'au tableau d'entier. \n\n");
+
+  /* Zone TP */
+
 	permutations(buffer, 1, 3);
+
+	/* Fin zone TP */
+	printf("\n\n########################################\n");
+
 	return 0;
 }

@@ -10,3 +10,6 @@ stack.o: stack.c
 clean:
 	rm -f *.o
 	rm -f main
+
+run:
+	./main

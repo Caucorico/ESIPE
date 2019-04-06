@@ -20,12 +20,16 @@ void print_array(int* array)
   }
   else
   {
-    printf("array = { ");
+    printf("array = {");
     for ( i = 0 ; i < array_size(array) ; i++ )
     {
-      printf("%d, ", array[i]);
+      printf(" %d", array[i]);
+      if ( i < array_size(array)-1)
+      {
+        putchar(',');
+      }
     }
-    printf("}\n");
+    printf(" }\n");
   }
 }
 
@@ -139,20 +143,20 @@ int* fill_array(void)
 
 int* random_array(int size, int max_entry)
 {
-	int i;
-	int* tab;
+  int i;
+  int* tab;
 
 
-	tab = allocate_integer_array(size);
+  tab = allocate_integer_array(size);
 
-	for ( i = 0 ; i < size ; i++ )
-	{
-		tab[i] = rand()%(max_entry+1);
-	}
+  for ( i = 0 ; i < size ; i++ )
+  {
+    tab[i] = rand()%(max_entry+1);
+  }
 
-	tab[i] = -1;
+  tab[i] = -1;
 
-	return tab;
+  return tab;
 }
 
 int* concat_array(int* first, int* second)
@@ -246,19 +250,75 @@ int* merge_sort(int* array)
 
 /* An empty main to test the compilation of the allocation and free
    functions. */
-int main(int argc, char* argv[]){
+int main( void )
+{
 
-	int* test;
+	int* t1;
+  int* t2;
+  int* t3;
+  int* test;
+  int i;
 
+  printf("########################################\n");
+  printf("TP-05 Exercice-03. \nBut : Creer des fonctions de tris utilisant des fonctions manipulant des tableaux d'entiers finissant par -1. \n\n");
+
+  /* Zone TP */
+
+  /* Initialisation de l'aleatoire */
 	srand(time(NULL));
 
-  test = random_array(100, 32000);
+  printf("Test de la fonction merge_sorted_arrays :\n");
+  
+  /* Creation des 2 arrays triee */
+  t1 = allocate_integer_array(5);
+  for ( i = 0 ; i < 5 ; i++ )
+  {
+    t1[i] = i*2;
+  }
+  t1[i] = -1;
+  t2 = allocate_integer_array(5);
+  for ( i = 0 ; i < 5 ; i++ )
+  {
+    t2[i] = (i*2)+1;
+  }
+  t2[i] = -1;
+
+  /* Affichage : */
+  printf("Array 1 : \n");
+  print_array(t1);
+  printf("Array 2 : \n");
+  print_array(t2);
+
+  /* Merge des 2 chaines : */
+  t3 = merge_sorted_arrays(t1, t2);
+  printf("Resultat du merge : \n");
+  print_array(t3);
+
+  printf("\n\nTest de la fonction split_array :\n");
+  print_array(t3);
+  printf("Est divisee en : \n");
+  split_arrays(t3,&t1,&t2);
+  print_array(t1);
+  printf("et\n");
+  print_array(t2);
+
+  printf("\n\nTest de la fonction merge_sort :\n");
+  printf("Tableau a trier :\n");
+  test = random_array(20, 50);
   print_array(test);
 
+  printf("Resultat obtenu : \n");
   test = merge_sort(test);
   print_array(test);
 
   free_integer_array(test);
+  free_integer_array(t1);
+  free_integer_array(t2);
+  free_integer_array(t3);
+
+  /* Fin zone TP */
+
+  printf("\n\n########################################\n");
 
   return 0;
 }

@@ -20,6 +20,9 @@ int main( int argc, char *argv[] )
   int a;
   int* p=&a;
 
+  printf("########################################\n");
+  printf("TP-02 Exercice-04. \nBut : Comprendre les pointeurs. \n\n");
+
   print_var(a);
   a = 53;
   print_var(a);
@@ -27,6 +30,8 @@ int main( int argc, char *argv[] )
   set_pointer(p, 42);
   print_pointer(p);
   print_var(a);
+
+  printf("\n\n########################################\n");
 
   return 0;
 }
