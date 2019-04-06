@@ -1,0 +1,22 @@
+Complexite de la fonction enqueue_q : 
+La complexite de la fonction enqueue_q est O(1).
+En effet, la file connait son dernier element et n'a donc pas besoin de la parcourir.
+Il y a dex comparaison, une de test et une pour savoir si la file était vide ou non.
+La complexite est doc 2*O(1) = O(1)
+
+Complexite de la fonction dequeue_q :
+La fonction dequeue_q est de complexite O(1).
+En effet, il n'y a que deux comparaisonx hors d'une boucle.
+La fonctoin connait le premier element et n'a donc pas besoin de parcourir toute la liste.
+
+Complexite de la fonction insert_pq :
+La complexite de cette fonction est O(n).
+En effet, dans le pire des cas, nous fevons parcourir toute la liste (potentiellement de taille n)
+pour placer notre element.
+Il n'y a qu'une seule boucle, le nombre de comparaisons de la fonction depend donc de celle ci.
+Elle peut faire n iteration, la complexite est donc de O(n).
+
+Complexite de la fonction remove_min_pq : 
+La complexite de cette fonction est O(1).
+En effet, la liste connait son premier element et n'a donc pas besoin de parcourir la liste pour dequeue.
+Il n'y a donc qu'une comparaison de test, la complexite est de O(1).
