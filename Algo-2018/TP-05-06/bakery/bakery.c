@@ -135,11 +135,18 @@ void treat_event_queue( void )
 		{
 			process_departure( current_event );
 		}
+		free_event( current_event );
 		display_state();
 	}
 
 	printf("Customer served : %d \n", nbr_served_customer);
 
+}
+
+void end_simu( void )
+{
+	free_pq( event_queue );
+	free_q( customer_queue );
 }
 
 int main() {
@@ -155,7 +162,7 @@ int main() {
 
 	treat_event_queue();
 
-	free_customer(c);
+	end_simu();
 	
 
     return 0;
