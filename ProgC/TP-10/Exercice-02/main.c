@@ -45,15 +45,20 @@ int age_order(Cell* p1, Cell* p2)
 {
   if ( p1 == NULL ) return -1; /* What are you trying ?!? */
   if ( p2 == NULL ) return -1;
-  if ( (p1->age < p2->age) && ( (p1->next->age > p2->age) || (p1->next == NULL) ) )
+  printf("hey5\n");
+  if ( (p1->age < p2->age) && ( (p1->next == NULL) || (p1->next->age > p2->age) ) )
   {
+    printf("hey\n");
     p2->next = p1->next;
     p1->next = p2;
+    printf("hey2\n");
     return 1;
   }    
   else if ( p2->age < p1->age )
   {
-    swap_mem(p1, p2, sizeof(Cell)); /* segfault here */
+    printf("debug %p %p\n", p1, p2);
+    swap_mem(p1, p2, sizeof(Cell));
+    printf("debug2\n");
     p1->next = p2;
     return 1;
   }
@@ -110,7 +115,7 @@ void free_list(List l)
 
 int main(void)
 {
-  List l;
+  List l = NULL;
   Cell* b;
   int i;
   
@@ -121,6 +126,8 @@ int main(void)
     b = allocate_cell(NULL, NULL, rand()%256 );
     ordered_insertion(&l, b, age_order );
   }
+
+  printf("test\n");
 
   print_list(l);
 
