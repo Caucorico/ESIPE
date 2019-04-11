@@ -23,8 +23,28 @@ prioqueue *create_pq()
 
 void free_pq(prioqueue *q)
 {
-    if ( q->first != NULL ) printf("argh\n");
-    free(q);
+    link* buff;
+    link* last_buff;
+
+    if ( q != NULL )
+    {
+        buff =  q->first;
+        while ( buff != NULL )
+        {
+            last_buff = buff;
+            buff = buff->next;
+            if ( last_buff->e != NULL )
+            {
+                if ( last_buff->e->c != NULL )
+                {
+                    free_customer( last_buff->e->c );
+                }
+                free_event( last_buff->e );
+            }
+            free(last_buff);
+        }
+        free(q);
+    }
 }
 
 int size_pq(prioqueue *q)

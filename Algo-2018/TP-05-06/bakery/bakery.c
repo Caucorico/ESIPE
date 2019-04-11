@@ -17,6 +17,7 @@ queue*      customer_queue;
 customer*   vendor[N_VENDORS];
 int current_time;
 int nbr_served_customer;
+int total_time_spend;
 
 double normal_delay( double mean )
 {
@@ -68,8 +69,10 @@ void remove_customer(customer* c)
 
 	while( vendor[i] != c ) i++;
 	vendor[i] = NULL;
+	total_time_spend += ( current_time - c->atime );
 	free_customer(c);
 	nbr_served_customer++;
+
 
 	if ( size_q(customer_queue) > 0 )
 	{
@@ -88,11 +91,14 @@ void process_arrival(event *e)
 
 	add_customer(e->c);
 
-	time = current_time+normal_delay(1.0/ARRIVAL_RATE);
-	new_c = create_customer(time);
+	if ( CLOSING_TIME > current_time )
+	{
+		time = current_time+normal_delay(1.0/ARRIVAL_RATE);
+		new_c = create_customer(time);
 
-	new_e = create_arrival( time, new_c );
-	insert_pq(event_queue, new_e);
+		new_e = create_arrival( time, new_c );
+		insert_pq(event_queue, new_e);
+	}
 
 }
 
@@ -117,12 +123,15 @@ void init_simu( void )
 	current_time = 0;
 
 	nbr_served_customer = 0;
+
+	total_time_spend = 0;
+
 }
 
 void treat_event_queue( void )
 {
 	event* current_event;
-	while ( size_pq(event_queue) > 0 && CLOSING_TIME > current_time )
+	while ( size_pq(event_queue) > 0 )
 	{
 
 		current_event = remove_min_pq(event_queue);
@@ -135,11 +144,20 @@ void treat_event_queue( void )
 		{
 			process_departure( current_event );
 		}
+		free_event( current_event );
 		display_state();
 	}
 
 	printf("Customer served : %d \n", nbr_served_customer);
+	printf("Total time spend : %d \n", total_time_spend);
+	printf("Average waiting time : %d\n", total_time_spend/nbr_served_customer);
 
+}
+
+void end_simu( void )
+{
+	free_pq( event_queue );
+	free_q( customer_queue );
 }
 
 int main() {
@@ -155,7 +173,7 @@ int main() {
 
 	treat_event_queue();
 
-	free_customer(c);
+	end_simu();
 	
 
     return 0;

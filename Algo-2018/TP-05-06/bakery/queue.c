@@ -22,7 +22,24 @@ queue *create_q() {
 }
 
 void free_q(queue *q) {
-    free(q);
+    link* buff;
+    link* last_buff;
+
+    if ( q != NULL )
+    {
+        buff = q->first;
+        while ( buff != NULL )
+        {
+            last_buff = buff;
+            buff = buff->next;
+            if ( last_buff->c != NULL )
+            {
+                free_customer( last_buff->c );
+            }
+            free(last_buff);
+        }
+        free(q);
+    }
 }
 
 int size_q(queue *q) {
