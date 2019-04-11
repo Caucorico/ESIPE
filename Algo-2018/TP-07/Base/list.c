@@ -125,3 +125,22 @@ link *insert_first_list(link *lst, char word[], int pos) {
     tmp->next = lst;
     return tmp;
 }
+
+int get_total_list_word_number(link* lst)
+{
+    int nbr_total = 0;
+    olink* buff;
+
+    while ( lst != NULL )
+    {
+        buff = lst->occurrence;
+        while ( buff != NULL )
+        {
+            nbr_total++;
+            buff = buff->next;
+        }
+        lst = lst->next;
+    }
+
+    return nbr_total;
+}

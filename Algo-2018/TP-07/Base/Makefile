@@ -1,8 +1,8 @@
 CC=gcc
 CFLAGS=-Wall -ansi
 LDFLAGS=-lm
-DEPS=list.h
-OBJ=list.o
+DEPS=list.h table.h
+OBJ=list.o table.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

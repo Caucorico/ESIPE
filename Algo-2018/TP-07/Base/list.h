@@ -21,4 +21,6 @@ void display_list(link *lst);
 
 void add_occurrence(link *lnk, int pos);
 
+int get_total_list_word_number(link* lst);
+
 #endif

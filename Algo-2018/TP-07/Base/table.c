@@ -1,4 +1,7 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "table.h"
+#include "list.h"
 
 table* create_table( int M )
 {
@@ -26,7 +29,7 @@ unsigned int hash(char* elt)
 
 	for ( i = 0 ; elt[i] != '\0' ; i++ )
 	{
-		h = 31*h = elt[i];
+		h = 31*h + elt[i];
 	}
 
 	return h;
@@ -34,5 +37,63 @@ unsigned int hash(char* elt)
 
 void add_occ_table(table *tab, char word[], int pos)
 {
+	int bucket;
+	link* occ;
 
+	bucket = hash(word)%tab->M;
+	occ = find_list(tab->bucket[bucket], word);
+
+	if ( occ == NULL )
+	{
+		tab->bucket[bucket] = insert_first_list(tab->bucket[bucket], word, pos);
+	}
+	else
+	{
+		add_occurrence( occ, pos);
+	}
+}
+
+void free_table(table* tab)
+{
+	int i;
+
+	for ( i = 0 ; i < tab->M ; i++ )
+	{
+		if ( tab->bucket[i] != NULL )
+		{
+			free_list( tab->bucket[i] );
+		}
+	}
+
+	free(tab);
+}
+
+void display_table(table* tab)
+{
+	int i;
+
+	for ( i = 0 ; i < tab-> M ; i++ )
+	{
+		if ( tab->bucket[i] != NULL )
+		{
+			printf("bucket[%d] => ", i);
+			display_list(tab->bucket[i]);
+		}
+	}
+}
+
+int size_table(table *tab)
+{
+	int i;
+	int total_number_words = 0;
+
+	for ( i = 0 ; i < tab->M ; i++ )
+	{
+		if ( tab->bucket[i] != NULL )
+		{
+			total_number_words += get_total_list_word_number(tab->bucket[i]);
+		}
+	}
+
+	return total_number_words;
 }
