@@ -5,6 +5,7 @@ typedef struct _body
 {
 	int x;
 	int y;
+	float mass;
 	acceleration_vector* av;
 	speed_vector* sv;
 }body;

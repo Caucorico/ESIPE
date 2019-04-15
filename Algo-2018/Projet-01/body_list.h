@@ -10,7 +10,7 @@ typedef struct _body_list
 
 
 /* return an empty body list */
-_bodies_list* create_body_list( void );
+body_list* create_body_list( void );
 
 /* add a body at the end of the list */
 void add_body_last( body_list* bl, body* b );
