@@ -1,4 +1,8 @@
+#include <stdlib.h>
+#include <math.h>
 #include "body.h"
+
+#define G 0.000000000066740831
 
 body* create_body( int x, int y, float speed_x, float speed_y, float acceleration_x, float acceleration_y, float mass )
 {
@@ -34,6 +38,15 @@ body* create_body( int x, int y, float speed_x, float speed_y, float acceleratio
 	}
 
 	return new_body;
+}
+
+void apply_body_strength_on_body( body* b1, body* b2 )
+{
+  double strength;
+  double d;
+  d = sqrt(pow( (b2->x - b1->x), 2 ) - pow( (b2->y - b1->y), 2 ));
+  strength = G*((b1->mass * b2->mass)/pow(d,2));
+  
 }
 
 void free_body( body* b )

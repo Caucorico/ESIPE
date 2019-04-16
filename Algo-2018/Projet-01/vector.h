@@ -1,17 +1,17 @@
 #ifndef _VECTOR_
 #define _VECTOR_
 
-typedef struct acceleration_vector
+typedef struct _acceleration_vector
 {
 	float acceleration_x;
 	float acceleration_y;
-};
+}acceleration_vector;
 
-typedef struct speed_vector
+typedef struct _speed_vector
 {
 	float speed_x;
 	float speed_y;
-};
+}speed_vector;
 
 /* create a acceleration vector */
 acceleration_vector* create_acceleration_vector( void );

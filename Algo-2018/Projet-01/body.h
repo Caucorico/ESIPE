@@ -1,6 +1,8 @@
 #ifndef _BODY_
 #define _BODY_
 
+#include "vector.h"
+
 typedef struct _body
 {
 	int x;

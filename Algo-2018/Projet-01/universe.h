@@ -1,6 +1,8 @@
 #ifndef _UNIVERSE_
 #define _UNIVERSE_
 
+#include "body_list.h"
+
 typedef struct _universe
 {
 	int size_x;
