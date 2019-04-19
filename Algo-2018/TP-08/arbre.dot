@@ -1,0 +1,14 @@
+digraph tree {
+  splines=false
+  node [shape=record,height=.1]
+  edge [tailclip=false, arrowtail=dot, dir=both];
+
+  n0 [label="<left> | <value> 5 | <right>"];
+  n0:left:c -> n1:value;
+  n1 [label="<left> | <value> 7 | <right>"];
+  n0:right:c -> n2:value;
+  n2 [label="<left> | <value> 3 | <right>"];
+  n2:right:c -> n3:value;
+  n3 [label="<left> | <value> 1 | <right>"];
+
+}
