@@ -1,6 +1,8 @@
 #ifndef _EVENT_
 #define _EVENT_
 
-void manage_events( void );
+#include "board.h"
+
+void manage_events( board* b );
 
 #endif

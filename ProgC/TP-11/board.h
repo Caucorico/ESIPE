@@ -24,4 +24,6 @@ void move_square(board* b, unsigned char move);
 
 unsigned char is_complete(board* b);
 
+void display_ascii_board_on_stdout(board* b);
+
 #endif

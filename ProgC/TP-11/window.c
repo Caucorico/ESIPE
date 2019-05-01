@@ -1,5 +1,5 @@
 #include <string.h>
-#include <MLV_shape.h>
+#include <MLV/MLV_shape.h>
 #include "window.h"
 #include "board.h"
 
@@ -17,9 +17,12 @@ image* init_image( const char* path )
 		free(new_image);
 		return NULL;
 	}
-
+	new_image->space = 5;
+	new_image->path = p;
 	strcpy( new_image->path, path );
 	new_image->mlv_im = MLV_load_image(path);
+
+	return new_image;
 }
 
 void free_image( image* im )
@@ -32,7 +35,7 @@ void free_image( image* im )
 	}
 }
 
-void draw_image_square( image* im, int x, int y, int image_x, int image_y int size_x, int size_y )
+void draw_image_square( image* im, int x, int y, int image_x, int image_y, int size_x, int size_y )
 {
 	int i, j;
 	int r, g, b, a;
@@ -49,18 +52,35 @@ void draw_image_square( image* im, int x, int y, int image_x, int image_y int si
 	}
 }
 
-void draw_square( board* board, image* im, int line_x, int line_y )
+void draw_square( board* b, image* im, int line_x, int line_y )
 {
 	int x, y;
 	int size_x, size_y;
 	int image_x, image_y;
 
-	x = ((line_x+1)*im->space)+(line_x*(MLV_get_image_height(im->mlv_im)/board->nb_column));
-	y = ((line_y+1)*im->space)+(line_y*(MLV_get_image_height(im->mlv_im)/board->nb_line));
-	size_x = MLV_get_image_height(im->mlv_im)/board->nb_column;
-	size_y = MLV_get_image_height(im->mlv_im)/board->nb_line;
-	image_x = size_x*line_x;
-	image_y = size_y*line_y;
+	x = ((line_x+1)*im->space)+(line_x*(MLV_get_image_height(im->mlv_im)/b->nb_column));
+	y = ((line_y+1)*im->space)+(line_y*(MLV_get_image_height(im->mlv_im)/b->nb_line));
+	size_x = MLV_get_image_height(im->mlv_im)/b->nb_column;
+	size_y = MLV_get_image_height(im->mlv_im)/b->nb_line;
+
+	image_x = size_x*b->block[line_y][line_x].column;
+	image_y = size_y*b->block[line_y][line_x].line;
 
 	draw_image_square( im, x, y, image_x, image_y, size_x, size_y );
+}
+
+void draw_board( board* b, image* im )
+{
+	int i, j;
+
+	for ( i = 0 ; i < b->nb_line ; i++ )
+	{
+		for ( j = 0 ; j < b->nb_column ; j++ )
+		{
+			if ( b->empty_line != i || b->empty_column != j )
+			{
+				draw_square( b, im, i, j);
+			}
+		}
+	}
 }
