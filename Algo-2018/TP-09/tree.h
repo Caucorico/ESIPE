@@ -28,4 +28,12 @@ node *find_bst(node *t, int elt);
 
 node *insert_bst(node *t, int elt);
 
+node *extract_min_bst(node *t, node **min);
+
+node *remove_bst(node *t, int elt);
+
+node *calculate_random_insert(int n, int* nbr_elt, double* tm);
+
+node *calculate_linear_insert(int n, int* nbr_elt, double* tm);
+
 #endif /* TREE_H */

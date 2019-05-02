@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <time.h>
 
 #define MAX_HEIGHT 50
 
@@ -136,3 +137,108 @@ node *insert_bst(node *t, int elt)
 	}
 }
 
+node *extract_min_bst(node *t, node **min)
+{
+
+	if ( t == NULL )
+	{
+		return NULL;
+	}
+
+	if ( t->left == NULL )
+	{
+		*min = t;
+
+		return t->right;
+	}
+
+	t->left = extract_min_bst(t->left, min);
+	return t;
+}
+
+node *remove_bst(node *t, int elt)
+{
+	node* buff;
+	node* min;
+
+	if ( t == NULL ) return NULL;
+
+	if ( elt != t->data )
+	{
+		if ( elt < t->data )
+		{
+			t->left = remove_bst(t->left, elt);
+		}
+		else
+		{
+			t->right = remove_bst(t->right, elt);
+		}
+	}
+	else
+	{
+		if ( t->left == NULL && t->right == NULL )
+		{
+			free(t);
+			return NULL;
+		}
+		else if ( t->left != NULL && t->right != NULL )
+		{
+			t->right = extract_min_bst(t->right, &min);
+			min->left = t->left;
+			min->right = t->right;
+			free(t);
+			return min;
+		}
+		else
+		{
+			if ( t->left != NULL ) buff = t->left;
+			else buff = t->right;
+			free(t);
+			return buff;
+		}
+	}
+
+	return t;
+}
+
+node *calculate_random_insert(int n, int* nbr_elt, double* tm)
+{
+	int i;
+	clock_t start;
+	clock_t end;
+	node* t = NULL;
+
+	srand(time(NULL));
+
+	start = clock();
+	for ( i = 0 ; i < n && difftime( (start/CLOCKS_PER_SEC) + 10.0, clock()/CLOCKS_PER_SEC ) > 0.0 ; i++ )
+	{
+		t = insert_bst( t, rand()%(2*n) );
+	}
+	end = clock();
+
+	*nbr_elt = i;
+	*tm = (end/CLOCKS_PER_SEC) - (start/CLOCKS_PER_SEC);
+
+	return t;
+}
+
+node *calculate_linear_insert(int n, int* nbr_elt, double* tm)
+{
+	int i;
+	clock_t start;
+	clock_t end;
+	node* t = NULL;
+
+	start = clock();
+	for ( i = 0 ; i < n && difftime( (start/CLOCKS_PER_SEC) + 10.0, clock()/CLOCKS_PER_SEC ) > 0.0 ; i++ )
+	{
+		t = insert_bst( t, i );
+	}
+	end = clock();
+
+	*nbr_elt = i;
+	*tm = (end/CLOCKS_PER_SEC) - (start/CLOCKS_PER_SEC);
+
+	return t;
+}
