@@ -26,4 +26,6 @@ unsigned char is_complete(board* b);
 
 void display_ascii_board_on_stdout(board* b);
 
+void mix_board(board* b);
+
 #endif

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "board.h"
 
 board* initialize_board(int nb_column, int nb_line)
@@ -111,13 +112,31 @@ void display_ascii_board_on_stdout(board* b)
 		{
 			if ( i == b->empty_line && j == b->empty_column )
 			{
-				putchar(' ');
+				printf("|     ");
 			}
 			else
 			{
-				putchar('O');
+				printf("| %d %d ", b->block[i][j].line, b->block[i][j].column);
 			}
 		}
-		putchar('\n');
+		printf("|\n");
+	}
+	printf("###################################################\n");
+}
+
+void mix_board(board* b)
+{
+	int l, i, m;
+	srand(time(NULL));
+
+	l = rand()%255;
+
+	for ( i = 0 ; i < l ; i++ )
+	{
+		m = rand()%4;
+		if ( is_move_legal(b, m) )
+		{
+			move_square(b, m);
+		}
 	}
 }

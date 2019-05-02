@@ -77,9 +77,9 @@ void draw_board( board* b, image* im )
 	{
 		for ( j = 0 ; j < b->nb_column ; j++ )
 		{
-			if ( b->empty_line != i || b->empty_column != j )
+			if ( !(b->empty_line == i && b->empty_column == j) )
 			{
-				draw_square( b, im, i, j);
+				draw_square( b, im, j, i);
 			}
 		}
 	}
