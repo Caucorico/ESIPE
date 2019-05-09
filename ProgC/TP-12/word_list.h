@@ -4,16 +4,18 @@
 typedef struct _node
 {
 	char* word;
-	struct node* next;
+	struct _node* next;
 }node;
 
 char* create_word(char* w);
 
+node* create_word_node(char* w);
+
 void free_word(char* w);
 
-char* get_word_in_list(node* list, char* w);
+node* get_word_in_list(node* list, char* w);
 
-char* insert_word_in_first(node* list, node* cell);
+int insert_word_in_first(node** list, char* w);
 
 int get_list_size(node* list);
 
