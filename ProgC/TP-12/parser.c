@@ -1,9 +1,9 @@
 #include "parser.h"
+#include "hash.h"
 
 void build_word_list(FILE* f, node** list)
 {
 	char w[100];
-
 
 	while ( fscanf(f, "%s", w) != EOF )
 	{
@@ -15,12 +15,12 @@ void build_word_list(FILE* f, node** list)
 void build_word_hash_tab(FILE* f, node** list)
 {
 	char w[100];
-	int h;
+	unsigned long h;
 
 	while ( fscanf(f, "%s", w) != EOF )
 	{
 		h = hash(w);
-		insert_word_in_first(list[h], w);
+		insert_word_in_first(&list[h], w);
 	}
 
 }
@@ -46,12 +46,11 @@ node* get_file_word_list(char* name)
 void get_file_word_hash_tab(char* name, node** hash_tab)
 {
 	FILE* f = fopen(name, "r");
-	node** list = NULL;
 
 	if ( f == NULL )
 	{
 		perror("fopen file failed in get_file_word_hash_tab() in parser.c");
-		return NULL;
+		return;
 	}
 
 	build_word_hash_tab(f, hash_tab);

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "word_list.h"
+#include "hash.h"
 
 char* create_word(char* w)
 {
@@ -53,6 +54,7 @@ void free_word(char* w)
 
 node* get_word_in_list(node* list, char* w)
 {
+
 	if ( w == NULL )
 	{
 		fprintf(stderr, "The word in get_word_in_list in word_list.c is NULL ! \n");
@@ -69,12 +71,12 @@ int insert_word_in_first(node** list, char* w)
 {
 	node* new_cell;
 
+
 	if ( w == NULL )
 	{
 		fprintf(stderr, "The word in insert_word_in_first in word_list.c is NULL ! \n");
 		return -1;
 	}
-
 
 	if ( get_word_in_list(*list, w) != NULL )
 	{
@@ -103,6 +105,20 @@ int get_list_size(node* list)
 	{
 		size++;
 		list = list->next;
+	}
+
+	return size;
+}
+
+int get_hash_tab_size(node** hash_tab)
+{
+	int i, size;
+
+	size = 0;
+
+	for ( i = 0 ; i < NB_PACK ; i++ )
+	{
+		size += get_list_size(hash_tab[i]);
 	}
 
 	return size;

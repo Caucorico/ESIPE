@@ -19,5 +19,7 @@ int insert_word_in_first(node** list, char* w);
 
 int get_list_size(node* list);
 
+int get_hash_tab_size(node** hash_tab);
+
 #endif
 
