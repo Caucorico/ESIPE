@@ -72,6 +72,10 @@ int main() {
             t = default_tree();
             write_tree(t);
             break;
+        case 'v':
+            if ( is_avl(t) ) printf("The tree is an avl \n");
+            else printf("The tree is not an avl \n");
+
         case 'h':
             printf("+-----------------------+\n");
             printf("|         Menu          |\n");
@@ -81,6 +85,7 @@ int main() {
             printf("r n - remove(n)\n");
             printf("c   - clear tree\n");
             printf("t   - default tree\n");
+            printf("v   - verify if the tree is an avl\n");
             printf("h   - display menu\n");
             printf("q   - quit\n");
             break;

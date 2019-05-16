@@ -16,6 +16,13 @@ node *find_avl(node *t, int elt) {
     return NULL;
 }
 
+/*int get_height(node* t)
+{
+    if ( t == NULL ) return -1;
+
+    return 1 + max(get_height(t->left), get_height(t->right));
+}*/
+
 /* UPDATE HEIGHTS */
 
 void update_height(node *t)
@@ -176,7 +183,13 @@ node *insert_avl(node *t, int elt)
 
 int is_avl(node *t)
 {
-    return 0;
+    int eq;
+
+    if ( t == NULL ) return 1;
+
+    eq = compute_balance( t );
+
+    return ( eq >= -1 && eq <= 1 ) & is_avl(t->left) & is_avl(t->right) & ( t->height == height(t));
 }
 
 /* REMOVAL */

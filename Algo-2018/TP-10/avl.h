@@ -8,4 +8,6 @@ node *insert_avl(node *t, int elt);
 
 node *remove_avl(node *t, int elt);
 
+int is_avl(node *t);
+
 #endif /* AVL_H */
