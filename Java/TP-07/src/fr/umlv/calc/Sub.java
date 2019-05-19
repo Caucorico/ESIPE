@@ -12,4 +12,10 @@ public class Sub extends Op
     {
         return super.left.eval() - super.right.eval();
     }
+
+    @Override
+    public String toString()
+    {
+        return "-";
+    }
 }

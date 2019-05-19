@@ -12,5 +12,13 @@ abstract class Op implements Expr
         this.right = right;
     }
 
-    abstract public int eval();
+    @Override
+    public void display()
+    {
+        this.left.display();
+
+        System.out.print(" " + this.toString() + " ");
+
+        this.right.display();
+    }
 }

@@ -13,4 +13,10 @@ public class Value implements Expr
     public int eval() {
         return this.value;
     }
+
+    @Override
+    public void display()
+    {
+        System.out.print(this.value);
+    }
 }

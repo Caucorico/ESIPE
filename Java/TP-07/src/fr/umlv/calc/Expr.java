@@ -4,9 +4,11 @@ import java.util.Iterator;
 
 public interface Expr
 {
-    public int eval();
+    int eval();
 
-    public static Expr parse(Iterator<String> scanner)
+    void display();
+
+    static Expr parse(Iterator<String> scanner)
     {
         String symbol;
         int val;
@@ -43,15 +45,4 @@ public interface Expr
             throw new IllegalArgumentException("The scanner is empty !");
         }
     }
-
-    /*public static void display(Expr element)
-    {
-        if ( element != null )
-        {
-            display(element.left);
-            System.out.print(element.toString() + " ");
-            display(element.right);
-        }
-
-    }*/
 }

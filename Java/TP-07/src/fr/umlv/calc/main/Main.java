@@ -18,6 +18,8 @@ public class Main
 
 
         expression = Expr.parse(scanner);
-        Expr.display(expression);
+        System.out.println();
+        expression.display();
+        System.out.println();
     }
 }
