@@ -1,10 +1,14 @@
 #ifndef _GRAPH_BOARD_
 #define _GRAPH_BOARD_
 
-void draw_checkerboard( int x, int y, int square_size );
+#include "board.h"
 
-void draw_numbers( int x, int y, int square_size );
+void draw_checkerboard( board* b );
 
-void draw_board( int x, int y, int square_size );
+void draw_numbers( board* b );
+
+void draw_board( board* b );
+
+void draw_queens( board* b );
 
 #endif
