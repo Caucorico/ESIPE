@@ -5,6 +5,8 @@ function getBasket()
 	var ajax = new XMLHttpRequest();
 
 	ajax.onreadystatechange = function() {
+		let totalNumber = 0;
+
 		if ( ajax.readyState == 4 )
 		{
 			let basket = JSON.parse(ajax.responseText);
@@ -20,8 +22,12 @@ function getBasket()
 				quantity.innerHTML = line.quantity;
 				newLine.appendChild(fruit);
 				newLine.appendChild(quantity);
+				totalNumber += line.quantity;
 				tab.appendChild(newLine);
 			});
+
+			let quantitySpan = document.getElementById("quantity");
+			quantitySpan.innerText = totalNumber;
 		}
 	};
 
