@@ -12,6 +12,6 @@ typedef struct _board
 
 board* create_board( int x, int y, int square_size );
 
-void set_attack();
+void set_attacks(board* b);
 
 #endif

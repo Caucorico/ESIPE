@@ -34,8 +34,6 @@ void set_positive_bit_ULI(unsigned long int* n, int position)
 	mask <<= (position);
 
 	*n |= mask;
-
-	printf("%lu\n", *n);
 }
 
 void set_negative_bit_ULI(unsigned long int* n, int position)
@@ -49,6 +47,4 @@ void set_negative_bit_ULI(unsigned long int* n, int position)
 	mask = ~mask;
 
 	*n &= mask;
-
-	printf("%lu\n", *n);
 }

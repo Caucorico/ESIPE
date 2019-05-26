@@ -27,6 +27,7 @@ void click_on_checkboard( board* b, int mouse_x, int mouse_y )
 	if ( is_click_on_board(b, mouse_x, mouse_y) )
 	{
 		b->queens[get_square_x(b, mouse_x)] = get_square_y(b, mouse_y);
+		set_attacks(b);
 	}
 }
 

@@ -16,7 +16,7 @@ graph_board.o: graph_board.c graph_board.h board.h
 event.o: event.c event.h board.h bitboard.h
 	gcc -c event.c -o event.o $(CFLAGS)
 
-board.o: board.c board.h
+board.o: board.c board.h bitboard.h
 	gcc -c board.c -o board.o $(CFLAGS)
 
 clear:
