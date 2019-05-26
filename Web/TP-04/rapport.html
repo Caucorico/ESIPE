@@ -1,7 +1,7 @@
 <!DOCTYPE <!DOCTYPE html>
 <html>
 <head>
-	<title>Rapport TP-014 Web</title>
+	<title>Rapport TP-04 Web</title>
 	<meta charset="utf-8"></meta>
 </head>
 <body>
@@ -12,12 +12,12 @@
 		<h2> Exercice 1 - Memory </h2>
 
 		<p>
-			La fonction memory game sert de constructeur au pseudo objet JavaScript MemoryGame.
+			<b>2.</b>La fonction memory game sert de constructeur au pseudo objet JavaScript MemoryGame.
 		    C'est aussi la raison pour laquelle son nom est en majuscule.
 	    </p>
 
 	    <p>
-	    	<code>
+	    	<b>3.</b><code>
 	    		MemoryGame.prototype.build = function build(div) {
 				  // TODO
 				}
@@ -27,7 +27,7 @@
 	    </p>
 
 	    <p>
-	    	<code>
+	    	<b>4.</b><code>
 	    		MemoryGame.prototype.build = function build(div) {
 				  // TODO
 				}
@@ -39,8 +39,64 @@
 	    </p>
 
 	    <p>
-	    	La fonction shuffleCards crée une liste d'index de carte sans les mélanger.
+	    	<b>5.</b> La fonction shuffleCards crée une liste d'index de carte sans les mélanger.
 	    </p>
+
+	    <p>
+	    	Pour afficher les cartes, il faut les intégrer à l'arbre DOM. Pour ce faire, j'utilise la méthode suivante :
+	    	<ul>
+	    		<li>Créer un nouvel élément DOM avec la méthode <code>createElement</code>.</li>
+	    		<li>Ajouter le nouvel élément DOM à l'arbre en utilisant la méthode <code>appendChild</code></li>
+	    	</ul>
+	    </p>
+
+	    <p>
+	    	<b>7.</b>
+	    </p>
+
+	    <p>
+	    	<b>8.</b>Si l'on passe this à la fonction onClick, on a accès à la carte sur laquelle l'utilisateur a cliqué.
+	    </p>
+
+	    <p>
+	    	<b>9.</b>Pour passer l'image du tableau, l'objet game peut être passé en argument à la fonction onclick de l'image.
+	    </p>
+
+	    <p>
+	    	<b>10.</b>
+	    </p>
+
+	    <p>
+	    	<b>11.</b> Un booléen a été ajouté sur chaque carte pour savoir si elle est retourné ou non. 
+	    </p>
+
+	    <p>
+	    	<b>12.</b> La fonction <code>setTimeout</code> est utilisée pour attendre 500ms avant de retourner les cartes. 
+	    </p>
+
+	    <p>
+	    	<b>13.</b> Une fonction <code>swap</code> a été créer pour mélanger les cartes. Elle est appelée dans la fonction <code>shuffleCards</code>.
+	    </p>
+	</div>
+
+	<hr>
+
+	<div class="exercise">
+		<h2> Ecercice 2 - JavaScript 2015 </h2>
+
+		<p>
+			<b>1.</b> Les fonctions anonymes peuvent être remplacées par des fonctions flêches en Javascript 2015. <br>
+			Attentien tout de même, le scope de ces fonctions est changé.
+		</p>
+
+		<p>
+			<b>2.</b> Le variable let à la place de var permet un comportement plus prévisible de la variable. <br>
+			Il est préférable de l'utiliser dans la majorité des situations.
+		</p>
+
+		<p>
+			<b>3.</b> 
+		</p>
 	</div>
 </body>
 </html>
