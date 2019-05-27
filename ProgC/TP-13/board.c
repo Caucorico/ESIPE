@@ -33,7 +33,9 @@ void set_queen_attack(board* b, int index)
 {
 	int i;
 
-	for ( i = 0 ; i < 8 ; i++ )
+	if ( b->queens[index] != -1 )
+	{
+		for ( i = 0 ; i < 8 ; i++ )
 	{
 		if ( index != i && b->queens[index] != -1 )
 		{
@@ -50,12 +52,38 @@ void set_queen_attack(board* b, int index)
 	}
 
 
-	for ( i = 0 ; i < index ; i++ )
+	for ( i = 1 ; i <= b->queens[index] ; i++ )
 	{
-		if ( b->queens[index] != i && b->queens[index] != -1 )
+
+		if ( index-i >= 0 )
 		{
-			set_positive_bit_ULI(&b->bitboard,  63 - ((index-i*8) + (b->queens[index]-i) ) );
+			set_positive_bit_ULI(&b->bitboard, 63-(((b->queens[index]*8)+index)-((i*8) + 1*i)) );
 		}
+	}
+
+	for ( i = 1 ; i <= b->queens[index] ; i++ )
+	{
+		if ( index+i < 8 )
+		{
+			set_positive_bit_ULI(&b->bitboard, 63-(((b->queens[index]*8)+index)-((i*8) - 1*i)) );
+		}
+	}
+
+	for ( i = 1 ; i <= 7-b->queens[index] ; i++ )
+	{
+		if ( index+i < 8 )
+		{
+			set_positive_bit_ULI(&b->bitboard, 63-(((b->queens[index]*8)+index)+((i*8) + 1*i)) );
+		}
+	}
+
+	for ( i = 1 ; i <= 7-b->queens[index] ; i++ )
+	{
+		if ( index-i >= 0 )
+		{
+			set_positive_bit_ULI(&b->bitboard, 63-(((b->queens[index]*8)+index)+((i*8) - 1*i)) );
+		}
+	}
 	}
 
 }
@@ -69,4 +97,19 @@ void set_attacks(board* b)
 		set_queen_attack(b, i);
 	}
 	print_ULI(b->bitboard);
+}
+
+unsigned char isCompromised(board* b)
+{
+	int i;
+
+	for ( i = 0 ; i < 8 ; i++ )
+	{
+		if ( b->queens[i] != -1 && bit_value_ULI(b->bitboard, 63-(b->queens[i]*8 + i)) == 1 )
+		{
+				return 1;
+		}
+	}
+
+	return 0;
 }

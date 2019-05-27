@@ -14,4 +14,6 @@ board* create_board( int x, int y, int square_size );
 
 void set_attacks(board* b);
 
+unsigned char isCompromised(board* b);
+
 #endif

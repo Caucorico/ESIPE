@@ -21,6 +21,10 @@ void loop( void )
 	while ( 1 )
 	{
 		treat_event( global_board );
+		if ( isCompromised( global_board ) )
+		{
+			printf("argh !\n");
+		}
 		MLV_clear_window(MLV_COLOR_WHITE);
 		draw_board(global_board);
 		MLV_actualise_window();
