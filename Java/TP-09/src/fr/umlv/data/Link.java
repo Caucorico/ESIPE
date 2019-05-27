@@ -2,27 +2,27 @@ package fr.umlv.data;
 
 /* Cette classe doit etre package private pour éviter que l'utilisateur modifie lui meme l'objet. */
 /* Les champs de cette classe doivente etre private pour ne pas etre accessible depuis l'exterieur */
-class Link
+class Link <T>
 {
     /**
-     * The value of the link
+     * The object of the link
      */
-    private int value;
+    private T object;
 
     /**
      * Reference to the next element of the list
      */
-    private Link next;
+    private Link<T> next;
 
-    Link( int value )
+    Link( T object )
     {
-        this.value = value;
+        this.object = object;
         this.next = null;
     }
 
-    Link( int value, Link next )
+    Link( T object, Link<T> next )
     {
-        this.value = value;
+        this.object = object;
         this.next = next;
     }
 
@@ -30,7 +30,7 @@ class Link
     public String toString()
     {
         String s = "";
-        s += ""+this.value;
+        s += ""+this.object.toString();
         return s;
     }
 
@@ -39,15 +39,20 @@ class Link
         return this.next != null;
     }
 
-    Link next()
+    Link<T> next()
     {
         return this.next;
+    }
+
+    T getValue()
+    {
+        return this.object;
     }
 
     /* Pour éxécuter ce main, il suffit d'executer la commande suivante : java --class-path classes/ fr.umlv.data.Link */
     public static void main(String[] args)
     {
-        Link l1 = new Link(13);
-        Link l2 = new Link(144);
+        Link l1 = new Link<>(13);
+        Link l2 = new Link<>(144);
     }
 }
