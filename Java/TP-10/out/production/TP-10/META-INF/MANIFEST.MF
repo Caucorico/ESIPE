@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: fr.umlv.tp10.exercice01.Main.Main
+
