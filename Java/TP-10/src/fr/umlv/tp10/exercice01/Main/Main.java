@@ -6,6 +6,8 @@ import fr.umlv.tp10.exercice01.StreamCounter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Main
 {
@@ -23,5 +25,12 @@ public class Main
         System.out.println(ListToUpperCase.upperCase3(list).toString());
         System.out.println(ListToUpperCase.upperCase4(list).toString());
         System.out.println(StreamCounter.count3(list, "hello"));
+
+        /* La fonction list2 contient une liste de string représentant les nombres entier aléatoires générés.*/
+        List<String> list2 =
+            new Random(0)
+                .ints(1_000_000, 0, 100)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.toList());
     }
 }

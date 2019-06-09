@@ -23,9 +23,8 @@ public class StreamCounter
 
     public static int count3(List<String> list, String element)
     {
-        int counter = 0;
         Stream<String> s = list.stream();
         IntStream s2 = s.mapToInt(w -> element.equals(w)?1:0 );
-        return s2.collect(w -> counter+w);
+        return s2.reduce(Integer::sum).getAsInt();
     }
 }
