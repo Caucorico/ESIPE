@@ -98,6 +98,9 @@ class Game {
 				this.treatShipCollision(this.playerShip,this.aliens[j]);
 			}
 		}
+		for ( let i = 0 ; i < this.bullets.length ; i++ ) {
+			this.treatBulletCollision(this.playerShip, this.bullets[i]);
+		}
 	}
 }
 
@@ -162,6 +165,7 @@ class Ship {
 
 class Bullet {
 	constructor( x, y, speedX, speedY, accelerationX, accelerationY ) {
+		this.startY = y;
 		this.x = x;
 		this.y = y;
 		this.speedX = speedX;
@@ -177,8 +181,12 @@ class Bullet {
 	}
 
 	applySpeed() {
-		this.x += this.speedX;
-		this.y += this.speedY;
+		this.x += 0.99*this.speedX;
+		this.y += 0.99*this.speedY;
+
+		if ( this.y < (this.startY - 300) ) {
+			this.setDestroy();
+		}
 	}
 
 	drawBullet() {
@@ -251,7 +259,7 @@ window.onload = function() {
 	    }
 
 	    if ( map[32] ) { /* space */
-	    	let newBullet = new Bullet( game.playerShip.x, game.playerShip.y, 0, clamp(game.playerShip.speedY, game.playerShip.speedY, -0.5), 0, 0 );
+	    	let newBullet = new Bullet( game.playerShip.x, game.playerShip.y, 0, clamp(game.playerShip.speedY*1.1, game.playerShip.speedY*1.1, -0.5), 0, 0 );
 	    	game.bullets.unshift(newBullet);
 	    }
 	}
