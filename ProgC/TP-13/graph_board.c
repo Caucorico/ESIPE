@@ -57,9 +57,43 @@ void draw_queens( board* b )
 	}
 }
 
+void draw_fail( board* b )
+{
+	MLV_draw_text( b->x + b->square_size*3, b->y + b->square_size*8 + 150, "You have lost, all the case are attacked !", MLV_COLOR_RED);
+}
+
+void draw_win( board* b )
+{
+	MLV_draw_text( b->x + b->square_size*3, b->y + b->square_size*8 + 150, "You have win, all the queen are played !", MLV_COLOR_GREEN);
+}
+
+void draw_right_clic_action( board* b )
+{
+	MLV_draw_text( b->x + b->square_size*8 + 50, b->y + (b->square_size*8)/2, "You can right click on a queen to remove it.", MLV_COLOR_BLACK);
+}
+
+void draw_quit_button( board* b )
+{
+	MLV_draw_adapted_text_box(b->x + b->square_size*3 + b->square_size/2, b->y + (b->square_size*9),
+	 "Quit the game", 10, MLV_COLOR_BLACK, MLV_COLOR_BLACK, MLV_COLOR_WHITE, MLV_TEXT_CENTER);
+}
+
 void draw_board( board* b )
 {
 	draw_checkerboard( b );
 	draw_numbers( b );
 	draw_queens( b );
+	draw_right_clic_action( b );
+	draw_quit_button(b);
+	if ( is_finish(b) )
+	{
+		if ( is_win(b) )
+		{
+			draw_win(b);
+		}
+		else
+		{
+			draw_fail(b);
+		}
+	}
 }
