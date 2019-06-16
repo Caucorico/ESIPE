@@ -16,3 +16,6 @@ stack.o: stack.c stack.h
 clear:
 	rm -f main
 	rm -f *.o
+
+run:
+	./main
