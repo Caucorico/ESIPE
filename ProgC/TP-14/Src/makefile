@@ -13,3 +13,6 @@ top10f.o: top10f.c top10f.h
 clear:
 	rm -f main
 	rm -f *.o
+
+run:
+	./main
