@@ -120,7 +120,7 @@ int name_order(Cell* p1, Cell* p2)
 	  ret = -1;
 
   if ( strcmp(full_name_p1, full_name_p2) == 0 )
-  	ret = 0;
+  	ret = age_order(p1,p2);
 
   if ( strcmp(full_name_p1, full_name_p2) > 0 )
   	ret = 1;
