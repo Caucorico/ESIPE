@@ -22,3 +22,6 @@ board.o: board.c board.h bitboard.h
 clear:
 	rm -f main
 	rm -f *.o
+
+run:
+	./main
