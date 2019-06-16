@@ -1,0 +1,27 @@
+# Maintainer: Guillaume Cau <gcau1@etud.u-pem.fr>
+# Contributor: Guillaume Cau <gcau1@etud.u-pem.fr>
+pkgname=top10f
+pkgver=1.0
+pkgrel=1
+pkgdesc="Found the 10 bigger files in the specified path"
+arch=(any)
+url="http://www-igm.univ-mlv.fr/~borie/esipe/tp14.pdf"
+license=('BSD')
+groups=
+provides=
+depends=
+optdepends=
+makedepends=
+conflicts=
+replaces=
+backup=
+install=
+source=(https://perso-etudiant.u-pem.fr/~gcau1/downloads/$pkgname-$pkgver.tar.gz)
+md5sums=('63719d4b9a27412ae8e0052089215a2f')
+
+build() {
+  cd $srcdir/$pkgname-$pkgver
+  ./configure --prefix=/usr
+  make || return 1
+  make prefix=$pkgdir/usr install
+}
