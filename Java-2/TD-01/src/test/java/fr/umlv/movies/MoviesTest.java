@@ -36,7 +36,7 @@ public class MoviesTest {
 		assertEquals(170509, numberOfUniqueActors);
 	}
 
-	/*@Test
+	@Test
 	public void numberOfMoviesByActor() throws IOException {
 		var path = Path.of("movies.txt");
 		var actorsByMovie = Movies.actorsByMovie(path);
@@ -63,5 +63,5 @@ public class MoviesTest {
 		  () ->assertEquals("Frank Welker", actorInMostMovies.getKey()),
 		  () ->assertEquals(92, actorInMostMovies.getValue())
 		  );
-	}*/
+	}
 }

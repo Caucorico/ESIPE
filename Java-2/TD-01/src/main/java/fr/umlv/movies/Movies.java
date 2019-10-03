@@ -3,9 +3,8 @@ package fr.umlv.movies;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Movies {
@@ -57,8 +56,24 @@ public class Movies {
         }
     }
 
-    static public int numberOfUniqueActors(Map<String, List<String>> movies) {
-        return movies.values().stream().flatMap()
+    public static long numberOfUniqueActors(Map<String, List<String>> movies) {
+        return movies.values().stream()
+            .flatMap(Collection::stream)
+            .distinct()
+            .count();
+    }
+
+    public static Map<String, Long> numberOfMoviesByActor(Map<String, List<String>> movies) {
+        return movies.values().stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(
+                        Function.identity(), Collectors.counting()
+                ));
+    }
+
+    public static Optional<Map.Entry<String, Long>> actorInMostMovies(Map<String, Long> map)
+    {
+        return map.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue));
     }
 
     /**
@@ -66,9 +81,11 @@ public class Movies {
      * @param args args.
      */
     public static void main(String[] args) throws IOException {
-        Movies movies = new Movies("./movies.txt");
-        movies.init();
-        movies.displayAllLines();
+        var path = Path.of("movies.txt");
+        var actorsByMovie = Movies.actorsByMovie(path);
+        var numberOfMoviesByActor = Movies.numberOfMoviesByActor(actorsByMovie);
+
+        System.out.println(numberOfMoviesByActor.toString());
     }
 
 
