@@ -1,0 +1,10 @@
+[{
+  "name": "orange",
+  "price": 10
+}, {
+  "name": "banana",
+  "price": 20
+}, {
+  "name": "peer",
+  "price": 5
+}]
