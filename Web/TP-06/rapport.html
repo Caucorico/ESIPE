@@ -1,0 +1,39 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+  <head>
+    <title>Rapport TP-06 Web</title>
+    <meta charset="utf-8"></meta>
+  </head>
+  <body>
+    <h1> Programmation d'un jeu : Lost in Space </h1>
+    <hr>
+
+    <div class="execise">
+      <h2> Spécification 1 : </h2>
+      <p>
+        Pour représenter les vaisseaux présents dans le jeu, j'ai utilisé une classe <b>Ship</b>. Cette classe contient tous les éléments relatifs à la position et aux mouvements. Il y a donc les vecteurs : position, vitesse et accéleration. Le joueur pour déplacer son vaisseau, ne peux influer que sur le vecteur accéleration. Les vaisseaux extra-terrestres, eux, ne peuvent pas interagir avec l'accélération. Ils ont une vitesse constante.
+      </p>
+
+      <h2> Spécification 2 :</h2>
+      <p>
+        Les vaisseaux doivent gagner 10% de vitesse à chaque rebond. C'est pourquoi, dans la fonction de gestion de la vitesse des vaisseaux, si le vaisseau est extra-terrestre, la vitesse verticale augmente de 10% dans le sens opposé.
+      </p>
+
+      <h2> Spécification 3 : </h2>
+      <p>
+        Le vaisseau du joueur doit pouvoir tirer. C'est pourquoi j'ai ajouté une classe <b>Bullet</b> qui correspond aux projectiles que peut tirer le joueur. Son constructeur prend la vitesse du vaisseau en argument. De cette manière, la balle peut être lancée avec la même vitesse que celle du vaisseau contrôlé par le joueur. La vitesse de la balle est réduite de 0.01% par tour de boucle. Cette modification est effectuée dans la fonction de gestion de la vitesse d'une balle. <br> Finalement, un point initial a été ajouté la classe <b>Bullet</b> pour pouvoir gérer la <em>durée de vie</em> de la balle d'une moitié d'écran. La balle est détruite lorsqu'elle a parcourue la moitié de l'écran.
+      </p>
+
+      <h2> Spécification 4 : </h2>
+      <p>
+        Pour pouvoir gérer les collisions, il faut calculer la surface couverte par les vaisseaux. Ici, la surface est représentée par un carré de 5 sur 5 pixels. À chaque fois qu'une balle entre dans cette surface, le vaisseau est détruit. Pour ce faire, une fonction qui gère les collisions a été ajouté dans Game. Cependant, la fonction qui vérifie si <b>un</b> vaisseau est atteint par une balle devrait se trouver dans la classe <b>Ship</b>.
+      </p>
+
+      <h2> Conclusion : </h2>
+      <p>
+        Ce projet m'a permis de comprendre précisément le fonctionnement des <em>objets</em> JavaScript. De cette manière, il me sera possible de développer des applications Web plus facilement. En effet, ces structures peuvent être reproduites dans de nombreux projets et ainsi simplifier leur réalisation et aussi leur maintenabilité. Une documentation précise ainsi qu'une meilleure répartition des fonctions manque au rendu de mon projet. Je ferai en sorte d'améliorer la rapidité avec laquelle je développe en JavaScript pour pouvoir réaliser les points que je n'ai pas eu le temps de travailler.
+      </p>
+
+    </div>
+  </body>
+</html>
