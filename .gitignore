@@ -26,3 +26,5 @@ hs_err_pid*
 #Intellij files#
 .idea/
 *.iml
+
+Java-2/TD-02/out/
