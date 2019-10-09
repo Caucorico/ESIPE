@@ -26,6 +26,8 @@ hs_err_pid*
 #Intellij files#
 .idea/
 *.iml
+*.kotlin_module
+
 
 #Java-2 projects
 Java-2/TD-01/out/
