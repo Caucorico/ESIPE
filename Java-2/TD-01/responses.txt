@@ -1,0 +1,13 @@
+1) 
+Comme nous l'avons vu en cours, il est préférable d'utiliser des interfaces à de l'héritage.
+En effet, faire de l'héritage nous rend dépendant des modification ultérieure de la classe parent.
+Il est donc préférable d'utiliser l'interface java.nio.File.Path plut^ot que d'utiliser la classe java.io.File.
+
+7)
+Lorsque l'on écrit un try catch, on essaye de gérer l'exception, de rattraper/sauver l'execution du programme en faisant le nécessaire.
+Lorsque l'on fait un throws, on n'essaye pas de rattraper l'exception mais on la laisse aller plus haut en éspérant que quelqun'un puisse la gérer.
+Il vaut mieux utiliser un throws ici car on ne peux pas rattraper le fait que le fichier n'existe pas. Il faut que créer le fichier manuellement (Dans cette situation).
+
+9)
+Je trouve qu'un try{}finally{} c'est moche. Ou m^eme try{}catch(Exception e)finally{}
+
