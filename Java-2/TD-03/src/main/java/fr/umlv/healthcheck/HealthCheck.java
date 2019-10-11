@@ -1,6 +1,8 @@
 package fr.umlv.healthcheck;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -62,7 +64,7 @@ public class HealthCheck {
             Objects.requireNonNull(key);
             Objects.requireNonNull(function);
 
-            return fromURI(function.apply(key));
+            return () -> newURI(function.apply(key));
         }
 
         static URIFinder fromPropertyFile(Path path, String key) {
@@ -73,7 +75,7 @@ public class HealthCheck {
                 var bufferedReader = Files.newBufferedReader(path);
                 var properties = new Properties();
                 properties.load(bufferedReader);
-                return fromURI((String) properties.get(key));
+                return () -> newURI((String) properties.get(key));
             } catch (IOException e) {
                 return Optional::empty;
             }
