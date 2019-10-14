@@ -2,7 +2,7 @@ package fr.umlv.set;
 
 import java.util.function.Consumer;
 
-public class DynamicHashSet {
+public class DynamicHashSet <E> {
 
     private Entry[] hashTable;
 
@@ -21,19 +21,18 @@ public class DynamicHashSet {
         this.hashTable = new Entry[this.size];
     }
 
-    private int hashFunction( int value ) {
-        //return value&0x1;
-        return value&(size-1);
+    private int hashFunction( E value ) {
+        return value.hashCode()&(size-1);
     }
 
-    public void add( int value ) {
+    public void add( E value ) {
         var hash = hashFunction(value);
         var current = hashTable[hash];
         while ( current != null ) {
             if ( current.value == value ) return;
             current = current.next;
         }
-        hashTable[hash] = new Entry(value, hashTable[hash]);
+        hashTable[hash] = new Entry<>(value, hashTable[hash]);
         currentSize++;
     }
 
@@ -41,7 +40,7 @@ public class DynamicHashSet {
         return currentSize;
     }
 
-    public void forEach(Consumer<Integer> c) {
+    public void forEach(Consumer<E> c) {
         for ( int i = 0 ; i < size ; i++ ) {
             var current = hashTable[i];
             while ( current != null ) {
@@ -51,29 +50,29 @@ public class DynamicHashSet {
         }
     }
 
-    public boolean contains( int value ) {
+    public boolean contains( E value ) {
         for ( int i = 0 ; i < size ; i++ ) {
             var current = hashTable[i];
             while ( current != null ) {
-                if ( current.value == value ) return true;
+                if ( current.value.equals(value) ) return true;
                 current = current.next;
             }
         }
         return false;
     }
 
-    static class Entry {
+    static class Entry <E> {
 
-        private int value;
+        private E value;
 
         private Entry next;
 
-        public Entry( int value ) {
+        public Entry( E value ) {
             this.value = value;
             this.next = null;
         }
 
-        public Entry( int value, Entry next ) {
+        public Entry( E value, Entry next ) {
             this.value = value;
             this.next = next;
         }
