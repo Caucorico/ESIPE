@@ -15,7 +15,7 @@ public class StupidRendezVous<V> {
   
   public V get() throws InterruptedException {
     while(value == null) {
-        Thread.sleep(1);  // then comment this line !
+        //Thread.sleep(1);  // then comment this line !
     }
     return value;
   }
