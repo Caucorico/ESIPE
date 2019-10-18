@@ -1,10 +1,11 @@
 package fr.umlv.set;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class DynamicHashSet <E> {
 
-    private Entry[] hashTable;
+    private Entry<E>[] hashTable;
 
     private int size;
 
@@ -13,11 +14,11 @@ public class DynamicHashSet <E> {
     public DynamicHashSet() {
         this.size = 8;
         this.currentSize = 0;
-        this.hashTable = new Entry[this.size];
+        this.hashTable = (Entry<E>[]) new Entry[this.size];
     }
 
-    public DynamicHashSet(int pow) {
-        this.size = (int)Math.pow(2, pow);
+    public DynamicHashSet(int size) {
+        this.size = size;
         this.hashTable = new Entry[this.size];
     }
 
@@ -25,22 +26,33 @@ public class DynamicHashSet <E> {
         return value.hashCode()&(size-1);
     }
 
-    public void add( E value ) {
-        var hash = hashFunction(value);
-        var current = hashTable[hash];
-        while ( current != null ) {
-            if ( current.value == value ) return;
-            current = current.next;
+    private void reSize() {
+        if ( currentSize >= size/2 ) {
+            var newTable = (Entry<E>[]) new Entry[size*2];
+            forEach( e -> genericAdd(e, newTable));
+            hashTable = newTable;
+            size *= 2;
         }
-        hashTable[hash] = new Entry<>(value, hashTable[hash]);
-        currentSize++;
+    }
+
+
+    public void add( E value ) {
+        reSize();
+        if ( genericAdd(value, hashTable) ) currentSize++;
+    }
+
+    private boolean genericAdd( E value, Entry<E>[] localHashTable ) {
+        var hash = hashFunction(value);
+        if ( hashContains(value, hash, localHashTable) ) return false;
+        localHashTable[hash] = new Entry<>(value, localHashTable[hash]);
+        return true;
     }
 
     public int size() {
         return currentSize;
     }
 
-    public void forEach(Consumer<E> c) {
+    public void forEach(Consumer<? super E> c) {
         for ( int i = 0 ; i < size ; i++ ) {
             var current = hashTable[i];
             while ( current != null ) {
@@ -50,13 +62,19 @@ public class DynamicHashSet <E> {
         }
     }
 
-    public boolean contains( E value ) {
+    public boolean hashContains( Object value, int hash, Entry<E>[] localHashTable ) {
+        var current = localHashTable[hash];
+        while ( current != null ) {
+            if ( current.value.equals(value) ) return true;
+            current = current.next;
+        }
+        return false;
+    }
+
+    public boolean contains( Object value ) {
+        Objects.requireNonNull(value);
         for ( int i = 0 ; i < size ; i++ ) {
-            var current = hashTable[i];
-            while ( current != null ) {
-                if ( current.value.equals(value) ) return true;
-                current = current.next;
-            }
+            if ( hashContains(value, i, hashTable) ) return true;
         }
         return false;
     }
@@ -76,6 +94,5 @@ public class DynamicHashSet <E> {
             this.value = value;
             this.next = next;
         }
-
     }
 }
