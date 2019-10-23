@@ -1,7 +1,10 @@
 package exercice03;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class Vote {
     private final Object lock = new Object();
@@ -29,9 +32,16 @@ public class Vote {
             while (voteNumber < maxVoteNumber) {
                 lock.wait();
             }
+            return getWinner();
         }
+    }
 
-        return "";
+    public String getWinner() {
+        synchronized (lock) {
+            var max = hashMap.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue));
+            if ( max.isEmpty() ) throw new IllegalStateException("Winner not found !");
+            else return max.get().getKey();
+        }
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -50,7 +60,7 @@ public class Vote {
                 () -> {
                     try {
                         Thread.sleep(5_000);
-                        System.out.println("The winner is " + vote.vote("0"));
+                        System.out.println("The winner is " + vote.vote("1"));
                     } catch (InterruptedException e) {
                         throw new AssertionError(e);
                     }
