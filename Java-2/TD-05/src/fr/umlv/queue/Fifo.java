@@ -93,7 +93,7 @@ public class Fifo <E> implements Iterable<E>{
     }
 
     public static void main(String[] args) {
-        Fifo<Integer> fifo = new Fifo<>(10);
+        Fifo<Integer> fifo = new Fifo<>(30);
         for ( int i = 0 ; i < 15 ; i++ ) {
             fifo.offer(i);
         }
