@@ -1,11 +1,8 @@
 package fr.umlv.queue;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.util.*;
 
-public class Fifo <E> {
+public class Fifo <E> implements Iterable<E>{
 
     private int size;
 
@@ -33,6 +30,8 @@ public class Fifo <E> {
         return size == 0;
     }
 
+    public int size() { return size; }
+
     private int incrementPos(int pos) {
         if ( pos+1 >= maxSize ) {
             pos = 0;
@@ -54,8 +53,12 @@ public class Fifo <E> {
 
     public void offer(E element) {
         Objects.requireNonNull(element);
+        if ( size == maxSize ) throw new IllegalStateException("The stack is full !!!");
         tail = incrementPos(tail);
+        /*
+        Enable this condition to overwrite head value instead of error
         if ( size == maxSize ) head = incrementPos(head);
+        */
         tab[tail] = element;
         size = incrementSize(size);
     }
@@ -101,5 +104,27 @@ public class Fifo <E> {
             fifo.poll();
         }
         System.out.println(fifo.toString());
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new Iterator<E>() {
+            private int index = head;
+            private int iteration;
+
+            @Override
+            public boolean hasNext() {
+                return this.iteration < size;
+            }
+
+            @Override
+            public E next() {
+                int buff = this.index;
+                if ( !hasNext() ) throw new NoSuchElementException("No next available !");
+                this.index = incrementPos(this.index);
+                this.iteration++;
+                return tab[buff];
+            }
+        };
     }
 }
