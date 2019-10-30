@@ -15,10 +15,13 @@ public class ExchangerReuse<T> {
 
     public T exchange(T value) throws InterruptedException {
         synchronized (lock) {
+            while (state == States.FULL) {
+                lock.wait();
+            }
             if ( state == States.MED ) {
                 value2 = value;
                 state = States.FULL;
-                lock.notify();
+                lock.notifyAll();
                 return value1;
             } else {
                 value1 = value;
@@ -27,6 +30,7 @@ public class ExchangerReuse<T> {
                     lock.wait();
                 }
                 state = States.EMPTY;
+                lock.notifyAll();
                 return value2;
             }
         }
