@@ -1,10 +1,14 @@
 #include "dirstat.h"
 
+const unsigned int DFN = 0x1;
+const unsigned int DCF = 0x2;
+
 int get_dir_struct_stat(const char* path, struct dirent*** dir_stat)
 {
 	DIR* dir_stream;
 	int err, nbr_element = 0;
-	dir_stat* buff;
+	struct dirent* buff;
+	struct dirent** iterator;
 
 	dir_stream = opendir(path);
 	if ( dir_stream == NULL )
@@ -19,22 +23,17 @@ int get_dir_struct_stat(const char* path, struct dirent*** dir_stat)
 		nbr_element++;
 		buff = readdir(dir_stream);
 	}
-
+	
 	rewinddir(dir_stream);
 	*dir_stat = malloc(nbr_element*sizeof(struct dirent*));
 
 	buff = readdir(dir_stream);
-	while ( buff != null )
+	iterator = *dir_stat;
+	while ( buff != NULL )
 	{
-		*dir_stat = buff;
-		dir_stat++;
-	}
-
-	*dir_stat = readdir(dir_stream);
-	if ( *dir_stat == NULL )
-	{
-		perror("Error during the readdir ");
-		return -2;
+		*iterator = buff;
+		iterator++;
+		buff = readdir(dir_stream);
 	}
 
 	err = closedir(dir_stream);
@@ -47,16 +46,16 @@ int get_dir_struct_stat(const char* path, struct dirent*** dir_stat)
 	return nbr_element;
 }
 
-int close_dir_struct_stat(const dirent*** dir_stat)
+int close_dir_struct_stat(struct dirent*** dir_stat)
 {
 	if ( dir_stat == NULL ) return -1;
 	free(*dir_stat);
 	return 0;
 }
 
-int display_dir_name_struct_stat(const struct dirent* dir_stat[], int nbr_element)
+int display_dir_name_struct_stat(struct dirent* dir_stat[], int nbr_element)
 {
-	unsigned int i;
+	int i;
 
 	for ( i = 0 ; i < nbr_element ; i++ )
 	{
@@ -66,11 +65,11 @@ int display_dir_name_struct_stat(const struct dirent* dir_stat[], int nbr_elemen
 	return 1;
 }
 
-int display_dir_content_struct_stat(const struct dirent* dir_stat[], int nbr_element)
+int display_dir_content_struct_stat(struct dirent* dir_stat[], int nbr_element)
 {
 	int err;
-	unsigned int i;
-	struct stat file_stat buff;
+	int i;
+	struct stat buff;
 
 	for ( i = 0 ; i < nbr_element ; i++ )
 	{
@@ -86,9 +85,9 @@ int display_dir_content_struct_stat(const struct dirent* dir_stat[], int nbr_ele
 	return 1;
 }
 
-int display_dir_struct_stat(const struct dirent* dir_stat[], int nbr_element, unsigned char flags)
+int display_dir_struct_stat(struct dirent* dir_stat[], int nbr_element, unsigned char flags)
 {
-	if ( flags&DFN == DFN ) return display_dir_name_struct_stat(dir_stat, nbr_element);
-	else if (flags&DCF == DCF ) return display_dir_content_struct_stat(dir_stat, nbr_element);
+	if ( (flags&DFN) == DFN ) return display_dir_name_struct_stat(dir_stat, nbr_element);
+	else if ( (flags&DCF) == DCF ) return display_dir_content_struct_stat(dir_stat, nbr_element);
 	else return 0;
 }

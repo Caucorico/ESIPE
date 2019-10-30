@@ -1,8 +1,8 @@
 CFLAGS=-ansi -Wall -W -pedantic
 LDFLAGS=
 
-stat: main.o stat.o
-	gcc -o stat main.o stat.o
+stat: main.o stat.o dirstat.o
+	gcc -o stat main.o stat.o dirstat.o
 
 main.o: main.c stat.h dirstat.h
 	gcc -o main.o -c main.c $(CFLAGS)
