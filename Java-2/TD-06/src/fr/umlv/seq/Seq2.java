@@ -40,7 +40,7 @@ public class Seq2<T> implements Iterable<T> {
         return new Seq2<>(tab);
     }
 
-    public static Seq2 of(Object ... elements) {
+    public static <T> Seq2 of(T ... elements) {
         return from(Arrays.asList(elements));
     }
 
