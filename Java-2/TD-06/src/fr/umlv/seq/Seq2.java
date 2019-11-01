@@ -7,18 +7,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class Seq <T> implements Iterable<T> {
+public class Seq2<T> implements Iterable<T> {
 
     private final ArrayList<Object> tab;
 
     private final Function<Object,? extends T> applier;
 
     @SuppressWarnings("unchecked")
-    private Seq(ArrayList<Object> list) {
+    private Seq2(ArrayList<Object> list) {
         this(list, (e) -> (T) e);
     }
 
-    private Seq(ArrayList<Object> list, Function<Object, ? extends T> function) {
+    private Seq2(ArrayList<Object> list, Function<Object, ? extends T> function) {
         Objects.requireNonNull(list);
         tab = list;
         applier = function;
@@ -33,14 +33,14 @@ public class Seq <T> implements Iterable<T> {
      * @param list The list.
      * @return Seq.
      */
-    public static <R> Seq<R> from(List<? extends R> list) {
+    public static <R> Seq2<R> from(List<? extends R> list) {
         Objects.requireNonNull(list);
         throwNPEOnNullValue(list);
         var tab = new ArrayList<Object>(list);
-        return new Seq<>(tab);
+        return new Seq2<>(tab);
     }
 
-    public static Seq of(Object ... elements) {
+    public static Seq2 of(Object ... elements) {
         return from(Arrays.asList(elements));
     }
 
@@ -57,9 +57,9 @@ public class Seq <T> implements Iterable<T> {
         return tab.size();
     }
 
-    public <R> Seq<R> map(Function<? super T, ? extends R> function) {
+    public <R> Seq2<R> map(Function<? super T, ? extends R> function) {
         Objects.requireNonNull(function);
-        return new Seq<>(tab, applier.andThen(function));
+        return new Seq2<>(tab, applier.andThen(function));
     }
 
     @Override
