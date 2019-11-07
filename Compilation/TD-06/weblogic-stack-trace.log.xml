@@ -1,0 +1,36 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<S:Envelope xmlns:S="http://www.w3.org/2003/05/soap-envelope">
+   <S:Body>
+      <S:Fault xmlns:ns4="http://schemas.xmlsoap.org/soap/envelope/">
+         <S:Code>
+            <S:Value>S:Receiver</S:Value>
+         </S:Code>
+         <S:Reason>
+            <S:Text>String index out of range: 3</S:Text>
+         </S:Reason>
+         <S:Detail>
+            <ns2:exception xmlns:ns2="http://jax-ws.dev.java.net/" 
+             class="java.lang.StringIndexOutOfBoundsException" note="To disable this feature, set
+             com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace system property 
+             to false">
+               <message>String index out of range: 3</message>
+               <ns2:stackTrace>
+                  <ns2:frame class="java.lang.String" file="String.java" line="1934"
+                    method="substring"/>
+                  <ns2:frame class="ratingservice.CreditRating" file="CreditRating.java"
+                    line="21" method="processRating"/>
+                  <ns2:frame class="sun.reflect.NativeMethodAccessorImpl"
+                    file="NativeMethodAccessorImpl.java" line="native" method="invoke0"/>
+                  <ns2:frame class="sun.reflect.NativeMethodAccessorImpl"
+                    file="NativeMethodAccessorImpl.java" line="39" method="invoke"/>
+                  <ns2:frame class="sun.reflect.DelegatingMethodAccessorImpl"
+                    file="DelegatingMethodAccessorImpl.java" line="25" method="invoke"/>
+                  <ns2:frame class="java.lang.reflect.Method" file="Method.java" line="597"
+                    method="invoke"/>
+                  ...
+               </ns2:stackTrace>
+            </ns2:exception>
+         </S:Detail>
+      </S:Fault>
+   </S:Body>
+</S:Envelope>
