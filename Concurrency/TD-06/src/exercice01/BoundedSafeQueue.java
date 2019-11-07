@@ -11,7 +11,8 @@ public class BoundedSafeQueue<V> {
     private final int capacity;
 
     private final ReentrantLock lock = new ReentrantLock(false);
-    private final Condition waitAccessQueue = lock.newCondition();
+    private final Condition waitAccessQueueForPut = lock.newCondition();
+    private final Condition waitAccessQueueForTake = lock.newCondition();
 
     public BoundedSafeQueue(int capacity) {
         if (capacity <= 0) {
@@ -24,10 +25,10 @@ public class BoundedSafeQueue<V> {
         lock.lock();
         try {
             while (fifo.size() == capacity) {
-                waitAccessQueue.await();
+                waitAccessQueueForPut.await();
             }
             fifo.add(value);
-            waitAccessQueue.signalAll();
+            waitAccessQueueForTake.signal();
         } finally {
             lock.unlock();
         }
@@ -37,9 +38,9 @@ public class BoundedSafeQueue<V> {
         lock.lock();
         try {
             while (fifo.isEmpty()) {
-                waitAccessQueue.await();
+                waitAccessQueueForTake.await();
             }
-            waitAccessQueue.signalAll();
+            waitAccessQueueForPut.signal();
             return fifo.remove();
         } finally {
             lock.unlock();
