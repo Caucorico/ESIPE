@@ -1,14 +1,19 @@
 package fr.umlv.bag;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class BagImpl<E> implements Bag<E> {
+public class BagImpl<E> implements Bag<E>{
 
-    private final HashMap<E, Integer> hashmap = new HashMap<>();
+    private final HashMap<E, Integer> hashmap;
+
+    public BagImpl() {
+        this.hashmap = new HashMap<>();
+    }
+
+    public BagImpl(Map<E, Integer> map) {
+        this.hashmap = new HashMap<>(map);
+    }
 
     @Override
     public int add(E element, int count) {
@@ -24,13 +29,19 @@ public class BagImpl<E> implements Bag<E> {
     }
 
     @Override
-    public void forEach(Consumer<E> consumer) {
+    public void forEach(Consumer<? super E> consumer) {
         Objects.requireNonNull(consumer);
         hashmap.forEach((key, value) -> {
             for ( var i = 0 ; i < value ; i++ ) consumer.accept(key);
         });
     }
 
+    @Override
+    public int size() {
+        return this.hashmap.size();
+    }
+
+    @Override
     public Iterator<E> iterator() {
         var elements = hashmap.entrySet().iterator();
 
@@ -52,8 +63,10 @@ public class BagImpl<E> implements Bag<E> {
                 if ( remaining == 0 ) {
                     var entry = elements.next();
                     current = entry.getKey();
+                    remaining = entry.getValue();
                 }
-                return null;
+                remaining--;
+                return current;
             }
         };
     }

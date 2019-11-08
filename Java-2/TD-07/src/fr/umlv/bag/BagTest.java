@@ -11,13 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
@@ -239,7 +233,7 @@ public class BagTest {
   
   // Q6
   
-  /*@Test
+  @Test
   public void shouldBeAbleToDoAnEnhancedLoopOverABag() {
     var bag = Bag.<Integer>createSimpleBag();
     var list = IntStream.range(0, 100).boxed().collect(toList());
@@ -451,5 +445,5 @@ public class BagTest {
     bag.iterator().forEachRemaining(list2::add);
 
     assertEquals(List.of(new Timestamp(3), new Timestamp(7)), list2);
-  }*/
+  }
 }
