@@ -5,20 +5,22 @@ import java.util.function.Consumer;
 
 public class BagImpl<E> implements Bag<E>{
 
-    private final HashMap<E, Integer> hashmap;
+    private final Map<E, Integer> hashmap;
+    private int size = 0;
 
     public BagImpl() {
         this.hashmap = new HashMap<>();
     }
 
     public BagImpl(Map<E, Integer> map) {
-        this.hashmap = new HashMap<>(map);
+        this.hashmap = map;
     }
 
     @Override
     public int add(E element, int count) {
         Objects.requireNonNull(element);
         if ( count <= 0 ) throw new IllegalArgumentException("count is necessary greater than 0");
+        size += count;
         return hashmap.merge(element, count, (a, b) -> a + count);
     }
 
@@ -38,11 +40,15 @@ public class BagImpl<E> implements Bag<E>{
 
     @Override
     public int size() {
-        return this.hashmap.size();
+        return this.size;
     }
 
     @Override
     public Iterator<E> iterator() {
+            return hashmap.entrySet().stream().flatMap(m -> Collections.nCopies(m.getValue(), m.getKey()).stream()).iterator();
+    }
+
+    public Iterator<E> iteratorOld() {
         var elements = hashmap.entrySet().iterator();
 
         return new Iterator<>() {
