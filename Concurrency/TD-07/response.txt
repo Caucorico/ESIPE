@@ -1,0 +1,159 @@
+Pourquoi n'est il pas possible d’arrêter un thread de façon non coopérative ?
+
+Aucun moyen non coopératif n'a été ajouté en Java pour arreter les threads.
+Cette décision a été prise pour pouvoir gérer l'état de la mémoire en tout circonstances.
+
+########################################################################################################################
+
+Rappeler ce qu'est une opération bloquante.
+
+Une opération bloquante est une opération qui attend certaines condition pour poursuivre son exécution.
+
+########################################################################################################################
+
+À quoi sert la méthode d'instance interrupt() de la classe Thread
+
+La méthode interrupt() permet d'envoyer un "signal" qui demande au Thread de s'arreter.
+
+########################################################################################################################
+
+
+Expliquer comment interrompre un thread en train d'effectuer une opération bloquante
+et le faire sur l'exemple suivant (en faisant afficher "end" quand le thread est interrompu).
+
+Si un thread reçoit un signal d'interruption lorsqu'il est en attente dans une méthode bloquante, la méthode va lever une
+InterruptedException
+
+Correction de la méthode :
+
+public static void main(String[] args) {
+    var t = new Thread(() -> {
+        while (true) {
+            try {
+                Thread.sleep(1_000);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+    });
+    t.start();
+    try {
+        Thread.sleep(1_000);
+    } catch (InterruptedException e) {
+        throw new AssertionError(e);
+    }
+    t.interrupt();
+}
+
+########################################################################################################################
+
+Expliquer, sur l'exemple suivant, comment utiliser la méthode Thread.interrupted (noter qu'elle est statique)
+pour arrêter un thread dans le cas où il n'y a pas d'opération bloquante (dans un premier temps,
+on suppose que vous ne pouvez pas modifier le code de slow). Faire afficher "end" et la valeur de forNothing quand le thread est interrompu.
+
+La méthode statique Thread.interrupted permet de vérifier si le Thread courrant a reçu ou non un "signal" d'interruption.
+
+Modifier le code de slow (mais pas sa signature) pour l'interrompre dès que possible. :
+
+private static int slow() {
+    var result = 1;
+    for (var i = 0; i < 1_000_000; i++) {
+        result += (result * 7) % 513;
+        if ( Thread.interrupted() ) {
+            Thread.currentThread().interrupt();
+            return result;
+        }
+    }
+    return result;
+}
+
+public static void main(String[] args) throws InterruptedException {
+    var t = new Thread(() -> {
+        var forNothing = 0;
+        while (!Thread.interrupted()) {
+            forNothing += slow();
+        }
+        System.out.println("end " + forNothing);
+    });
+    t.start();
+    Thread.sleep(1_000);
+    t.interrupt();
+}
+
+########################################################################################################################
+
+Comment faire pour interrompre le thread dès que possible et à coup sûr, si il effectue à la fois des opérations
+ bloquantes et non bloquantes ?
+
+private static int slow() {
+    var result = 1;
+    for (var i = 0; i < 1_000_000; i++) {
+        result += (result * 7) % 513;
+        if ( Thread.interrupted() ) {
+            Thread.currentThread().interrupt();
+            return result;
+        }
+    }
+    return result;
+}
+
+public static void main(String[] args) throws InterruptedException {
+    Thread t = new Thread(() -> {
+        var forNothing = 0;
+        while( !Thread.interrupted() ){
+            try {
+                Thread.sleep(1_000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                continue;
+            }
+            forNothing += slow();
+        }
+        System.out.println("end " + forNothing);
+    });
+    t.start();
+    Thread.sleep(1_000);
+    t.interrupt();
+}
+
+########################################################################################################################
+
+Et si vous pouvez modifier le code de slow ET sa signature, que faites-vous?
+
+private static int slow() throws InterruptedException {
+    var result = 1;
+    for (var i = 0; i < 1_000_000; i++) {
+        result += (result * 7) % 513;
+        if ( Thread.interrupted() ) {
+            throw new InterruptedException();
+        }
+    }
+    return result;
+}
+
+public static void main(String[] args) throws InterruptedException {
+    Thread t = new Thread(() -> {
+        var forNothing = 0;
+        while( !Thread.interrupted() ){
+            try {
+                Thread.sleep(1_000);
+                forNothing += slow();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                continue;
+            }
+        }
+        System.out.println("end " + forNothing);
+    });
+    t.start();
+    Thread.sleep(1_000);
+    t.interrupt();
+}
+
+########################################################################################################################
+
+Expliquer la (trop) subtile différence entre les méthodes Thread.interrupted et thread.isInterrupted de la classe Thread.
+
+La méthode statique Thread.interrupted vérifie si le Thread courant est interrompu.
+La méthode d'instance thread.isInterrupted vérifie si l'objet thread sur laquelle est appliqué la méthode est interrompu.
+
