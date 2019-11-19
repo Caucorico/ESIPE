@@ -1,0 +1,9 @@
+Exercice 01 :
+
+Pourquoi utilise-t-on signalAll et non pas signal ici?
+
+Je n'ai pas très bien compris pourquoi il faut utiliser notifyAll au lieu de notify.
+Je serai même plutôt tenté de mettre un notify pour éviter de réveiller des thread qui devront se rendormir
+car une seule place c'était libérée.
+
+Sinon, c'est peut être dangereux, si le thread qui a reçu le notify meurt, plus aucun notify ne sera reçu.
