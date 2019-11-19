@@ -28,10 +28,11 @@ public class Calc <E> {
     public String toString() {
         return cellsHashMap.entrySet().stream()
                 .map( (e) -> e.getKey() + "=" + e.getValue().get().toString())
-                .collect(Collectors.joining(",", "{", "}"));
+                .collect(Collectors.joining(", ", "{", "}"));
     }
 
     public void forEach(BiConsumer<? super String, ? super E> biConsumer) {
+        Objects.requireNonNull(biConsumer);
         cellsHashMap.entrySet().forEach( e -> biConsumer.accept(e.getKey(), e.getValue().get()));
     }
 
@@ -46,6 +47,7 @@ public class Calc <E> {
         }
 
         default void forEach(Consumer<? super E> consumer) {
+            Objects.requireNonNull(consumer);
             values().forEach(consumer);
         }
 
@@ -59,12 +61,13 @@ public class Calc <E> {
         }
 
         default Group<E> ignore(Set<? super E> ignoreSet) {
+            Objects.requireNonNull(ignoreSet);
             return () -> values().filter(e -> !ignoreSet.contains(e) );
         }
 
-        default <F> Stream<F> eval(Function<? super String, Optional<F>> function) {
-            /* TODO : implement this function */
-            return null;
+        default <F> Stream<F> eval(Function<? super E, Optional<F>> function) {
+            Objects.requireNonNull(function);
+            return  values().map(function::apply).filter(Optional::isPresent).map(Optional::get);
         }
     }
 
