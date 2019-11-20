@@ -2,15 +2,19 @@
 
 void runProc(int(*function)(int, int), int read_fd, int write_fd)
 {
-	char buff[4];
-	int err;
+	int res;
 	int a, b;
+
+	dup2(0, read_fd);
+	close(read_fd);
+	dup2(1, write_fd);
+	close(write_fd);
 
 	while(1)
 	{
-		fscanf(read_fd, "%d %d", &a, &b);
+		scanf("%d %d", &a, &b);
 		res = (*function)(a, b);
-		fprintf(write_fd, "%d", res);
+		printf("%d", res);
 	}
 }
 

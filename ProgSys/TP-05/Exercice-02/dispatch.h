@@ -6,6 +6,6 @@
 #include <stdio.h>
 
 /* This function create a proc which can run a function. */
-int startProc(int (*function)(int, int), int pipefd[2]);
+int startProc(int (*function)(int, int), int* read_fd, int* write_fd);
 
 #endif

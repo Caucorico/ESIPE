@@ -1,4 +1,4 @@
-#include "clalc.h"
+#include "calc.h"
 
 int addition(int a, int b)
 {
