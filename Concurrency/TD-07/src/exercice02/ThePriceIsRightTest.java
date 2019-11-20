@@ -46,7 +46,6 @@ public class ThePriceIsRightTest {
 			Thread thread = new Thread(() -> {
 				assertFalse(tpir.propose(110));
 			});
-			thread.setName("uyegcufj");
 			thread.start();
 			Thread.sleep(1000);
 			assertTrue(tpir.propose(107));

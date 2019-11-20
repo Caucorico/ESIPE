@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public class ThePriceIsRight {
 
@@ -88,7 +89,7 @@ public class ThePriceIsRight {
                     var gap = this.price - currentTuple.getValue();
                     if ( Math.abs(gap) < smallerGap ) {
                         winner = currentTuple.getKey();
-                        smallerGap = gap;
+                        smallerGap = Math.abs(gap);
                     }
                 }
                 if ( winner == null ) throw new IllegalThreadStateException("N participant found !");
@@ -138,8 +139,15 @@ public class ThePriceIsRight {
                 }
             }
 
+            if ( !this.gameFinished )
+            {
+                this.propositions.removeIf(e -> e.getKey() == Thread.currentThread());
+                this.gameFinished = true;
+                this.gameFinishedStopCondition.signalAll();
+                return false;
+            }
+
             var winner = this.getWinner();
-            System.out.println(winner.get().getName());
             if ( winner.isEmpty() ) return false;
             if ( winner.get().equals(Thread.currentThread()) ) return true;
             return false;
