@@ -32,10 +32,9 @@ public class Fastest {
                 Runnable runnable = () -> {
                     var request = new Request(e, item);
                     try {
-                        var answer = request.request(timeoutMilliPerRequest);
+                        responsesList.put(request.request(timeoutMilliPerRequest));
                     } catch (InterruptedException ex){
-                        responsesList.put(answer);
-
+                        return;
                     }
                 };
                 var thread = new Thread(runnable);
@@ -52,5 +51,11 @@ public class Fastest {
         threads.forEach(Thread::interrupt);
 
         return Optional.empty();
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        var agregator = new Fastest("tortank", 2_000);
+        var answer = agregator.retrieve();
+        System.out.println("RESPONSE" + answer);
     }
 }
