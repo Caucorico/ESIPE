@@ -46,6 +46,7 @@ public class Fastest {
         while ( i < Request.ALL_SITES.size() ) {
             var response = responsesList.take();
             if ( response.isSuccessful() ) return Optional.of(response);
+            i++;
         }
 
         threads.forEach(Thread::interrupt);
