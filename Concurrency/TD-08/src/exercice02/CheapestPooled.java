@@ -7,9 +7,14 @@ import request.Request;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class CheapestPooled {
 
+    /*
+     * Quel type de BlockingQueue peut-on utiliser pour sitesQueue et answersQueue.
+     * Nous pouvont utiliser des ArrayBlockingQueue :
+     */
     private final ArrayBlockingQueue<String> sitesQueue = new ArrayBlockingQueue<String>(Request.ALL_SITES.size(), false, Request.ALL_SITES);
     private final ArrayBlockingQueue<Answer> answersQueue = new ArrayBlockingQueue<>(Request.ALL_SITES.size());
 
@@ -23,41 +28,37 @@ public class CheapestPooled {
         this.pooleSize = pooleSize;
     }
 
-    /*public Optional<Answer> retrieve() throws InterruptedException {
+    public Optional<Answer> retrieve() throws InterruptedException {
         var i = 0;
         Answer cheapest = null;
 
-        IntStream.range(0, pooleSize).forEach(
+        Stream<Thread> threads = IntStream.range(0, pooleSize).mapToObj(
                 e -> {
                     Runnable runnable = () -> {
-                        if ( )
-                        var request = new Request(e, item);
-                        try {
-                            answersQueue.put(request.request(timeoutMilliPerRequest));
-                        } catch (InterruptedException ex){
-                            return;
+                        Request request = null;
+                        while ( Thread.interrupted() ) {
+                            try {
+                                request = new Request(sitesQueue.take(), item);
+                            } catch (InterruptedException ex) {
+                                Thread.currentThread().interrupt();
+                                continue;
+                            }
+                            try {
+                                answersQueue.put(request.request(timeoutMilliPerRequest));
+                            } catch (InterruptedException ex){
+                                Thread.currentThread().interrupt();
+                                continue;
+                            }
                         }
                     };
                     var thread = new Thread(runnable);
                     thread.start();
+                    return thread;
                 }
         );
 
-        sitesQueue.forEach( e -> {
-            Runnable runnable = () -> {
-                var request = new Request(e, item);
-                try {
-                    answersQueue.put(request.request(timeoutMilliPerRequest));
-                } catch (InterruptedException ex){
-                    return;
-                }
-            };
-            var thread = new Thread(runnable);
-            thread.start();
-        });
-
         while ( i < Request.ALL_SITES.size() ) {
-            var response = responsesList.take();
+            var response = answersQueue.take();
             if ( response.isSuccessful() )
             {
                 if ( cheapest == null || response.getPrice() < cheapest.getPrice() ) {
@@ -67,6 +68,12 @@ public class CheapestPooled {
             i++;
         }
 
+        threads.forEach(Thread::interrupt);
+
         return Optional.ofNullable(cheapest);
-    }*/
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println(new Cheapest("tortank",2_000).retrieve());
+    }
 }
