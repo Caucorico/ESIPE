@@ -95,5 +95,5 @@ public interface Graph<T> {
    * @throws IndexOutOfBoundsException if src is
    *         not a valid vertex number
    */
-  //public IntStream neighborStream(int src);
+  public IntStream neighborStream(int src);
 }

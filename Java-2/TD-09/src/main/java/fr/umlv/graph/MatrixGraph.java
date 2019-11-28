@@ -1,10 +1,9 @@
 package fr.umlv.graph;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 class MatrixGraph <T> implements Graph<T> {
 
@@ -32,16 +31,6 @@ class MatrixGraph <T> implements Graph<T> {
         return src*base + dst;
     }
 
-    private int getNextValidEdge(int src, int dst) {
-        var i = dst;
-        while ( i < base ) {
-            if ( getWeight(src, i).isPresent() ) return i;
-            i++;
-        }
-
-        return -1;
-    }
-
 
     @Override
     public Optional<T> getWeight(int src, int dst) {
@@ -65,33 +54,67 @@ class MatrixGraph <T> implements Graph<T> {
             });
     }
 
+    public int getNextNeighborIndex(int src, int startDst) {
+        for ( var i = startDst ; i < base ; i++ ) {
+            if ( getWeight(src, i).isPresent() ) return i;
+        }
+        return -1;
+    }
+
     @Override
     public Iterator<Integer> neighborIterator(int src) {
         return new Iterator<Integer>() {
-            int lastIndex = -1;
-            int i = getNextValidEdge(src, 0);
+
+            /* In the iterator, the current element begin at the first neighbor */
+            int index = getNextNeighborIndex(src, 0);
+
+            int lastReturnedIndex = -1;
 
             @Override
             public boolean hasNext() {
-                return i >= 0;
+                if ( index < 0 ) return false;
+                return true;
             }
 
             @Override
             public Integer next() {
-                var index = i;
-                if ( index < 0 ) throw new NoSuchElementException();
-                i = getNextValidEdge(src, i+1);
-                lastIndex = index;
-                return index;
+                if ( !hasNext() ) throw new NoSuchElementException();
+                lastReturnedIndex = index;
+                index = getNextNeighborIndex(src, index+1);
+                return lastReturnedIndex;
             }
 
             @Override
             public void remove() {
-                if ( lastIndex == -1 || lastIndex == i ) throw new IllegalStateException();
-                addEdge(src, lastIndex, null);
+                if ( lastReturnedIndex == -1 ) throw new IllegalStateException();
+                tab[index(src, lastReturnedIndex)] = null;
+                lastReturnedIndex = -1;
             }
         };
     }
 
+    @Override
+    public IntStream neighborStream(int src) {
+        return StreamSupport.intStream(new Spliterator.OfInt() {
+            @Override
+            public OfInt trySplit() {
+                return null;
+            }
 
+            @Override
+            public boolean tryAdvance(IntConsumer action) {
+                return false;
+            }
+
+            @Override
+            public long estimateSize() {
+                return 0;
+            }
+
+            @Override
+            public int characteristics() {
+                return 0;
+            }
+        }, true);
+    }
 }

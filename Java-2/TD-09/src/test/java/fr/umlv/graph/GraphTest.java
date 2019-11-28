@@ -384,7 +384,7 @@ public class GraphTest {
   
   // Q8
   
-  /*@ParameterizedTest @Tag("Q8")
+  @ParameterizedTest @Tag("Q8")
   @MethodSource("graphFactoryProvider")
   public void testNeighborsStreamSimple(GraphFactory factory) {
     var graph = factory.<String>createGraph(6);
@@ -435,5 +435,5 @@ public class GraphTest {
         assertEquals(nodeCount, graph.neighborStream(i).distinct().count());
       }  
     });
-  }*/
+  }
 }
