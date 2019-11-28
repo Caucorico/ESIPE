@@ -18,7 +18,10 @@ public class Gate {
         synchronized (nbThreadWaitingLock) {
             nbThreadWaiting++;
 
-            if ( nbThreadWaiting == nbThreads ) nbThreadWaitingLock.notifyAll();
+            if ( nbThreadWaiting == nbThreads ) {
+                nbThreadWaitingLock.notifyAll();
+                return;
+            }
 
             while ( nbThreadWaiting < nbThreads && !halt ) {
                 try {
