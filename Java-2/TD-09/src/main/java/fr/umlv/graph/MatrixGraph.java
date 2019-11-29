@@ -1,6 +1,7 @@
 package fr.umlv.graph;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -93,13 +94,9 @@ class MatrixGraph <T> implements Graph<T> {
         };
     }
 
-    @Override
-    public IntStream neighborStream(int src) {
-        return StreamSupport.intStream(new Spliterator.OfInt() {
-            @Override
-            public OfInt trySplit() {
-                return null;
-            }
+    private static Spliterator.OfInt fromArray(int start, int end, int... array) {
+        return new Spliterator.OfInt() {
+            private int i = start;
 
             @Override
             public boolean tryAdvance(IntConsumer action) {
@@ -107,14 +104,31 @@ class MatrixGraph <T> implements Graph<T> {
             }
 
             @Override
+            public Spliterator.OfInt trySplit() {
+                int middle = (end - i) >>> 1;
+                if (middle == i) {
+                    return null;
+                }
+                Spliterator.OfInt spliterator = fromArray(i, middle, array);
+                i = middle;
+                return spliterator;
+            }
+
+            @Override
             public long estimateSize() {
-                return 0;
+                return end >>> 1;
             }
 
             @Override
             public int characteristics() {
                 return 0;
             }
-        }, true);
+        };
+    }
+
+    @Override
+    public IntStream neighborStream(int src) {
+        //return StreamSupport.intStream(fromArray(src, tab.length, tab), true);
+        return null;
     }
 }
