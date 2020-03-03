@@ -1,3 +1,5 @@
+package exercice01;
+
 public class BogusVolatile {
     private volatile boolean stop;
 

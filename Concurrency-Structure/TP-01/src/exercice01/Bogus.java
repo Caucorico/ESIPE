@@ -1,3 +1,5 @@
+package exercice01;
+
 public class Bogus {
   private final Object lock = new Object();
   private boolean stop;
