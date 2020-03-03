@@ -93,5 +93,29 @@ Moyen mnémotechnique:
 # Les dictionnaires
 
 
+# Les objets
+
+## Déclarer la classe :
+Pour déclarer la classe :
+
+``` Python
+class Exemple:
+  def method(self):
+    print('Exemple.method')
+```
+
+## Le constructeur :
+``` Python
+class Exemple:
+  def __init__(self):
+    self.axemple_var = 0
+```
 
 # Les tuples
+
+## Renvoyer un tuple :
+``` Python
+def function():
+  # Les parenthèses ne sont pas obligatoires
+  return (0 , 2)
+```
