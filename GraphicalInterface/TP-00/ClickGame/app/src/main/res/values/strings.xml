@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ClickGame</string>
+    <string name="_activity_click_game_counter_1">$1%d click made 1</string>
+    <string name="_activity_click_game_counter_2">$1%d click made 2</string>
 </resources>
