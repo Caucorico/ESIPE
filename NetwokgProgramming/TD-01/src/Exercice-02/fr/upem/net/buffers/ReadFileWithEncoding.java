@@ -17,25 +17,15 @@ public class ReadFileWithEncoding {
     }
 
     private static String stringFromFile(Charset cs,Path path) throws IOException {
-        var bb = ByteBuffer.allocate(1024);
-        StringBuilder sb = new StringBuilder();
-
         try ( var fc = FileChannel.open(path) ) {
-            while ( fc.read(bb) >= 0 ) {
-                if ( bb.hasRemaining() ) {
-                    bb.flip();
-                    var cb = cs.decode(bb);
-                    sb.append(cb.toString());
-                    bb.clear();
-                }
-            }
+            var bb = ByteBuffer.allocate((int)fc.size());
+            while ( fc.read(bb) > 0 );
 
+            /* Why flip necessary ? */
             bb.flip();
             var cb = cs.decode(bb);
-            sb.append(cb.toString());
+            return cb.toString();
         }
-
-        return sb.toString();
     }
 
     public static void main(String[] args) throws IOException {
