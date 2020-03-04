@@ -21,7 +21,7 @@ public class ReadFileWithEncoding {
             var bb = ByteBuffer.allocate((int)fc.size());
             while ( fc.read(bb) > 0 );
 
-            /* Why flip necessary ? */
+            /* TODO : Write into notes that the flip is necessary before decode */
             bb.flip();
             var cb = cs.decode(bb);
             return cb.toString();
