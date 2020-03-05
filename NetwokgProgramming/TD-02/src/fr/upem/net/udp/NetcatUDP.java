@@ -31,10 +31,7 @@ public class NetcatUDP {
             dc.bind(null);
             while(scan.hasNextLine()){
                 String line = scan.nextLine();
-                bb.put(cs.encode(line));
-                bb.flip();
-                dc.send(bb, server);
-                bb.clear();
+                dc.send(cs.encode(line), server);
                 dc.receive(bb);
                 bb.flip();
 
