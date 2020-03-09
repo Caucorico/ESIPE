@@ -6,7 +6,9 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -36,6 +38,32 @@ public class ClientBetterUpperCaseUDP {
 		if ( buffer.remaining() < 4 ) {
 			return Optional.empty();
 		}
+
+		var charsetSize = buffer.getInt();
+		if ( charsetSize <= 0 ) {
+			return Optional.empty();
+		}
+
+		if ( buffer.remaining() < charsetSize ) {
+			return Optional.empty();
+		}
+
+		var lastLimit = buffer.limit();
+		buffer.limit(buffer.position() + charsetSize);
+		var charsetName = ASCII_CHARSET.decode(buffer).toString();
+		Charset charset;
+		try {
+			charset = Charset.forName(charsetName);
+		} catch (IllegalCharsetNameException|UnsupportedCharsetException e) {
+			logger.warning("Charset " + charsetName + " unsupported !");
+			System.err.println("Charset " + charsetName + " unsupported !");
+			return Optional.empty();
+		}
+
+		buffer.limit(lastLimit);
+
+		return Optional.of(charset.decode(buffer).toString());
+
 	}
 
 	/**
@@ -56,12 +84,11 @@ public class ClientBetterUpperCaseUDP {
 	 */
 	public static Optional<ByteBuffer> encodeMessage(String msg, String charsetName) {
 		var cs = Charset.forName(charsetName);
-		var asciiCs = StandardCharsets.US_ASCII;
 		var encodedMsg = cs.encode(msg);
 		var bb = ByteBuffer.allocate(ClientBetterUpperCaseUDP.MAX_PACKET_SIZE);
 
 		bb.putInt(charsetName.length());
-		bb.put(asciiCs.encode(charsetName));
+		bb.put(ASCII_CHARSET.encode(charsetName));
 
 		if ( encodedMsg.remaining() > bb.remaining() ) {
 			return Optional.empty();
