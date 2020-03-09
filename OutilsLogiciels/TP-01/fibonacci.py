@@ -1,6 +1,8 @@
 from graph import *
 import math
 
+fibonacci5_memory = [0, 1]
+
 
 def fibonacci1(n):
     if n <= 1:
@@ -35,6 +37,20 @@ def fibonacci4(n):
     return b, a + b, sum_nbr + 1
 
 
+def fibonacci5(n):
+    if n <= 1:
+        return n, 0
+    elif n <= (len(fibonacci5_memory) - 1):
+        return fibonacci5_memory[n], 0
+
+    res1, res1_nbr = fibonacci5(n-1)
+    res2, res2_nbr = fibonacci5(n-2)
+    res = res1 + res2
+
+    fibonacci5_memory.append(res)
+    return res, res1_nbr + res2_nbr + 1
+
+
 def main():
     # for i in range(0, 100, 10):
     #    print(fibonacci1(i))
@@ -44,8 +60,9 @@ def main():
     liste2 = [(n * 20, (n ** 2) / 50) for n in range(25)]
     liste3 = [(n * 20, (math.exp(n)) / 50) for n in range(25)]
     liste4 = [(n * 20, (fibonacci4(n)[2]) / 50) for n in range(25)]
+    liste5 = [(n * 20, fibonacci5(n)[1] / 50) for n in range(25)]
 
-    graph = Graph(500, 500, 50, 450, [liste1, liste2, liste3, liste4], ['blue', 'green', 'red', 'yellow'])
+    graph = Graph(500, 500, 50, 450, [liste1, liste2, liste3, liste4, liste5], ['blue', 'green', 'red', 'yellow', 'orange'])
     graph.draw_graph()
 
 
