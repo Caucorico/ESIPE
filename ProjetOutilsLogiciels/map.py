@@ -1,11 +1,17 @@
 class Map:
     
+    LEFT_WALL   = 1
+    TOP_WALL    = 2
+    RIGHT_WALL  = 4
+    BOTTOM_WALL = 8
+    
     def __init__(self):
         self.map = []
+        self.size = 0
         
     def make_map_with_file(self, filename):
         file = open(filename, "r")
-        file.readline()
+        self.size = int(file.readline())
         lines = []
         
         for line in file:
@@ -14,59 +20,51 @@ class Map:
                 new_line.append(char)                    
             lines.append(new_line)
             
-        print(lines)
             
         for i in range(len(lines)):
             new_line = []
-            for j in range(len(lines[i])):
-                char = lines[i][j]
-                print(lines[i][j])
-                if ( char == ' '
-                    or char == 'A'
-                    or char == 'V'
-                    or char == 'H'
-                    or char == 'P'
-                    or char == 'T'
-                    ):
+            if i%2:
+                for j in range(len(lines[i])):
+                    if j%2 and lines[i][j] != '\n':
+                        char = lines[i][j]
+                        print (char) 
+                        case = 0
                     
-                    case = 0
-                
+                        # |case = 1
+                        # 
+                        # ----
+                        # case  = 2
+                        #
+                        # case| = 4
+                        #
+                        # case  = 8
+                        # ----
+                        
+                        if lines[i][j-1] == '|':
+                            case |= Map.LEFT_WALL
+                            
+                        if lines[i][j+1] == '|':
+                            case |= Map.RIGHT_WALL
+                            
+                        if lines[i-1][j] == '-':
+                            case |= Map.TOP_WALL
+                            
+                        if lines[i+1][j] == '-':
+                            case |= Map.BOTTOM_WALL
+                            
+                        new_line.append(case)
                     
-                    # |case = 1
-                    # 
-                    # ----
-                    # case  = 2
-                    #
-                    # case| = 4
-                    #
-                    # case  = 8
-                    # ----
-                    
-                    if lines[i][j+1] == '|':
-                        print('oui')
-                        case |= 1
-                        
-                    if lines[i][j-1] == '|':
-                        print('oui')
-                        case |= 4
-                        
-                    if lines[i+1][j] == '-':
-                        print('oui')
-                        case |= 2
-                        
-                    if lines[i-1][j] == '-':
-                        print('oui')
-                        case |= 8
-                        
-                    new_line.append(case)
-            self.map.append(new_line)
+                self.map.append(new_line)
         
     
     def terminal_display(self):
-        print(self.map)
-        return;
+        print("size="+str(self.size))
         for line in self.map:
-            for case in line:
-                print(case)
+            print(line)
+            
+            
+    def get_size():
+        return self.size
+            
         
                     
