@@ -21,6 +21,8 @@ allprojects {
         jcenter()
         
     }
+
+    buildDir = "/tmp/${rootProject.name}/${project.name}"
 }
 
 task clean(type: Delete) {
