@@ -52,10 +52,12 @@ public class ClientBetterUpperCaseUDP {
 		buffer.limit(buffer.position() + charsetSize);
 		var charsetName = ASCII_CHARSET.decode(buffer).toString();
 		Charset charset;
+		
+		/* TODO : REPLACE BY IF INSTEAD OF EXCEPTIONS */
 		try {
 			charset = Charset.forName(charsetName);
 		} catch (IllegalCharsetNameException|UnsupportedCharsetException e) {
-			logger.warning("Charset " + charsetName + " unsupported !");
+			logger.info("Charset " + charsetName + " unsupported !");
 			System.err.println("Charset " + charsetName + " unsupported !");
 			return Optional.empty();
 		}
