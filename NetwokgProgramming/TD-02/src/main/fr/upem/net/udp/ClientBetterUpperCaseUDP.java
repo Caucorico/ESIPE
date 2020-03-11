@@ -52,7 +52,7 @@ public class ClientBetterUpperCaseUDP {
 		buffer.limit(buffer.position() + charsetSize);
 		var charsetName = ASCII_CHARSET.decode(buffer).toString();
 		Charset charset;
-		
+
 		/* TODO : REPLACE BY IF INSTEAD OF EXCEPTIONS */
 		try {
 			charset = Charset.forName(charsetName);
