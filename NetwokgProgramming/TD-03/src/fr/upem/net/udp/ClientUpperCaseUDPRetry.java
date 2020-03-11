@@ -58,6 +58,7 @@ public class ClientUpperCaseUDPRetry {
 
     private static void runConsoleSender(Charset charset, InetSocketAddress server) throws IOException, InterruptedException {
         try (Scanner scan = new Scanner(System.in)){
+            /* TODO : DELETE the unused ByteBuffer */
             ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
             var datagramChannel = DatagramChannel.open();
             datagramChannel.bind(null);
