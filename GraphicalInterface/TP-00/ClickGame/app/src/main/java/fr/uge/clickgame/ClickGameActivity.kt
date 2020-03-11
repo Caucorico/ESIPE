@@ -17,6 +17,7 @@ class ClickGameActivity : AppCompatActivity() {
         button01.setOnClickListener{
             val toast: Toast = Toast.makeText(this, R.string._activity_click_game_quit, Toast.LENGTH_SHORT)
             toast.show()
+            finish()
         }
     }
 
