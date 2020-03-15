@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -58,6 +60,9 @@ public class ClientIdUpperCaseUDPOneByOne {
     private static Response createRequestFromByteBuffer(ByteBuffer byteBuffer) {
         byteBuffer.flip();
         var code = byteBuffer.getLong();
+        var message = UTF8.decode(byteBuffer).toString();
+
+        return new Response(code, message);
     }
 
     private void listenerThreadRun(){
@@ -65,9 +70,11 @@ public class ClientIdUpperCaseUDPOneByOne {
 
         try {
             while(!Thread.interrupted()) {
-                this.dc.receive(byteBuffer);
-                byteBuffer.flip();
-
+                dc.receive(byteBuffer);
+                logger.log(Level.FINE, "Packet received from the server.");
+                var response = createRequestFromByteBuffer(byteBuffer);
+                queue.put(response);
+                byteBuffer.clear();
             }
         } catch (AsynchronousCloseException|InterruptedException e) {
             logger.log(Level.INFO, "listener interrupted.");
@@ -98,14 +105,43 @@ public class ClientIdUpperCaseUDPOneByOne {
         //Create client with the parameters and launch it
         ClientIdUpperCaseUDPOneByOne client = new ClientIdUpperCaseUDPOneByOne(lines,timeout,serverAddress,outFilename);
         client.launch();
+    }
 
+    private void runSender(Thread listenerThread) throws IOException, InterruptedException {
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+        Instant lastSendRequest = Instant.now().minusMillis(timeout);
+
+        long i = 0;
+
+        for ( String line : lines ) {
+            Response response;
+            do {
+                logger.log(Level.INFO, Duration.between(lastSendRequest, Instant.now()).toMillis()+"");
+                if (Duration.between(lastSendRequest, Instant.now()).toMillis() >= timeout ) {
+                    byteBuffer.putLong(i);
+                    byteBuffer.put(UTF8.encode(line));
+                    byteBuffer.flip();
+                    dc.send(byteBuffer, serverAddress);
+                    byteBuffer.clear();
+                    lastSendRequest = Instant.now();
+                }
+
+                response = queue.poll(Duration.between(Instant.now(), lastSendRequest.plusMillis(timeout)).toMillis(), TimeUnit.MILLISECONDS);
+            } while (response == null || response.id != i );
+
+            upperCaseLines.add(response.msg);
+            i++;
+        }
+
+        listenerThread.interrupt();
+        dc.close();
     }
 
     private void launch() throws IOException, InterruptedException {
         Thread listenerThread = new Thread(this::listenerThreadRun);
         listenerThread.start();
 
-		  //TODO
+		runSender(listenerThread);
 
         Files.write(Paths.get(outFilename), upperCaseLines, UTF8,
                 StandardOpenOption.CREATE,
