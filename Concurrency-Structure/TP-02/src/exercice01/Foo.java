@@ -11,7 +11,17 @@ public class Foo {
         return value;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
+        Foo foo = new Foo("coucou");
+
+        Thread t = new Thread(() -> {
+            /* Some chances that value is null. */
+            System.out.println(foo.getValue());
+        });
+
+        t.start();
+
+
 
     }
 }
