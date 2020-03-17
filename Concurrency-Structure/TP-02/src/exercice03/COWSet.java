@@ -1,5 +1,7 @@
 package exercice03;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -9,6 +11,12 @@ public class COWSet<E> {
 
     private static final Object[] EMPTY = new Object[0];
 
+    private static final VarHandle hashArrayElementsHandle;
+
+    static {
+        hashArrayElementsHandle = MethodHandles.arrayElementVarHandle(Object[][].class);
+    }
+
     @SuppressWarnings("unchecked")
     public COWSet(int capacity) {
         var array = new Object[capacity][];
@@ -16,18 +24,26 @@ public class COWSet<E> {
         this.hashArray = (E[][])array;
     }
 
+    @SuppressWarnings("unchecked")
     public boolean add(E element) {
         Objects.requireNonNull(element);
         var index = element.hashCode() % hashArray.length;
-        for (var e : hashArray[index]) {
-            if (element.equals(e)) {
-                return false;
+        E[] oldArray, newArray;
+
+        do {
+            oldArray = (E[]) hashArrayElementsHandle.getVolatile(hashArray, index);
+
+            for (var e : oldArray) {
+                if (element.equals(e)) {
+                    return false;
+                }
             }
-        }
-        var oldArray = hashArray[index];
-        var newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
-        newArray[oldArray.length] = element;
-        hashArray[index] = newArray;
+
+            newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
+            newArray[oldArray.length] = element;
+            hashArray[index] = newArray;
+        } while ( !hashArrayElementsHandle.compareAndSet(hashArray, index, oldArray, newArray));
+
         return true;
     }
 
