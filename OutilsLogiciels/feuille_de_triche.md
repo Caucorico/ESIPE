@@ -119,3 +119,22 @@ def function():
   # Les parenthèses ne sont pas obligatoires
   return (0 , 2)
 ```
+
+
+
+
+
+
+
+
+
+# Manipulation de String :
+
+## La fonction replace :
+```
+txt = "I like bananas"
+x = txt.replace("bananas", "apples")
+print(x) 
+```
+
+Return : I like apples
