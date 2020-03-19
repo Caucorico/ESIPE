@@ -7,22 +7,27 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.DatagramChannel;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ServerLongSum {
+public class ServerFreeLongSum {
     public static final byte REQUEST_NUMBER = 1;
     public static final byte RESPONSE_ACKNOWLEDGEMENT = 2;
     public static final byte RESPONSE_SUM = 3;
+    public static final byte REQUEST_CLEAR = 4;
+    public static final byte RESPONSE_CLEAR = 5;
 
-    private static final Logger logger = Logger.getLogger(ServerLongSum.class.getName());
+    private final int timeout;
+    private static final Logger logger = Logger.getLogger(ServerFreeLongSum.class.getName());
     private static final int BYTE_BUFFER_CAPACITY = 1024;
     private final DatagramChannel datagramChannel;
     private final ByteBuffer byteBuffer;
-    private final HashMap<InetSocketAddress, HashMap<Long, SumData>>  data = new HashMap<>();
+    private final ConcurrentHashMap<InetSocketAddress, ConcurrentHashMap<Long, SumData>> data = new ConcurrentHashMap<>();
 
 
-    public ServerLongSum(int port) throws IOException {
+    public ServerFreeLongSum(int port, int timeout) throws IOException {
+        this.timeout = timeout;
         datagramChannel = DatagramChannel.open();
         try {
             datagramChannel.bind(new InetSocketAddress(port));
@@ -36,12 +41,36 @@ public class ServerLongSum {
     }
 
     public static void usage() {
-        System.out.println("Usage : ServerLongSum port");
+        System.out.println("Usage : ServerLongSum port timeout(ms)");
+    }
+
+    private Thread runThreadTimeout(InetSocketAddress client, long sessionId) {
+        Thread thread = new Thread(() -> {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+                return;
+            }
+            removeSumData(client, sessionId);
+            logger.info("Cleared by timeout");
+        });
+        thread.start();
+        return thread;
+    }
+
+    public void removeSumData(InetSocketAddress client, long sessionId) {
+        data.computeIfPresent(client, (k, v) -> {
+            v.remove(sessionId);
+            return null;
+        });
     }
 
     public SumData getSumData(InetSocketAddress client, long sessionId, long totalOperandNumber) {
-        var clientSession = data.computeIfAbsent(client, k -> new HashMap<>());
-        return clientSession.computeIfAbsent(sessionId, k -> new SumData((int)totalOperandNumber));
+        var clientSession = data.computeIfAbsent(client, k -> new ConcurrentHashMap<>());
+        return clientSession.computeIfAbsent(sessionId, k -> {
+            runThreadTimeout(client, sessionId);
+            return new SumData((int)totalOperandNumber);
+        });
     }
 
     public void buildResponse(SumData sumData, long sessionId) {
@@ -58,20 +87,13 @@ public class ServerLongSum {
         byteBuffer.putLong(positionOperand);
     }
 
-    public boolean treatRequest(InetSocketAddress client) throws IOException {
-        byteBuffer.flip();
+    public void buildClearAcknowledgement(long sessionId) {
+        byteBuffer.clear();
+        byteBuffer.put(RESPONSE_CLEAR);
+        byteBuffer.putLong(sessionId);
+    }
 
-        if ( byteBuffer.remaining() < Byte.BYTES ) {
-            logger.log(Level.INFO, "Request ignored, wrong structure.");
-            return false;
-        }
-
-        byte type = byteBuffer.get();
-        if ( type != REQUEST_NUMBER ) {
-            logger.log(Level.INFO, "Request ignored, wrong structure.");
-            return false;
-        }
-
+    public boolean treatPutRequest(InetSocketAddress client) throws IOException {
         if ( byteBuffer.remaining() < Long.BYTES ) {
             logger.log(Level.INFO, "Request ignored, wrong structure.");
             return false;
@@ -123,6 +145,43 @@ public class ServerLongSum {
         return true;
     }
 
+    public boolean treatClearRequest(InetSocketAddress client) {
+        if ( byteBuffer.remaining() < Long.BYTES ) {
+            logger.log(Level.INFO, "Request ignored, wrong structure.");
+            return false;
+        }
+
+        var sessionId = byteBuffer.getLong();
+
+        removeSumData(client, sessionId);
+        buildClearAcknowledgement(sessionId);
+
+        return true;
+    }
+
+    public boolean treatRequest(InetSocketAddress client) throws IOException {
+        byteBuffer.flip();
+
+        if ( byteBuffer.remaining() < Byte.BYTES ) {
+            logger.log(Level.INFO, "Request ignored, wrong structure.");
+            return false;
+        }
+
+        byte type = byteBuffer.get();
+
+        switch ( type ) {
+            case REQUEST_NUMBER:
+                return treatPutRequest(client);
+            case REQUEST_CLEAR:
+                logger.log(Level.INFO, "Cleared");
+                return treatClearRequest(client);
+            default:
+                logger.log(Level.INFO, "Request ignored, wrong structure.");
+                return false;
+        }
+
+    }
+
     public void serve() throws IOException {
         while (!Thread.interrupted()) {
             byteBuffer.clear();
@@ -136,19 +195,26 @@ public class ServerLongSum {
 
     public static void main(String[] args) throws IOException {
 
-        if (args.length != 1) {
+        if (args.length != 2) {
             usage();
             return;
         }
 
-        ServerLongSum serverLongSum;
+        ServerFreeLongSum serverLongSum;
         int port = Integer.valueOf(args[0]);
         if (!(port >= 1024) & port <= 65535) {
             logger.severe("The port number must be between 1024 and 65535");
             return;
         }
+        int timeout = Integer.valueOf(args[1]);
+        if ( timeout < 0 ) {
+            logger.severe("The timout must be positive !");
+            return;
+        }
+
+
         try {
-            serverLongSum = new ServerLongSum(port);
+            serverLongSum = new ServerFreeLongSum(port, timeout);
         } catch (BindException e) {
             logger.severe("Server could not bind on " + port + "\nAnother server is probably running on this port.");
             return;
