@@ -6,8 +6,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.DatagramChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,7 +16,6 @@ public class ServerLongSum {
     public static final byte RESPONSE_SUM = 3;
 
     private static final Logger logger = Logger.getLogger(ServerLongSum.class.getName());
-    private final static Charset UTF8 = StandardCharsets.UTF_8;
     private static final int BYTE_BUFFER_CAPACITY = 1024;
     private final DatagramChannel datagramChannel;
     private final ByteBuffer byteBuffer;
@@ -110,21 +107,18 @@ public class ServerLongSum {
         }
 
         long operand = byteBuffer.getLong();
-//        System.out.println("Type : " + type);
-//        System.out.println("Session id : " + sessionId);
-//        System.out.println("position operand : " + positionOperand);
-//        System.out.println("total operand number : " + totalOperandNumber);
-//        System.out.println("operand : " + operand);
-//        System.out.println("##############################");
 
         var sumData = getSumData(client, sessionId, totalOperandNumber);
         sumData.addOperand((int)positionOperand, operand);
 
         if ( sumData.isFull() ) {
             buildResponse(sumData, sessionId);
-        } else {
-            buildAcknowledgement(sessionId, positionOperand);
+            
+            byteBuffer.flip();
+            datagramChannel.send(byteBuffer, client);
         }
+
+        buildAcknowledgement(sessionId, positionOperand);
 
         return true;
     }
@@ -136,8 +130,6 @@ public class ServerLongSum {
             if ( treatRequest(client) ) {
                 byteBuffer.flip();
                 datagramChannel.send(byteBuffer, client);
-//                datagramChannel.send(UTF8.encode("COUCOU"), client);
-                logger.info("sended");
             }
         }
     }
