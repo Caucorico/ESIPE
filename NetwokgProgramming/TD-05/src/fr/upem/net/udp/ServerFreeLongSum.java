@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.DatagramChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -52,17 +53,17 @@ public class ServerFreeLongSum {
                 return;
             }
             removeSumData(client, sessionId);
-            logger.info("Cleared by timeout");
         });
         thread.start();
         return thread;
     }
 
     public void removeSumData(InetSocketAddress client, long sessionId) {
-        data.computeIfPresent(client, (k, v) -> {
-            v.remove(sessionId);
-            return null;
-        });
+//        data.computeIfPresent(client, (k, v) -> {
+//            v.remove(sessionId);
+//            return null;
+//        });
+        data.get(client).remove(sessionId);
     }
 
     public SumData getSumData(InetSocketAddress client, long sessionId, long totalOperandNumber) {
@@ -135,12 +136,9 @@ public class ServerFreeLongSum {
 
         if ( sumData.isFull() ) {
             buildResponse(sumData, sessionId);
-
-            byteBuffer.flip();
-            datagramChannel.send(byteBuffer, client);
+        } else {
+            buildAcknowledgement(sessionId, positionOperand);
         }
-
-        buildAcknowledgement(sessionId, positionOperand);
 
         return true;
     }
@@ -173,7 +171,6 @@ public class ServerFreeLongSum {
             case REQUEST_NUMBER:
                 return treatPutRequest(client);
             case REQUEST_CLEAR:
-                logger.log(Level.INFO, "Cleared");
                 return treatClearRequest(client);
             default:
                 logger.log(Level.INFO, "Request ignored, wrong structure.");

@@ -113,12 +113,9 @@ public class ServerLongSum {
 
         if ( sumData.isFull() ) {
             buildResponse(sumData, sessionId);
-
-            byteBuffer.flip();
-            datagramChannel.send(byteBuffer, client);
+        } else {
+            buildAcknowledgement(sessionId, positionOperand);
         }
-
-        buildAcknowledgement(sessionId, positionOperand);
 
         return true;
     }
