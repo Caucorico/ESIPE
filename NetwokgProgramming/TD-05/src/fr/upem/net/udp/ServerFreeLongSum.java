@@ -53,6 +53,7 @@ public class ServerFreeLongSum {
                 return;
             }
             removeSumData(client, sessionId);
+            logger.log(Level.INFO, "Timedout");
         });
         thread.start();
         return thread;
