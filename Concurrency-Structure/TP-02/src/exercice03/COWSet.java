@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class COWSet<E> {
@@ -41,18 +42,49 @@ public class COWSet<E> {
 
             newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
             newArray[oldArray.length] = element;
-            hashArray[index] = newArray;
         } while ( !hashArrayElementsHandle.compareAndSet(hashArray, index, oldArray, newArray));
 
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public void forEach(Consumer<? super E> consumer) {
         for(var index = 0; index < hashArray.length; index++) {
-            var oldArray = hashArray[index];
+            var oldArray = (E[])hashArrayElementsHandle.getVolatile(hashArray, index);
             for(var element: oldArray) {
                 consumer.accept(element);
             }
         }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        COWSet<Integer> cowSet = new COWSet<>(8);
+        int thread_number = 4;
+        Thread[] threads = new Thread[thread_number];
+
+
+        for ( int i = 0 ; i < thread_number ; i++ ) {
+            Thread t = new Thread(() -> {
+                for ( int j = 0 ; j < 10_000 ; j++ ) {
+                    cowSet.add(j);
+                }
+            });
+            threads[i] = t;
+            t.start();
+        }
+
+        for ( int i = 0 ; i < thread_number ; i++ ) {
+            threads[i].join();
+        }
+
+        AtomicInteger sum = new AtomicInteger(0);
+
+        Consumer<Integer> consumer = element -> {
+            sum.incrementAndGet();
+        };
+
+        cowSet.forEach(consumer);
+
+        System.out.println(sum.get());
     }
 }
