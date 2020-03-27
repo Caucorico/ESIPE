@@ -30,7 +30,7 @@ public class Edge {
 
     @Override
     public String toString() {
-        return start + " -- " + end + " ( " + value + " ) ";
+        return start + " -> " + end + " [ label=\"" + value + "\" ] ";
     }
 
     @Override

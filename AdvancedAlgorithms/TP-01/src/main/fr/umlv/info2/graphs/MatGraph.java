@@ -1,6 +1,7 @@
 package fr.umlv.info2.graphs;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 public class MatGraph implements Graph {
@@ -49,14 +50,19 @@ public class MatGraph implements Graph {
 
     @Override
     public Iterator<Edge> edgeIterator(int i) {
+        if ( i < 0 || i > n-1 ) {
+            throw new IndexOutOfBoundsException();
+        }
+
         return new Iterator<>() {
-            int j = 0;
+            int j = -1;
+            int last = -1;
 
             private int getNext() {
-                int k = 0;
+                int k = j+1;
 
-                while ( k <= n ) {
-                    if ( k != 0 ) break;
+                while ( k < n ) {
+                    if ( mat[i][k] != 0 ) break;
                     k++;
                 }
 
@@ -70,10 +76,25 @@ public class MatGraph implements Graph {
 
             @Override
             public Edge next() {
-                if ( !hasNext() ) return null;
-                var edge = new Edge(i, j, mat[i][j]);
+                if ( !hasNext() ) throw new NoSuchElementException();
+                var lastJ = j;
                 j = getNext();
-                return edge;
+
+                if ( lastJ == -1 ) {
+                    last = j;
+                } else {
+                    last = lastJ;
+                }
+
+                return new Edge(i, j, mat[i][j]);
+            }
+
+            @Override
+            public void remove() {
+                if ( last == -1 ) throw new IllegalStateException();
+                mat[i][j] = 0;
+                j = last;
+                last = -1;
             }
         };
     }
@@ -81,15 +102,20 @@ public class MatGraph implements Graph {
 
     @Override
     public void forEachEdge(int i, Consumer<Edge> consumer) {
-        for ( int j = 0 ; j < n ; j++ ) {
-            Iterator<Edge> iterator = edgeIterator(j);
-            iterator.forEachRemaining(consumer);
-        }
+        Iterator<Edge> iterator = edgeIterator(i);
+        iterator.forEachRemaining(consumer);
     }
 
     @Override
     public String toGraphviz() {
-        return null;
+        StringBuilder sb = new StringBuilder();
+        sb.append("digraph G {\n");
+        for ( var i = 0 ; i < n ; i++ ) {
+            sb.append(i).append(";\n");
+            forEachEdge(i, (edge) -> sb.append(edge.toString()).append(";\n"));
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
     public Iterator<Edge> graphIterator() {
@@ -128,5 +154,17 @@ public class MatGraph implements Graph {
                 return edge;
             }
         };
+    }
+
+    public static void main(String[] args) {
+        MatGraph matGraph = new MatGraph(10);
+
+        for (var i = 0; i < 10 ; i++) {
+            for (var j = 0; j <= i; j++) {
+                matGraph.addEdge(i, j, i + j);
+            }
+        }
+
+        System.out.println(matGraph.toGraphviz());
     }
 }
