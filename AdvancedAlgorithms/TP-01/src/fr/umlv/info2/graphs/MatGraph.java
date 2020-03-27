@@ -82,7 +82,8 @@ public class MatGraph implements Graph {
     @Override
     public void forEachEdge(int i, Consumer<Edge> consumer) {
         for ( int j = 0 ; j < n ; j++ ) {
-
+            Iterator<Edge> iterator = edgeIterator(j);
+            iterator.forEachRemaining(consumer);
         }
     }
 
