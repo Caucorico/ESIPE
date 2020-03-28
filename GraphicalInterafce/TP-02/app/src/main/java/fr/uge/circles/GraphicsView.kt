@@ -9,51 +9,75 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import fr.uge.circles.finger.Finger
+import java.util.Random
+import kotlin.collections.HashMap
 
-class GraphicsView(context: Context, attrs: AttributeSet, defStyleAttr: Int) :
-    View(context, attrs, defStyleAttr) {
+class GraphicsView : View {
+
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
+        val r = Random()
+        colors = IntArray(10) { Color.rgb(r.nextInt(255), r.nextInt(255), r.nextInt(255)) }
+    }
 
     constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0) {}
 
-    val paint: Paint = Paint()
+    private val paint: Paint = Paint()
 
-    val fingers = Array<Finger>(10) { Finger() }
+    private val colors: IntArray
+
+    private val fingers = HashMap<Int, Finger>( 10 )
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        var invalidate = false
+        var time = 5.0f
 
-        paint.setColor(Color.BLACK)
+        for ( (i, finger) in fingers.values.withIndex() ) {
+            paint.color = colors[i]
 
-        for ( finger in fingers ) {
-            if ( finger.x != null && finger.y != null ) {
-                canvas?.drawCircle(finger.x!!, finger.y!!, 50.0f, paint)
+            if ( finger.end == null ) {
+                invalidate = true
+                time = (System.currentTimeMillis() - finger.start).toFloat()
+            } else {
+                time = (finger.end!! - finger.start).toFloat()
             }
+
+            canvas?.drawCircle(finger.x, finger.y, time/100.0f, paint)
+        }
+
+        if ( invalidate ) {
+            invalidate()
         }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-
-        var count = event?.pointerCount
-
         when( event?.actionMasked ) {
             MotionEvent.ACTION_DOWN -> {
-                Log.i("TEST", "ACTION_DOWN")
-                fingers[0].x = event.getX()
-                fingers[0].y = event.getY()
+                val actionIndex = event.actionIndex
+
+                val finger = Finger(event.getX(actionIndex), event.getY(actionIndex), System.currentTimeMillis())
+                fingers[event.getPointerId(actionIndex)] = finger
+            }
+            MotionEvent.ACTION_POINTER_DOWN  -> {
+                val actionIndex = event.actionIndex
+
+                val finger = Finger(event.getX(actionIndex), event.getY(actionIndex), System.currentTimeMillis())
+                fingers[event.getPointerId(actionIndex)] = finger
             }
             MotionEvent.ACTION_MOVE -> {
-                if ( count != null ) {
-                    count = count-1
-                    for ( i in 0..count ) {
-                        fingers[i].x = event.getX(i)
-                        fingers[i].y = event.getY(i)
-                    }
+                for ( i in 0 until event.pointerCount ) {
+                    val finger = fingers[event.getPointerId(i)]
+                    finger!!.x = event.getX(i)
+                    finger.y = event.getY(i)
+                    finger.end = System.currentTimeMillis()
                 }
             }
-            MotionEvent.ACTION_POINTER_DOWN -> {
-                if (count != null) {
-                    fingers[event.actionIndex].x = event.getX(event.actionIndex)
-                    fingers[event.actionIndex].y = event.getY(event.actionIndex)
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                val actionIndex = event.actionIndex
+                val finger = fingers[event.getPointerId(actionIndex)]
+
+                if ( finger != null && finger.end == null ) {
+                    finger.end = System.currentTimeMillis()
                 }
             }
         }
