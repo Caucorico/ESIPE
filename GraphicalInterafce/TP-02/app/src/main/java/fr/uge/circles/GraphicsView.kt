@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import fr.uge.circles.finger.Finger
@@ -27,6 +26,22 @@ class GraphicsView : View {
 
     private val fingers = HashMap<Int, Finger>( 10 )
 
+    /**
+     * 1) Il existe deux façons d'ajouter un event onClick sur un objet View :
+     * - On redéfinie la fonction onTouchEvent dans notre classe qui extends View
+     * - On prend une instance de notre objet  et on fait un setOnTouchListener
+     *
+     * 2)
+     * - La méthode onDraw est appelée lorsque androïd décide de rafraichir l'objet View.
+     *   Cela peut survenir au démarrage, mais également lors de l'appel à la méthode invalidate().
+     *
+     * - La méthode invalidate() permet d'indiquer à Androïd qu'il faut redéssiner notre objet.
+     * - La méthode requestLayout() demander de redessiner le layout entier plutôt que seulement
+     *   notre objet. Ce n'est donc pas cette méthode que nous allons utiliser ici.
+     *
+     *
+     *
+     */
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         var invalidate = false
@@ -69,6 +84,10 @@ class GraphicsView : View {
                     val finger = fingers[event.getPointerId(i)]
                     finger!!.x = event.getX(i)
                     finger.y = event.getY(i)
+
+                    /* Problem here : Even immobile, the touchscreen detect movement... We are forced
+                     * to refresh...
+                     */
                     finger.end = System.currentTimeMillis()
                 }
             }
