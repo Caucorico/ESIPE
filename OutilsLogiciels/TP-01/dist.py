@@ -1,6 +1,3 @@
-import pickle
-
-
 def distance1(string1, string2):
     if len(string1) == 0 and len(string2) == 0:
         return 0
@@ -123,9 +120,9 @@ def plus_proche1(string, possibilities):
     return possibilities[near_index]
 
 
-print(distance1("abracadabra", "macabre"))
-print(distance1_debug("abracadabra", "macabre"))
-save_transformations = {}
-print(distance2("abracadabra", "macabre"))
-save_transformations = {}
-print(distance2_debug("abracadabra", "macabre")[1])
+# print(distance1("abracadabra", "macabre"))
+# print(distance1_debug("abracadabra", "macabre"))
+# save_transformations = {}
+# print(distance2("abracadabra", "macabre"))
+# save_transformations = {}
+# print(distance2_debug("abracadabra", "macabre")[1])
