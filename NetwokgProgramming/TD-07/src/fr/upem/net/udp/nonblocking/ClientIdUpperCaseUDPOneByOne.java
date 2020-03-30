@@ -119,17 +119,20 @@ public class ClientIdUpperCaseUDPOneByOne {
         long timeout = 0;
         switch (state) {
             case RECEIVING:
-                timeout = (int)Duration.between(Instant.now(), lastSend.plusMillis(timeout)).toMillis();
-                break;
+                uniqueKey.interestOps(SelectionKey.OP_READ);
+                timeout = Duration.between(Instant.now(), lastSend.plusMillis(this.timeout)).toMillis();
+                if ( timeout <= 0 ) {
+                    state = State.SENDING;
+                    uniqueKey.interestOps(SelectionKey.OP_WRITE);
+                    return 0;
+                }
+                return (int)timeout;
             case SENDING:
-                timeout = 0;
+                uniqueKey.interestOps(SelectionKey.OP_WRITE);
+                return 0;
             default:
-                timeout = 0;
+                return this.timeout;
         }
-
-//        if ( timeout <= 0 ) return 1;
-//        return (int)timeout;
-        return 1000;
     }
 
     private boolean isFinished() {
@@ -147,21 +150,24 @@ public class ClientIdUpperCaseUDPOneByOne {
         logger.info("Try receive");
         var exp = dc.receive(byteBuffer);
 
-        byteBuffer.flip();
-        uniqueKey.interestOps(SelectionKey.OP_WRITE);
-        state = State.SENDING;
-
         if ( exp == null ) return;
+        byteBuffer.flip();
         if ( byteBuffer.remaining() < Long.BYTES ) return;
 
         long id = byteBuffer.getLong();
+
         /* TODO : NOT RESEND IN THIS CASE */
         if ( id != currentId ) return;
 
         upperCaseLines.add(UTF8.decode(byteBuffer).toString());
         currentId++;
 
-        if ( upperCaseLines.size() == lines.size() ) state = State.FINISHED;
+        if ( upperCaseLines.size() == lines.size() ) {
+            state = State.FINISHED;
+            return;
+        }
+
+        state = State.SENDING;
     }
 
     /**
@@ -183,7 +189,6 @@ public class ClientIdUpperCaseUDPOneByOne {
         lastSend = Instant.now();
 
         state = State.RECEIVING;
-        uniqueKey.interestOps(SelectionKey.OP_READ);
     }
 }
 
