@@ -92,7 +92,6 @@ public class ClientIdUpperCaseUDPOneByOne {
     private List<String> launch() throws IOException, InterruptedException {
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         while (!isFinished()) {
-            logger.info("Waiting");
             selector.select(updateInterestOps());
             for (SelectionKey key : selectedKeys) {
                 if (key.isValid() && key.isWritable()) {
@@ -147,7 +146,6 @@ public class ClientIdUpperCaseUDPOneByOne {
 
     private void doRead() throws IOException {
         byteBuffer.clear();
-        logger.info("Try receive");
         var exp = dc.receive(byteBuffer);
 
         if ( exp == null ) return;
@@ -156,7 +154,6 @@ public class ClientIdUpperCaseUDPOneByOne {
 
         long id = byteBuffer.getLong();
 
-        /* TODO : NOT RESEND IN THIS CASE */
         if ( id != currentId ) return;
 
         upperCaseLines.add(UTF8.decode(byteBuffer).toString());
@@ -183,7 +180,6 @@ public class ClientIdUpperCaseUDPOneByOne {
         byteBuffer.put(UTF8.encode(lines.get((int)currentId)));
         byteBuffer.flip();
 
-        logger.info("Try send");
         dc.send(byteBuffer, serverAddress);
         if ( byteBuffer.hasRemaining() ) return;
         lastSend = Instant.now();
