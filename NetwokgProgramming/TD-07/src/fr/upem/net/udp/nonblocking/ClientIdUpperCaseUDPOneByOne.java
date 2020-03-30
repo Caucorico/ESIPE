@@ -3,7 +3,6 @@ package fr.upem.net.udp.nonblocking;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -14,11 +13,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class ClientIdUpperCaseUDPOneByOne {
@@ -115,17 +112,17 @@ public class ClientIdUpperCaseUDPOneByOne {
     */
     
     private int updateInterestOps() {
-        long timeout = 0;
+        long delay;
         switch (state) {
             case RECEIVING:
                 uniqueKey.interestOps(SelectionKey.OP_READ);
-                timeout = Duration.between(Instant.now(), lastSend.plusMillis(this.timeout)).toMillis();
-                if ( timeout <= 0 ) {
+                delay = Duration.between(Instant.now(), lastSend.plusMillis(this.timeout)).toMillis();
+                if ( delay <= 0 ) {
                     state = State.SENDING;
                     uniqueKey.interestOps(SelectionKey.OP_WRITE);
                     return 0;
                 }
-                return (int)timeout;
+                return (int)delay;
             case SENDING:
                 uniqueKey.interestOps(SelectionKey.OP_WRITE);
                 return 0;
