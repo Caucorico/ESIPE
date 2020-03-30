@@ -155,6 +155,11 @@ public class ClientIdUpperCaseUDPBurst {
         long id = byteBuffer.getLong();
         upperCaseLines[(int)id] = UTF8.decode(byteBuffer).toString();
         bitSet.set((int)id);
+
+        if (  bitSet.cardinality() == lines.size() ) {
+            state = State.FINISHED;
+        }
+
     }
 
     /**
@@ -164,19 +169,6 @@ public class ClientIdUpperCaseUDPBurst {
     */
 
     private void doWrite() throws IOException {
-        if (  bitSet.cardinality() == lines.size() ) {
-            state = State.FINISHED;
-            return;
-        }
-
-        if ( sentLotNumber == (lines.size()-bitSet.cardinality()) ) {
-            sentLotNumber = 0;
-            lastPos = 0;
-            state = State.RECEIVING;
-            lastSend = Instant.now();
-            return;
-        }
-
         var i = bitSet.nextClearBit(lastPos);
         byteBuffer.clear();
         byteBuffer.putLong(i);
@@ -187,6 +179,14 @@ public class ClientIdUpperCaseUDPBurst {
         if ( !byteBuffer.hasRemaining() ) {
             sentLotNumber++;
             lastPos = i+1;
+
+            if ( sentLotNumber == (lines.size()-bitSet.cardinality()) ) {
+                sentLotNumber = 0;
+                lastPos = 0;
+                state = State.RECEIVING;
+                lastSend = Instant.now();
+                return;
+            }
         }
     }
 }
