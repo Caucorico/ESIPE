@@ -95,12 +95,12 @@ public class ClientEOS {
 	  * @return false if read returned -1 at some point and true otherwise
 	  * @throws IOException
 	  */
-  	static boolean readFully(SocketChannel sc, ByteBuffer bb) throws IOException {
-        bb.clear();
-        var res = sc.read(bb);
-        if ( res == -1 ) return false;
-        return true;
-  	}
+   static boolean readFully(SocketChannel sc, ByteBuffer bb) throws IOException {
+	   bb.clear();
+	   var res = sc.read(bb);
+	   if ( res == -1 ) return false;
+	   return true;
+   }
 
     public static void main(String[] args) throws IOException {
 		  InetSocketAddress google = new InetSocketAddress("www.google.fr", 80);
