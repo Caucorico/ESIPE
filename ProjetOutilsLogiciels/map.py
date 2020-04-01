@@ -95,9 +95,23 @@ class Map:
 
     def get_ariane(self):
         return self.entities["ariane"]
-    
+
     def get_v_mino(self):
         return self.entities['min_v']
 
     def get_h_mino(self):
         return self.entities['min_h']
+
+    def mino_on_case(self, x, y):
+        minos_v = self.get_v_mino().copy()
+        minos_h = self.get_h_mino().copy()
+        minos_v.extend(minos_h)
+
+        print(minos_v)
+
+        for mino in minos_v:
+            if mino.x == x and mino.y == y:
+                return True
+
+        return False
+

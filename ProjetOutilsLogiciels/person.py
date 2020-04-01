@@ -15,7 +15,8 @@ class Person:
         # Todo : find a way to polymorphism
         if self.type == Person.ARIANE \
                 or self.type == Person.VERTICAL_MINAUTORE:
-            if not self.map.case_have_top_wall(self.x, self.y):
+            if not self.map.case_have_top_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x, self.y-1):
                 return True
 
         if self.type == Person.THESEE:
@@ -26,7 +27,8 @@ class Person:
         if self.type == Person.HORIZONTAL_MINAUTORE:
             ariane = self.map.get_ariane()
             if self.x == ariane.x \
-                    and not self.map.case_have_top_wall(self.x, self.y):
+                    and not self.map.case_have_top_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x, self.y-1):
                 return True
 
         return False
@@ -48,6 +50,9 @@ class Person:
                 if self.map.case_have_top_wall(self.x, self.y):
                     break
 
+                if self.map.mino_on_case(self.x-1, self.y):
+                    break
+
                 self.y -= 1
 
         return self
@@ -56,7 +61,8 @@ class Person:
         # Todo : find a way to polymorphism
         if self.type == Person.ARIANE \
                 or self.type == Person.VERTICAL_MINAUTORE:
-            if not self.map.case_have_bottom_wall(self.x, self.y):
+            if not self.map.case_have_bottom_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x, self.y+1):
                 return True
 
         if self.type == Person.THESEE:
@@ -67,7 +73,8 @@ class Person:
         if self.type == Person.HORIZONTAL_MINAUTORE:
             ariane = self.map.get_ariane()
             if self.x == ariane.x \
-                    and not self.map.case_have_bottom_wall(self.x, self.y):
+                    and not self.map.case_have_bottom_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x, self.y+1):
                 return True
 
         return False
@@ -89,6 +96,9 @@ class Person:
                 if self.map.case_have_bottom_wall(self.x, self.y):
                     break
 
+                if self.map.mino_on_case(self.x, self.y+1):
+                    break
+
                 self.y += 1
 
         return self
@@ -97,7 +107,8 @@ class Person:
         # Todo : find a way to polymorphism
         if self.type == Person.ARIANE \
                 or self.type == Person.HORIZONTAL_MINAUTORE:
-            if not self.map.case_have_left_wall(self.x, self.y):
+            if not self.map.case_have_left_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x-1, self.y):
                 return True
 
         if self.type == Person.THESEE:
@@ -108,7 +119,8 @@ class Person:
         if self.type == Person.VERTICAL_MINAUTORE:
             ariane = self.map.get_ariane()
             if self.y == ariane.y \
-                    and not self.map.case_have_left_wall(self.x, self.y):
+                    and not self.map.case_have_left_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x-1, self.y):
                 return True
 
         return False
@@ -130,6 +142,9 @@ class Person:
                 if self.map.case_have_left_wall(self.x, self.y):
                     break
 
+                if self.map.mino_on_case(self.x-1, self.y):
+                    break
+
                 self.x -= 1
 
         return self
@@ -138,7 +153,8 @@ class Person:
         # Todo : find a way to polymorphism
         if self.type == Person.ARIANE \
                 or self.type == Person.HORIZONTAL_MINAUTORE:
-            if not self.map.case_have_right_wall(self.x, self.y):
+            if not self.map.case_have_right_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x+1, self.y):
                 return True
 
         if self.type == Person.THESEE:
@@ -149,7 +165,8 @@ class Person:
         if self.type == Person.VERTICAL_MINAUTORE:
             ariane = self.map.get_ariane()
             if self.y == ariane.y \
-                    and not self.map.case_have_right_wall(self.x, self.y):
+                    and not self.map.case_have_right_wall(self.x, self.y) \
+                    and not self.map.mino_on_case(self.x+1, self.y):
                 return True
 
         return False
@@ -169,6 +186,9 @@ class Person:
                     break
 
                 if self.map.case_have_right_wall(self.x, self.y):
+                    break
+
+                if self.map.mino_on_case(self.x+1, self.y):
                     break
 
                 self.x += 1
