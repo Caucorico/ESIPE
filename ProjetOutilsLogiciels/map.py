@@ -89,3 +89,15 @@ class Map:
         entity_list.extend(self.entities["min_h"])
         entity_list.extend(self.entities["min_v"])
         return entity_list
+
+    def get_thesee(self):
+        return self.entities["thesee"]
+
+    def get_ariane(self):
+        return self.entities["ariane"]
+    
+    def get_v_mino(self):
+        return self.entities['min_v']
+
+    def get_h_mino(self):
+        return self.entities['min_h']

@@ -106,5 +106,3 @@ class Draw:
 
         for entity in entities:
             self.draw_entity(entity)
-
-        upemtk.attente_clic()

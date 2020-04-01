@@ -1,6 +1,3 @@
-from map import *
-
-
 class Person:
     HORIZONTAL_MINAUTORE = 16
     VERTICAL_MINAUTORE = 32
@@ -15,86 +12,168 @@ class Person:
         self.map = map
 
     def can_move_up(self):
-        if self.y > 0:
-            return True
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE \
+                or self.type == Person.VERTICAL_MINAUTORE:
+            if not self.map.case_have_top_wall(self.x, self.y):
+                return True
+
+        if self.type == Person.THESEE:
+            ariane = self.map.get_ariane()
+            if self.y - 1 == ariane.y and self.x == ariane.x:
+                return True
+
+        if self.type == Person.HORIZONTAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            if self.x == ariane.x \
+                    and not self.map.case_have_top_wall(self.x, self.y):
+                return True
+
+        return False
 
     def move_up(self):
-        if self.y > 0:
-            self.y -= 1
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE or self.type == Person.THESEE:
+            if self.y > 0:
+                self.y -= 1
+
+        if self.type == Person.HORIZONTAL_MINAUTORE or self.type == Person.VERTICAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            thesee = self.map.get_thesee()
+
+            while self.y > ariane.y:
+                if self.y == thesee.y and self.x == thesee.x:
+                    break
+
+                if self.map.case_have_top_wall(self.x, self.y):
+                    break
+
+                self.y -= 1
+
         return self
 
     def can_move_down(self):
-        if self.y < self.map.get_size():
-            return True
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE \
+                or self.type == Person.VERTICAL_MINAUTORE:
+            if not self.map.case_have_bottom_wall(self.x, self.y):
+                return True
+
+        if self.type == Person.THESEE:
+            ariane = self.map.get_ariane()
+            if self.y + 1 == ariane.y and self.x == ariane.x:
+                return True
+
+        if self.type == Person.HORIZONTAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            if self.x == ariane.x \
+                    and not self.map.case_have_bottom_wall(self.x, self.y):
+                return True
+
+        return False
 
     def move_down(self):
-        if self.y < self.map.get_size():
-            self.y += 1
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE or self.type == Person.THESEE:
+            if self.y < self.map.size - 1:
+                self.y += 1
+
+        if self.type == Person.HORIZONTAL_MINAUTORE or self.type == Person.VERTICAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            thesee = self.map.get_thesee()
+
+            while self.y < ariane.y:
+                if self.y == thesee.y and self.x == thesee.x:
+                    break
+
+                if self.map.case_have_bottom_wall(self.x, self.y):
+                    break
+
+                self.y += 1
+
         return self
 
     def can_move_left(self):
-        if self.x > 0:
-            return True
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE \
+                or self.type == Person.HORIZONTAL_MINAUTORE:
+            if not self.map.case_have_left_wall(self.x, self.y):
+                return True
+
+        if self.type == Person.THESEE:
+            ariane = self.map.get_ariane()
+            if self.x - 1 == ariane.x and self.y == ariane.y:
+                return True
+
+        if self.type == Person.VERTICAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            if self.y == ariane.y \
+                    and not self.map.case_have_left_wall(self.x, self.y):
+                return True
+
+        return False
 
     def move_left(self):
-        if self.x > 0:
-            self.x -= 1
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE or self.type == Person.THESEE:
+            if self.x > 0:
+                self.x -= 1
+
+        if self.type == Person.HORIZONTAL_MINAUTORE or self.type == Person.VERTICAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            thesee = self.map.get_thesee()
+
+            while self.x > ariane.x:
+                if self.x == thesee.x and self.y == thesee.y:
+                    break
+
+                if self.map.case_have_left_wall(self.x, self.y):
+                    break
+
+                self.x -= 1
+
         return self
 
     def can_move_right(self):
-        if self.x < self.map.get_size():
-            return True
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE \
+                or self.type == Person.HORIZONTAL_MINAUTORE:
+            if not self.map.case_have_right_wall(self.x, self.y):
+                return True
+
+        if self.type == Person.THESEE:
+            ariane = self.map.get_ariane()
+            if self.x + 1 == ariane.x and self.y == ariane.y:
+                return True
+
+        if self.type == Person.VERTICAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            if self.y == ariane.y \
+                    and not self.map.case_have_right_wall(self.x, self.y):
+                return True
+
+        return False
 
     def move_right(self):
-        if self.x < self.map.get_size():
-            self.x += 1
+        # Todo : find a way to polymorphism
+        if self.type == Person.ARIANE or self.type == Person.THESEE:
+            if self.x < self.map.size - 1:
+                self.x += 1
+
+        if self.type == Person.HORIZONTAL_MINAUTORE or self.type == Person.VERTICAL_MINAUTORE:
+            ariane = self.map.get_ariane()
+            thesee = self.map.get_thesee()
+
+            while self.x < ariane.x:
+                if self.x == thesee.x and self.y == thesee.y:
+                    break
+
+                if self.map.case_have_right_wall(self.x, self.y):
+                    break
+
+                self.x += 1
+
         return self
-
-    def is_in_vertical_danger(self):
-        danger = 0
-        # top
-        for i in range(self.y, self.map.get_size()):
-            danger |= (self.map[self.x][i]
-                       & Person.VERTICAL_MINAUTORE
-                       & Person.HORIZONTAL_MINAUTORE)
-
-            if self.map[self.x][i] | Map.TOP_WALL:
-                break
-
-        # bottom
-        for i in range(self.y, -1, -1):
-            danger |= (self.map[self.x][i]
-                       & Person.VERTICAL_MINAUTORE
-                       & Person.HORIZONTAL_MINAUTORE)
-
-            if self.map[self.x][i] | Map.BOTTOM_WALL:
-                break
-
-        return danger
-
-    def is_in_horizontal_danger(self):
-        danger = 0
-
-        # left
-        for i in range(self.x, -1, -1):
-            danger |= (self.map[i][self.y]
-                       & Person.HORIZONTAL_MINAUTORE
-                       & Person.VERTICAL_MINAUTORE)
-
-            if self.map[i][self.y] | Map.LEFT_WALL:
-                break
-
-        # right
-        for i in range(self.x, self.map.get_size()):
-            danger |= (self.map[i][self.y]
-                       & Person.HORIZONTAL_MINAUTORE
-                       & Person.VERTICAL_MINAUTORE)
-
-            if self.map[i][self.y] | Map.RIGHT_WALL:
-                break
-
-    def is_in_danger(self):
-        return self.is_in_vertical_danger() | self.is_in_horizontal_danger()
 
     def get_type(self):
         return self.type
