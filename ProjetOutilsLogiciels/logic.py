@@ -3,6 +3,21 @@ from draw import Draw
 from map import Map
 
 
+def mino_turn(mino):
+    # Todo : remove code duplication
+    if mino.can_move_left():
+        mino.move_left()
+
+    if mino.can_move_right():
+        mino.move_right()
+
+    if mino.can_move_up():
+        mino.move_up()
+
+    if mino.can_move_down():
+        mino.move_down()
+
+
 class Logic:
 
     def __init__(self):
@@ -45,44 +60,17 @@ class Logic:
         if thesee.can_move_right():
             thesee.move_right()
 
-    def mino_v_turn(self, mino_v):
-        if mino_v.can_move_left():
-            mino_v.move_left()
-
-        if mino_v.can_move_right():
-            mino_v.move_right()
-
-        if mino_v.can_move_up():
-            mino_v.move_up()
-
-        if mino_v.can_move_down():
-            mino_v.move_down()
-
     def minos_v_turn(self):
         minos_v = self.map.get_v_mino()
 
         for mino_v in minos_v:
-            self.mino_v_turn(mino_v)
-
-    def mino_h_turn(self, mino_h):
-        # Todo : remove code duplication
-        if mino_h.can_move_left():
-            mino_h.move_left()
-
-        if mino_h.can_move_right():
-            mino_h.move_right()
-
-        if mino_h.can_move_up():
-            mino_h.move_up()
-
-        if mino_h.can_move_down():
-            mino_h.move_down()
+            mino_turn(mino_v)
 
     def minos_h_turn(self):
         minos_h = self.map.get_h_mino()
 
         for mino_h in minos_h:
-            self.mino_h_turn(mino_h)
+            mino_turn(mino_h)
 
     def round(self):
         self.drawer.draw_laby(self.map, self.map.get_entities_list())
