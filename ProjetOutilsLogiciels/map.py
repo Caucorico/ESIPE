@@ -102,6 +102,9 @@ class Map:
     def get_h_mino(self):
         return self.entities['min_h']
 
+    def get_door(self):
+        return self.entities["door"]
+
     def mino_on_case(self, x, y):
         minos_v = self.get_v_mino().copy()
         minos_h = self.get_h_mino().copy()

@@ -106,3 +106,11 @@ class Draw:
 
         for entity in entities:
             self.draw_entity(entity)
+
+    def loose_screen(self):
+        upemtk.rectangle(0, 0, self.size, self.size, couleur='', remplissage='white')
+        upemtk.texte(self.size/2, self.size/2, "Loose", couleur="red", taille=40)
+
+    def victory_screen(self):
+        upemtk.rectangle(0, 0, self.size, self.size, couleur='', remplissage='white')
+        upemtk.texte(self.size / 2, self.size / 2, "Victory", couleur="green", taille=40)

@@ -32,6 +32,9 @@ def mino_v_turn(mino_v):
 
 
 class Logic:
+    VICTORY = 1
+    IN_PROGRESS = 0
+    LOOSE = -1
 
     def __init__(self):
         self.map = Map()
@@ -83,6 +86,22 @@ class Logic:
         for mino_h in minos_h:
             mino_h_turn(mino_h)
 
+    def check_state(self):
+        thesee = self.map.get_thesee()
+        ariane = self.map.get_ariane()
+        door = self.map.get_door()
+
+        if self.map.mino_on_case(thesee.x, thesee.y):
+            return -1
+
+        if self.map.mino_on_case(ariane.x, ariane.y):
+            return -1
+
+        if door.x == thesee.x == ariane.x and door.y == thesee.y == ariane.y:
+            return 1
+
+        return 0
+
     def round(self):
         self.drawer.draw_laby(self.map, self.map.get_entities_list())
 
@@ -94,7 +113,17 @@ class Logic:
             self.minos_h_turn()
 
     def rounds(self):
+
         while True:
             self.round()
+            state = self.check_state()
+            if state == -1:
+                self.drawer.loose_screen()
+                break
+            elif state == 1:
+                self.drawer.victory_screen()
+                break
+
+        upemtk.attente_clic_ou_touche()
 
         self.drawer.stop()
