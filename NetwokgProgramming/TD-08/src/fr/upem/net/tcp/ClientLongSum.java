@@ -64,18 +64,15 @@ public class ClientLongSum {
         boolean fail = false;
 
         while ( iterator.hasNext() && !fail ) {
-            if ( !sc.isConnected() ) fail = true;
             while ( byteBuffer.remaining() > Long.BYTES ) {
                 byteBuffer.putLong(iterator.next());
                 if ( !iterator.hasNext() ) break;
             }
             byteBuffer.flip();
             sc.write(byteBuffer);
-            if ( byteBuffer.hasRemaining() ) fail = true;
+            if ( byteBuffer.hasRemaining() ) return Optional.empty();
             byteBuffer.clear();
         }
-
-        if ( fail ) return Optional.empty();
 
         byteBuffer.clear();
         byteBuffer.limit(Long.BYTES);
