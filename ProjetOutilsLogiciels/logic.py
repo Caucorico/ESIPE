@@ -38,7 +38,7 @@ class Logic:
 
     def __init__(self):
         self.map = Map()
-        self.map.make_map_with_file("./maps/sandbox.txt")
+        self.map.make_map_with_file("./maps/labyrinthe5.txt")
         self.drawer = Draw(1000, self.map.get_size())
 
     def start(self):

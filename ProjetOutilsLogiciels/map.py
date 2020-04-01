@@ -110,8 +110,6 @@ class Map:
         minos_h = self.get_h_mino().copy()
         minos_v.extend(minos_h)
 
-        print(minos_v)
-
         for mino in minos_v:
             if mino.x == x and mino.y == y:
                 return True

@@ -21,7 +21,8 @@ class Person:
 
         if self.type == Person.THESEE:
             ariane = self.map.get_ariane()
-            if self.y - 1 == ariane.y and self.x == ariane.x:
+            if self.y - 1 == ariane.y and self.x == ariane.x \
+                    and not self.map.case_have_top_wall(self.x, self.y):
                 return True
 
         if self.type == Person.HORIZONTAL_MINAUTORE:
@@ -50,7 +51,7 @@ class Person:
                 if self.map.case_have_top_wall(self.x, self.y):
                     break
 
-                if self.map.mino_on_case(self.x-1, self.y):
+                if self.map.mino_on_case(self.x, self.y-1):
                     break
 
                 self.y -= 1
@@ -67,7 +68,8 @@ class Person:
 
         if self.type == Person.THESEE:
             ariane = self.map.get_ariane()
-            if self.y + 1 == ariane.y and self.x == ariane.x:
+            if self.y + 1 == ariane.y and self.x == ariane.x \
+                    and not self.map.case_have_bottom_wall(self.x, self.y):
                 return True
 
         if self.type == Person.HORIZONTAL_MINAUTORE:
@@ -113,7 +115,8 @@ class Person:
 
         if self.type == Person.THESEE:
             ariane = self.map.get_ariane()
-            if self.x - 1 == ariane.x and self.y == ariane.y:
+            if self.x - 1 == ariane.x and self.y == ariane.y \
+                    and not self.map.case_have_left_wall(self.x, self.y):
                 return True
 
         if self.type == Person.VERTICAL_MINAUTORE:
@@ -159,7 +162,8 @@ class Person:
 
         if self.type == Person.THESEE:
             ariane = self.map.get_ariane()
-            if self.x + 1 == ariane.x and self.y == ariane.y:
+            if self.x + 1 == ariane.x and self.y == ariane.y \
+                    and not self.map.case_have_right_wall(self.x, self.y):
                 return True
 
         if self.type == Person.VERTICAL_MINAUTORE:
