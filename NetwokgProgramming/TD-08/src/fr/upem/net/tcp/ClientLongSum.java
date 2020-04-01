@@ -61,9 +61,7 @@ public class ClientLongSum {
 
         byteBuffer.putInt(list.size());
 
-        boolean fail = false;
-
-        while ( iterator.hasNext() && !fail ) {
+        while ( iterator.hasNext() ) {
             while ( byteBuffer.remaining() > Long.BYTES ) {
                 byteBuffer.putLong(iterator.next());
                 if ( !iterator.hasNext() ) break;
