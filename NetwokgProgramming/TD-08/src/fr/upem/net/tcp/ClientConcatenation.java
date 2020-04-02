@@ -53,31 +53,27 @@ public class ClientConcatenation {
         return Optional.of(byteBuffer.getInt());
     }
 
-    private static Optional<String> readLimitedString(ByteBuffer byteBuffer, SocketChannel channel, int responseByteSize) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        byteBuffer.clear();
+    private static Optional<String> readLimitedString(SocketChannel channel, int responseByteSize) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(responseByteSize);
+        /* Big ByteBuffer to avoid UTF8 chars splitting. */
 
-        while ( responseByteSize > 0 ) {
+        while ( byteBuffer.hasRemaining() ) {
             var res = channel.read(byteBuffer);
             if ( res == -1 ) {
                 return Optional.empty();
             }
-
-            byteBuffer.flip();
-            var responseLength = byteBuffer.remaining();
-            sb.append(UTF8_CHARSET.decode(byteBuffer));
-            responseByteSize -= responseLength;
-            byteBuffer.clear();
         }
 
-        return Optional.of(sb.toString());
+        byteBuffer.flip();
+
+        return Optional.of(UTF8_CHARSET.decode(byteBuffer).toString());
     }
 
     private static Optional<String> receiveStringResponse(ByteBuffer byteBuffer, SocketChannel socketChannel) throws IOException {
         Optional<Integer> optionalSize = readInt(byteBuffer, socketChannel);
         if ( optionalSize.isEmpty() ) return Optional.empty();
         logger.info("String size received ! : " + optionalSize.get());
-        return readLimitedString(byteBuffer, socketChannel, optionalSize.get());
+        return readLimitedString(socketChannel, optionalSize.get());
     }
 
     public Optional<String> requestConcatFromList(List<String> strings) throws IOException {
