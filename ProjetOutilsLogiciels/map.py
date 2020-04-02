@@ -1,14 +1,15 @@
+from __future__ import annotations
+
 from person import Person
 from case import Case
+from state import State
 
 
 class Map:
 
     def __init__(self):
         self.map = []
-        self.entities = {}
-        self.entities["min_v"] = []
-        self.entities["min_h"] = []
+        self.state = State()
         self.size = 0
 
     def make_map_with_file(self, filename):
@@ -53,19 +54,19 @@ class Map:
                             case.set_bottom_wall(True)
 
                         if lines[line[0]][char[0]] == 'A':
-                            self.entities["ariane"] = Person(x, y, Person.ARIANE, self)
+                            self.state.set_ariane(Person(x, y, Person.ARIANE, self))
 
                         if lines[line[0]][char[0]] == 'T':
-                            self.entities["thesee"] = Person(x, y, Person.THESEE, self)
+                            self.state.set_thesee(Person(x, y, Person.THESEE, self))
 
                         if lines[line[0]][char[0]] == 'P':
-                            self.entities["door"] = Person(x, y, Person.PORTE, self)
+                            self.state.set_door(Person(x, y, Person.PORTE, self))
 
                         if lines[line[0]][char[0]] == 'H':
-                            self.entities['min_h'].append(Person(x, y, Person.HORIZONTAL_MINAUTORE, self))
+                            self.state.add_mino_h(Person(x, y, Person.HORIZONTAL_MINAUTORE, self))
 
                         if lines[line[0]][char[0]] == 'V':
-                            self.entities['min_v'].append(Person(x, y, Person.VERTICAL_MINAUTORE, self))
+                            self.state.add_mino_v(Person(x, y, Person.VERTICAL_MINAUTORE, self))
 
                         self.map[x][y] = case
 
@@ -85,25 +86,25 @@ class Map:
         return self.size
 
     def get_entities_list(self):
-        entity_list = [self.entities["ariane"], self.entities["thesee"], self.entities["door"]]
-        entity_list.extend(self.entities["min_h"])
-        entity_list.extend(self.entities["min_v"])
+        entity_list = [self.state.get_ariane(), self.state.get_thesee(), self.state.get_door()]
+        entity_list.extend(self.state.get_minos_h())
+        entity_list.extend(self.state.get_minos_v())
         return entity_list
 
     def get_thesee(self):
-        return self.entities["thesee"]
+        return self.state.get_thesee()
 
     def get_ariane(self):
-        return self.entities["ariane"]
+        return self.state.get_ariane()
 
     def get_v_mino(self):
-        return self.entities['min_v']
+        return self.state.get_minos_v()
 
     def get_h_mino(self):
-        return self.entities['min_h']
+        return self.state.get_minos_h()
 
     def get_door(self):
-        return self.entities["door"]
+        return self.state.get_door()
 
     def mino_on_case(self, x, y):
         minos_v = self.get_v_mino().copy()
@@ -116,3 +117,9 @@ class Map:
 
         return False
 
+    def get_state(self) -> State:
+        return self.state
+
+    def set_state(self, state: State) -> Map:
+        self.state = state
+        return self

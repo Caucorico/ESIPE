@@ -1,6 +1,8 @@
 import upemtk
 from draw import Draw
 from map import Map
+from state import State
+from copy import deepcopy
 
 
 def mino_h_turn(mino_h):
@@ -38,26 +40,62 @@ class Logic:
 
     def __init__(self):
         self.map = Map()
-        self.map.make_map_with_file("./maps/labyrinthe5.txt")
+        self.map.make_map_with_file("./maps/defi/defi0.txt")
         self.drawer = Draw(1000, self.map.get_size())
+        self.history = []
 
     def start(self):
+        # Save first state
+        self.add_state_to_history(deepcopy(self.map.get_state()))
         self.drawer.start()
 
-    def player_round(self, ev):
-        ariane = self.map.get_ariane()
+    def add_state_to_history(self, state: State):
+        self.history.append(state)
 
-        if ev[1] == "Up" and ariane.can_move_up():
-            ariane.move_up()
+    def pop_state_from_history(self) -> object:
+        """
+        This method pop the most recent state from the history.
+        The method return a tuple. In this tuple, we can find :
+            In first position : a boolean to True if the pop succeed, false otherwise.
+            In second position : The State object if the pop succeed.
 
-        if ev[1] == "Down" and ariane.can_move_down():
-            ariane.move_down()
+        :rtype: tuple
+        """
+        if len(self.history) < 1:
+            return False, None
 
-        if ev[1] == "Left" and ariane.can_move_left():
-            ariane.move_left()
+        return True, self.history.pop()
 
-        if ev[1] == "Right" and ariane.can_move_right():
-            ariane.move_right()
+    def return_to_last_state(self):
+        (succeed, old_state) = self.pop_state_from_history()
+        if succeed:
+            self.map.set_state(old_state)
+
+    def player_round(self, ev) -> bool:
+
+        if ev[2] == "Touche":
+            ariane = self.map.get_ariane()
+
+            if ev[1] == "Up" and ariane.can_move_up():
+                ariane.move_up()
+                return True
+
+            if ev[1] == "Down" and ariane.can_move_down():
+                ariane.move_down()
+                return True
+
+            if ev[1] == "Left" and ariane.can_move_left():
+                ariane.move_left()
+                return True
+
+            if ev[1] == "Right" and ariane.can_move_right():
+                ariane.move_right()
+                return True
+
+            if ev[1] == "r":
+                self.return_to_last_state()
+
+        return False
 
     def thesee_round(self):
         thesee = self.map.get_thesee()
@@ -104,13 +142,17 @@ class Logic:
 
     def round(self):
         self.drawer.draw_laby(self.map, self.map.get_entities_list())
-
         ev = upemtk.attente_clic_ou_touche()
-        if ev[2] == "Touche":
-            self.player_round(ev)
-            self.thesee_round()
-            self.minos_v_turn()
-            self.minos_h_turn()
+
+        if not self.player_round(ev):
+            return
+
+        self.thesee_round()
+        self.minos_v_turn()
+        self.minos_h_turn()
+
+        # Save new state in the history
+        self.add_state_to_history(deepcopy(self.map.get_state()))
 
     def rounds(self):
 

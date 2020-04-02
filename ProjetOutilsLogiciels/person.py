@@ -11,6 +11,9 @@ class Person:
         self.type = type
         self.map = map
 
+    def __copy__(self):
+        return type(self)(self.x, self.y, self.type, self.map)
+
     def can_move_up(self):
         # Todo : find a way to polymorphism
         if self.type == Person.ARIANE \
