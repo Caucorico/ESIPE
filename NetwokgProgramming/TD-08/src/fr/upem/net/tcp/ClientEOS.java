@@ -75,6 +75,7 @@ public class ClientEOS {
 			byteBuffer.clear();
 
 			while (readFully(socketChannel, byteBuffer)) {
+				/* TODO : Ask to the teacher a better condition. */
 				if ( byteBuffer.limit() <= byteBuffer.position() ) {
 					var newByteBuffer = ByteBuffer.allocate(byteBuffer.capacity()*2);
 					byteBuffer.flip();

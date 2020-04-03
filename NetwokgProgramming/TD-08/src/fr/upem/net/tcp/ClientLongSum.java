@@ -37,10 +37,14 @@ public class ClientLongSum {
      * @throws IOException
      */
     static boolean readFully(SocketChannel sc, ByteBuffer bb) throws IOException {
-        var res = sc.read(bb);
-        if ( res == -1 ) return false;
+        /* TODO : Ask to the teacher why my function doesn't return true ;) */
 
-        return bb.hasRemaining();
+        do {
+            var res = sc.read(bb);
+            if ( res == -1 ) return false;
+        } while (bb.hasRemaining());
+
+        return false;
     }
 
 
