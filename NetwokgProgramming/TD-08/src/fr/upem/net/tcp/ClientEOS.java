@@ -33,9 +33,7 @@ public class ClientEOS {
     public static String getFixedSizeResponse(String request, SocketAddress server, int bufferSize)
             throws IOException {
 
-    	try (var socketChannel = SocketChannel.open()) {
-			socketChannel.connect(server);
-
+    	try (var socketChannel = SocketChannel.open(server)) {
 			var byteBuffer = ByteBuffer.allocate(bufferSize);
 			byteBuffer.put(UTF8_CHARSET.encode(request));
 			byteBuffer.flip();
@@ -66,11 +64,8 @@ public class ClientEOS {
 
     public static String getUnboundedResponse(String request, SocketAddress server) throws IOException {
 
-    	try (var socketChannel = SocketChannel.open() ) {
-    		socketChannel.connect(server);
+    	try (var socketChannel = SocketChannel.open(server) ) {
 			ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-			StringBuilder sb = new StringBuilder();
-
 			byteBuffer.put(UTF8_CHARSET.encode(request));
 			byteBuffer.flip();
 
@@ -78,12 +73,18 @@ public class ClientEOS {
 			socketChannel.shutdownOutput();
 
 			byteBuffer.clear();
-			while (readFully(socketChannel, byteBuffer)) {
-				byteBuffer.flip();
-				sb.append(UTF8_CHARSET.decode(byteBuffer).toString());
-			}
 
-			return sb.toString();
+			while (readFully(socketChannel, byteBuffer)) {
+				/* TODO : Ask to the teacher a better condition. */
+				if ( byteBuffer.limit() <= byteBuffer.position() ) {
+					var newByteBuffer = ByteBuffer.allocate(byteBuffer.capacity()*2);
+					byteBuffer.flip();
+					newByteBuffer.put(byteBuffer);
+					byteBuffer = newByteBuffer;
+				}
+			}
+			byteBuffer.flip();
+			return UTF8_CHARSET.decode(byteBuffer).toString();
 		}
     }
 
@@ -96,9 +97,14 @@ public class ClientEOS {
 	  * @throws IOException
 	  */
    static boolean readFully(SocketChannel sc, ByteBuffer bb) throws IOException {
-	   bb.clear();
-	   var res = sc.read(bb);
-	   if ( res == -1 ) return false;
+		/* todo : ask to the teacher if the bytes that cannot be place in the buffer are lost  */
+
+		do {
+			var res = sc.read(bb);
+			if ( res == -1 ) {
+				return false;
+			}
+		} while ( bb.hasRemaining() );
 	   return true;
    }
 
