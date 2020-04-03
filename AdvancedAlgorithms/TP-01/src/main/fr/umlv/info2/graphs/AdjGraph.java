@@ -1,5 +1,6 @@
 package fr.umlv.info2.graphs;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,17 +62,31 @@ public class AdjGraph implements Graph {
 
     @Override
     public int getWeight(int i, int j) {
-        return 0;
+        /* TODO ; Ask to the teacher if we can return 0 if no weight */
+        if ( isEdge(i, j) ) {
+            /* TODO : make a getNeighboor private function. */
+            LinkedList<Edge> neighbour = adj.get(i);
+            for ( Edge e : neighbour ) {
+                if ( e.getEnd() == j ) {
+                    return e.getValue();
+                }
+            }
+            throw new AssertionError("("+i+", "+j+") is an edge bu was not found !");
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public Iterator<Edge> edgeIterator(int i) {
-        return null;
+        LinkedList<Edge> neighbour = adj.get(i);
+        return neighbour.iterator();
     }
 
     @Override
     public void forEachEdge(int i, Consumer<Edge> consumer) {
-
+        Iterator<Edge> iterator = edgeIterator(i);
+        iterator.forEachRemaining(consumer);
     }
 
     @Override
