@@ -1,6 +1,5 @@
 package fr.umlv.info2.graphs;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -91,6 +90,25 @@ public class AdjGraph implements Graph {
 
     @Override
     public String toGraphviz() {
-        return null;
+        StringBuilder sb = new StringBuilder();
+        sb.append("digraph G {\n");
+        for ( var i = 0 ; i < n ; i++ ) {
+            sb.append(i).append(";\n");
+            forEachEdge(i, (edge) -> sb.append(edge.toString()).append(";\n"));
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        MatGraph matGraph = new MatGraph(10);
+
+        for (var i = 0; i < 10 ; i++) {
+            for (var j = 0; j <= i; j++) {
+                matGraph.addEdge(i, j, i + j);
+            }
+        }
+
+        System.out.println(matGraph.toGraphviz());
     }
 }
