@@ -3,6 +3,7 @@ package fr.umlv.conc;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class Utils {
     private static Path HOME;
@@ -45,17 +46,45 @@ public class Utils {
         return home;
     }
 
+    private static int cpt3 = 0;
     public static Path getHome3() {
-        var home = HANDLE_HOME3.getAcquire();
+        Path home = (Path)HANDLE_HOME3.getAcquire();
         if (home == null) {
             synchronized(Utils.class) {
-                home = HOME; // TODO ??
+                home = (Path)HANDLE_HOME3.getAcquire();
                 if (home == null) {
-                    return HOME = Path.of(System.getenv("HOME"));  // TODO ??
+                    home = Path.of(System.getenv("HOME"));
+                    HANDLE_HOME3.setRelease(home);
+                    cpt3++;
                 }
             }
         }
+
         return home;
+    }
+
+    private static class Holder {
+        static final Path HOME = Path.of(System.getenv("HOME"));
+    }
+    public static Path getHome4() {
+        return Holder.HOME;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        ArrayList<Thread> threads = new ArrayList<>(10);
+
+        for ( var i = 0 ; i < 10 ; i++ ) {
+            Thread t = new Thread(() -> {
+                var home = getHome4();
+                System.out.println(home);
+            });
+            threads.add(t);
+            t.start();
+        }
+
+        for ( var i = 0 ; i < 10 ; i++ ) {
+            threads.get(i).join();
+        }
     }
 
 }
