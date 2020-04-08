@@ -112,15 +112,53 @@ public class HTTPReader {
         return newByteBuffer;
     }
 
+    private static boolean readFully(ByteBuffer byteBuffer, SocketChannel socketChannel) throws IOException {
+        while (byteBuffer.hasRemaining()) {
+            var res = socketChannel.read(byteBuffer);
+            if ( res == -1 ) {
+                throw new HTTPException();
+            }
+        }
+
+        return true;
+    }
+
     /**
      * @return a ByteBuffer in write-mode containing a content read in chunks mode
      * @throws IOException HTTPException if the connection is closed before the end of the chunks
      *                     if chunks are ill-formed
      */
-
     public ByteBuffer readChunks() throws IOException {
-        // TODO
-        return null;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+
+        while ( true ) {
+            String line = readLineCRLF();
+
+            if ( line.length() == 0 ) {
+                break;
+            }
+
+            System.out.println(line);
+            System.out.println("##########################################");
+
+            int chunkSize = Integer.parseInt(line, 16) + 2;
+
+            if ( byteBuffer.remaining() < chunkSize ) {
+                var newByteBuffer = ByteBuffer.allocate(byteBuffer.capacity()+chunkSize);
+                byteBuffer.flip();
+                newByteBuffer.put(byteBuffer);
+                byteBuffer = newByteBuffer;
+            }
+
+            var nbb = readBytes(chunkSize);
+            nbb.flip();
+            byteBuffer.put(nbb);
+            System.out.println(byteBuffer.get());
+            System.out.println(byteBuffer.get());
+            byteBuffer.position(byteBuffer.position());
+        }
+
+        return byteBuffer;
     }
 
 

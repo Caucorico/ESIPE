@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 public class HTTPClient {
 
     private final static Charset ASCII = StandardCharsets.US_ASCII;
-    private final static Charset ISO = StandardCharsets.ISO_8859_1;
+    private final static Charset UTF8 = StandardCharsets.UTF_8;
 
     private final InetSocketAddress serverAddress;
 
@@ -43,7 +43,7 @@ public class HTTPClient {
             var responseContentBuffer = reader.readBytes(responseHeader.getContentLength());
             var responseCharset = responseHeader.getCharset();
             if ( responseCharset == null ) {
-                responseCharset = ISO;
+                responseCharset = UTF8;
             }
 
             responseContentBuffer.flip();
