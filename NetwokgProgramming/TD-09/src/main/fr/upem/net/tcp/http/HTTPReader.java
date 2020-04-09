@@ -134,14 +134,17 @@ public class HTTPReader {
         while ( true ) {
             String line = readLineCRLF();
 
-            if ( line.length() == 0 ) {
+            if ( line.isEmpty() ) {
                 break;
             }
 
-            System.out.println(line);
-            System.out.println("##########################################");
+            int chunkSize = Integer.parseInt(line, 16);
 
-            int chunkSize = Integer.parseInt(line, 16) + 2;
+            if ( chunkSize == 0 ) {
+                break;
+            } else if ( chunkSize < 0 ) {
+                throw new HTTPException();
+            }
 
             if ( byteBuffer.remaining() < chunkSize ) {
                 var newByteBuffer = ByteBuffer.allocate(byteBuffer.capacity()+chunkSize);
@@ -153,9 +156,7 @@ public class HTTPReader {
             var nbb = readBytes(chunkSize);
             nbb.flip();
             byteBuffer.put(nbb);
-            System.out.println(byteBuffer.get());
-            System.out.println(byteBuffer.get());
-            byteBuffer.position(byteBuffer.position());
+            readLineCRLF();
         }
 
         return byteBuffer;
@@ -164,37 +165,12 @@ public class HTTPReader {
 
     public static void main(String[] args) throws IOException {
         Charset charsetASCII = Charset.forName("ASCII");
-        String request = "GET / HTTP/1.1\r\n"
-                + "Host: www.w3.org\r\n"
-                + "\r\n";
+        String request = "GET / HTTP/1.1\r\n" + "Host: www.w3.org\r\n" + "\r\n";
         SocketChannel sc = SocketChannel.open();
-        sc.connect(new InetSocketAddress("www.w3.org", 80));
-        sc.write(charsetASCII.encode(request));
-        ByteBuffer bb = ByteBuffer.allocate(50);
+        ByteBuffer bb = null;
         HTTPReader reader = new HTTPReader(sc, bb);
-        System.out.println(reader.readLineCRLF());
-        System.out.println(reader.readLineCRLF());
-        System.out.println(reader.readLineCRLF());
-        sc.close();
-
-        bb = ByteBuffer.allocate(50);
-        sc = SocketChannel.open();
-        sc.connect(new InetSocketAddress("www.w3.org", 80));
-        reader = new HTTPReader(sc, bb);
-        sc.write(charsetASCII.encode(request));
-        System.out.println(reader.readHeader());
-        sc.close();
-
-        bb = ByteBuffer.allocate(50);
-        sc = SocketChannel.open();
-        sc.connect(new InetSocketAddress("www.w3.org", 80));
-        reader = new HTTPReader(sc, bb);
-        sc.write(charsetASCII.encode(request));
-        HTTPHeader header = reader.readHeader();
-        System.out.println(header);
-        ByteBuffer content = reader.readBytes(header.getContentLength());
-        content.flip();
-        System.out.println(header.getCharset().decode(content));
+        HTTPHeader header = null;
+        ByteBuffer content = null;
         sc.close();
 
         bb = ByteBuffer.allocate(50);
