@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,19 +76,13 @@ public class HTTPReader {
                 continue;
             }
 
-            String[] split = line.split(":");
+            String[] split = line.split(":", 2);
             if ( split.length < 2 ) {
-                throw new HTTPException();
+                throw new HTTPException("HTTPReader : Key without value in header...");
             }
 
-            StringBuilder value = new StringBuilder();
-            for ( var i = 1 ; i < split.length ; i++ ) {
-                value.append(split[i]+":");
-            }
-            value.setLength(value.length()-1);
-
-            params.computeIfPresent(split[0], (k, v) -> v+";"+value.toString());
-            params.putIfAbsent(split[0], value.toString());
+            params.computeIfPresent(split[0], (k, v) -> v+";"+split[1]);
+            params.putIfAbsent(split[0], split[1]);
         }
 
         System.out.println("firstline -> " + firstLine);
@@ -114,12 +109,7 @@ public class HTTPReader {
             newByteBuffer.put(buff.get());
         }
 
-        while ( newByteBuffer.hasRemaining() ) {
-            var res = sc.read(newByteBuffer);
-            if ( res == -1 ) {
-                throw new HTTPException();
-            }
-        }
+        readFully(newByteBuffer, sc);
 
         buff.compact();
 
@@ -143,7 +133,9 @@ public class HTTPReader {
      *                     if chunks are ill-formed
      */
     public ByteBuffer readChunks() throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        int totalSize = 0;
+
+        ArrayList<ByteBuffer> buffers = new ArrayList<>();
 
         while ( true ) {
             String line = readLineCRLF();
@@ -160,17 +152,16 @@ public class HTTPReader {
                 throw new HTTPException();
             }
 
-            if ( byteBuffer.remaining() < chunkSize ) {
-                var newByteBuffer = ByteBuffer.allocate(byteBuffer.capacity()+chunkSize);
-                byteBuffer.flip();
-                newByteBuffer.put(byteBuffer);
-                byteBuffer = newByteBuffer;
-            }
+            buffers.add(readBytes(chunkSize));
+            totalSize += chunkSize;
 
-            var nbb = readBytes(chunkSize);
-            nbb.flip();
-            byteBuffer.put(nbb);
             readLineCRLF(); /* remove the last \r\n */
+        }
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(totalSize);
+        for ( ByteBuffer bb : buffers ) {
+            bb.flip();
+            byteBuffer.put(bb);
         }
 
         return byteBuffer;
