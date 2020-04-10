@@ -80,10 +80,17 @@ public class HTTPReader {
                 throw new HTTPException();
             }
 
-            params.computeIfPresent(split[0], (k, v) -> v+";"+split[1]);
-            params.putIfAbsent(split[0], split[1]);
+            StringBuilder value = new StringBuilder();
+            for ( var i = 1 ; i < split.length ; i++ ) {
+                value.append(split[i]+":");
+            }
+            value.setLength(value.length()-1);
+
+            params.computeIfPresent(split[0], (k, v) -> v+";"+value.toString());
+            params.putIfAbsent(split[0], value.toString());
         }
 
+        System.out.println("firstline -> " + firstLine);
         return HTTPHeader.create(firstLine, params);
     }
 
@@ -95,12 +102,17 @@ public class HTTPReader {
     public ByteBuffer readBytes(int size) throws IOException {
         ByteBuffer newByteBuffer = ByteBuffer.allocate(size);
         /* TODO : Ask to the teacher why the read can read more than the response-content size */
-        var oldLimit = buff.limit();
-        buff.limit(Math.min(buff.capacity(), size));
+//        var oldLimit = buff.limit();
+//        buff.limit(Math.min(buff.position()+buff.remaining(), size));
+//        buff.flip();
+//        newByteBuffer.put(buff);
+//        buff.limit(oldLimit);
+
         buff.flip();
-        newByteBuffer.put(buff);
-        buff.limit(oldLimit);
-        buff.compact();
+        while ( newByteBuffer.hasRemaining() ) {
+            if ( !buff.hasRemaining() ) break;
+            newByteBuffer.put(buff.get());
+        }
 
         while ( newByteBuffer.hasRemaining() ) {
             var res = sc.read(newByteBuffer);
@@ -108,6 +120,8 @@ public class HTTPReader {
                 throw new HTTPException();
             }
         }
+
+        buff.compact();
 
         return newByteBuffer;
     }
@@ -156,7 +170,7 @@ public class HTTPReader {
             var nbb = readBytes(chunkSize);
             nbb.flip();
             byteBuffer.put(nbb);
-            readLineCRLF();
+            readLineCRLF(); /* remove the last \r\n */
         }
 
         return byteBuffer;
@@ -165,12 +179,37 @@ public class HTTPReader {
 
     public static void main(String[] args) throws IOException {
         Charset charsetASCII = Charset.forName("ASCII");
-        String request = "GET / HTTP/1.1\r\n" + "Host: www.w3.org\r\n" + "\r\n";
+        String request = "GET / HTTP/1.1\r\n"
+                + "Host: www.w3.org\r\n"
+                + "\r\n";
         SocketChannel sc = SocketChannel.open();
-        ByteBuffer bb = null;
+        sc.connect(new InetSocketAddress("www.w3.org", 80));
+        sc.write(charsetASCII.encode(request));
+        ByteBuffer bb = ByteBuffer.allocate(50);
         HTTPReader reader = new HTTPReader(sc, bb);
-        HTTPHeader header = null;
-        ByteBuffer content = null;
+        System.out.println(reader.readLineCRLF());
+        System.out.println(reader.readLineCRLF());
+        System.out.println(reader.readLineCRLF());
+        sc.close();
+
+        bb = ByteBuffer.allocate(50);
+        sc = SocketChannel.open();
+        sc.connect(new InetSocketAddress("www.w3.org", 80));
+        reader = new HTTPReader(sc, bb);
+        sc.write(charsetASCII.encode(request));
+        System.out.println(reader.readHeader());
+        sc.close();
+
+        bb = ByteBuffer.allocate(50);
+        sc = SocketChannel.open();
+        sc.connect(new InetSocketAddress("www.w3.org", 80));
+        reader = new HTTPReader(sc, bb);
+        sc.write(charsetASCII.encode(request));
+        HTTPHeader header = reader.readHeader();
+        System.out.println(header);
+        ByteBuffer content = reader.readBytes(header.getContentLength());
+        content.flip();
+        System.out.println(header.getCharset().decode(content));
         sc.close();
 
         bb = ByteBuffer.allocate(50);

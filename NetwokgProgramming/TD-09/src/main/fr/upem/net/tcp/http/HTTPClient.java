@@ -2,58 +2,90 @@ package fr.upem.net.tcp.http;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 public class HTTPClient {
 
     private final static Charset ASCII = StandardCharsets.US_ASCII;
     private final static Charset UTF8 = StandardCharsets.UTF_8;
 
-    private final InetSocketAddress serverAddress;
+    private final static Logger LOGGER = Logger.getLogger(HTTPClient.class.getName());
 
-    private final String resource;
+    private HTTPReader httpReader;
 
-    public HTTPClient(String address, String resource) throws IOException {
-        this.serverAddress = new InetSocketAddress(address, 80);
-        this.resource = resource;
+    private InetSocketAddress serverAddress;
+
+    private static final int INIT_BUFFER_SIZE = 1024;
+    private final ByteBuffer mainByteBuffer;
+
+    public HTTPClient() throws IOException {
+        this.mainByteBuffer = ByteBuffer.allocate(INIT_BUFFER_SIZE);
     }
 
-    public String getLimitedResponse() throws IOException {
+    private void sendRequest(SocketChannel socketChannel, String resource) throws IOException {
+        mainByteBuffer.clear();
+        mainByteBuffer.put(ASCII.encode("GET " + resource + " HTTP/1.1\r\nHost: " + serverAddress.getHostName() + "\r\n\r\n"));
+        mainByteBuffer.flip();
+        socketChannel.write(mainByteBuffer);
+    }
+
+    private HTTPHeader getHTTPHeader(SocketChannel socketChannel, String resource) throws IOException {
+        sendRequest(socketChannel, resource);
+        mainByteBuffer.clear();
+        return httpReader.readHeader();
+    }
+
+    private String getLimitedResponse(HTTPHeader httpResponseHeader) throws IOException {
+        LOGGER.info("limited response");
+        var buffer = httpReader.readBytes(httpResponseHeader.getContentLength());
+        var charset = httpResponseHeader.getCharset();
+        if ( charset == null ) charset = UTF8;
+        buffer.flip();
+        return charset.decode(buffer).toString();
+    }
+
+    private String getChunckedResponse(HTTPHeader httpResponseHeader) throws IOException {
+        LOGGER.info("chuncked response");
+        var buffer = httpReader.readChunks();
+        var charset = httpResponseHeader.getCharset();
+        if ( charset == null ) charset = UTF8;
+        buffer.flip();
+        return charset.decode(buffer).toString();
+    }
+
+    public String getResponse(String address, String resource) throws IOException {
+        this.serverAddress = new InetSocketAddress(address, 80);
         try ( var socketChannel = SocketChannel.open(serverAddress) ) {
-            ByteBuffer sendBuffer = ByteBuffer.allocate(1024);
-            ByteBuffer receiveBuffer = ByteBuffer.allocate(1024);
-
-            HTTPReader reader = new HTTPReader(socketChannel, receiveBuffer);
-
-            sendBuffer.put(ASCII.encode("GET " + resource + " HTTP/1.1\r\nHost: " + serverAddress.getHostName() + "\r\n\r\n"));
-            sendBuffer.flip();
-            socketChannel.write(sendBuffer);
-
-            HTTPHeader responseHeader = reader.readHeader();
-            System.out.println(responseHeader.toString());
-            if ( responseHeader.isChunkedTransfer() ) {
-                throw new IllegalStateException("This page is chuncked that is not supported yet.");
-            } else if ( !responseHeader.getContentType().equals("text/html") ) {
-                throw new IllegalStateException("The content type : " + responseHeader.getContentType() + " is not supported yet.");
+            this.httpReader = new HTTPReader(socketChannel, mainByteBuffer);
+            var header = getHTTPHeader(socketChannel, resource);
+            if ( header.getCode() == 301 || header.getCode() == 302 ) {
+                var fields = header.getFields();
+                URI uri;
+                try {
+                    uri = new URI(fields.get("location"));
+                } catch (URISyntaxException e) {
+                    throw new HTTPException();
+                }
+                return getResponse(uri.getHost(), uri.getPath());
             }
 
-            var responseContentBuffer = reader.readBytes(responseHeader.getContentLength());
-            var responseCharset = responseHeader.getCharset();
-            if ( responseCharset == null ) {
-                responseCharset = UTF8;
+            if ( header.isChunkedTransfer() ) {
+                return getChunckedResponse(header);
+            } else {
+                return getLimitedResponse(header);
             }
-
-            responseContentBuffer.flip();
-            System.out.println(responseCharset + " <= ");
-            return responseCharset.decode(responseContentBuffer).toString();
         }
     }
 
     public static void main(String[] args) throws IOException {
-        HTTPClient client = new HTTPClient("igm.univ-mlv.fr", "/~carayol/");
-        System.out.println(client.getLimitedResponse());
+        HTTPClient client = new HTTPClient();
+        System.out.println(client.getResponse("www.u-pem.fr", "/"));
     }
 }
