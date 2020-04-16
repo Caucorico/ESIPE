@@ -41,7 +41,7 @@ class Logic:
 
     def __init__(self):
         self.map = Map()
-        self.map.make_map_with_file("./maps/defi/defi1.txt")
+        self.map.make_map_with_file("./maps/sandbox.txt")
         self.drawer = Draw(1000, self.map.get_size())
         self.history = []
 
@@ -105,13 +105,27 @@ class Logic:
                 self.return_to_last_state()
 
             if ev[1] == "c":
-                solver = Solver.from_logic(self)
+                solver = Solver.from_logic(self, self.drawer)
                 if solver.backtracking_check_validity():
                     self.drawer.display_chance(True)
                     print("Configuration gagnante !")
                 else:
                     self.drawer.display_chance(False)
                     print("Configutation perdante !")
+
+            if ev[1] == "v":
+                print("Visual")
+                solver = Solver.from_logic(self, self.drawer)
+                solver.backtracking_check_validity(True)
+
+            if ev[1] == "s":
+                print("Solution")
+                solver = Solver.from_logic(self, self.drawer)
+                if solver.backtracking_check_validity():
+                    print(solver.backtracking_solution())
+                else:
+                    self.drawer.display_chance(False)
+
 
         return False
 

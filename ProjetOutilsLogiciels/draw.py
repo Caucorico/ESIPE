@@ -102,6 +102,7 @@ class Draw:
             upemtk.image(top, left, self.MINO_H_IMAGE_PATH, ancrage='nw')
 
     def draw_laby(self, labyrinth, entities):
+        upemtk.efface_tout()
         upemtk.rectangle(0, 0, self.size, self.size, couleur='', remplissage='white')
         self.draw_extern_wall()
         self.draw_wall(labyrinth)
@@ -112,6 +113,8 @@ class Draw:
         if self.show_chance:
             self.draw_chance()
             self.show_chance = False
+
+        upemtk.mise_a_jour()
 
     @staticmethod
     def draw_winnable():
