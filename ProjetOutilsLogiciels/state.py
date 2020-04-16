@@ -25,23 +25,6 @@ class State:
         else:
             self.minos_h = minos_h
 
-    def __copy__(self):
-        return type(self)(self.ariane, self.thesee, self.door, self.minos_v, self.minos_h)
-
-    def __deepcopy__(self, memo):
-        id_self = id(self)  # memoization avoids unnecesary recursion
-        _copy = memo.get(id_self)
-        if _copy is None:
-            _copy = type(self)(
-                copy(self.ariane),
-                copy(self.thesee),
-                copy(self.door),
-                deepcopy(self.minos_v, memo),
-                deepcopy(self.minos_h, memo)
-            )
-            memo[id_self] = _copy
-        return _copy
-
     def set_ariane(self, ariane: Person) -> State:
         self.ariane = ariane
         return self

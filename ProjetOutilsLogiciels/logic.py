@@ -77,18 +77,26 @@ class Logic:
             ariane = self.map.get_ariane()
 
             if ev[1] == "Up" and ariane.can_move_up():
+                # Save new state in the history
+                self.add_state_to_history(deepcopy(self.map.get_state()))
                 ariane.move_up()
                 return True
 
             if ev[1] == "Down" and ariane.can_move_down():
+                # Save new state in the history
+                self.add_state_to_history(deepcopy(self.map.get_state()))
                 ariane.move_down()
                 return True
 
             if ev[1] == "Left" and ariane.can_move_left():
+                # Save new state in the history
+                self.add_state_to_history(deepcopy(self.map.get_state()))
                 ariane.move_left()
                 return True
 
             if ev[1] == "Right" and ariane.can_move_right():
+                # Save new state in the history
+                self.add_state_to_history(deepcopy(self.map.get_state()))
                 ariane.move_right()
                 return True
 
@@ -144,15 +152,16 @@ class Logic:
         self.drawer.draw_laby(self.map, self.map.get_entities_list())
         ev = upemtk.attente_clic_ou_touche()
 
+        # If the history is empty, add the current position to it !
+        if len(self.history) == 0:
+            self.add_state_to_history(deepcopy(self.map.get_state()))
+
         if not self.player_round(ev):
             return
 
         self.thesee_round()
         self.minos_v_turn()
         self.minos_h_turn()
-
-        # Save new state in the history
-        self.add_state_to_history(deepcopy(self.map.get_state()))
 
     def rounds(self):
 
