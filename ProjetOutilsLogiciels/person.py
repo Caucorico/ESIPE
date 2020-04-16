@@ -19,7 +19,7 @@ class Person:
         if self.type == Person.ARIANE \
                 or self.type == Person.VERTICAL_MINAUTORE:
             if not self.map.case_have_top_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x, self.y-1):
+                    and not self.map.mino_on_case(self.x, self.y - 1):
                 return True
 
         if self.type == Person.THESEE:
@@ -32,7 +32,7 @@ class Person:
             ariane = self.map.get_ariane()
             if self.x == ariane.x \
                     and not self.map.case_have_top_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x, self.y-1):
+                    and not self.map.mino_on_case(self.x, self.y - 1):
                 return True
 
         return False
@@ -54,7 +54,7 @@ class Person:
                 if self.map.case_have_top_wall(self.x, self.y):
                     break
 
-                if self.map.mino_on_case(self.x, self.y-1):
+                if self.map.mino_on_case(self.x, self.y - 1):
                     break
 
                 self.y -= 1
@@ -66,7 +66,7 @@ class Person:
         if self.type == Person.ARIANE \
                 or self.type == Person.VERTICAL_MINAUTORE:
             if not self.map.case_have_bottom_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x, self.y+1):
+                    and not self.map.mino_on_case(self.x, self.y + 1):
                 return True
 
         if self.type == Person.THESEE:
@@ -79,7 +79,7 @@ class Person:
             ariane = self.map.get_ariane()
             if self.x == ariane.x \
                     and not self.map.case_have_bottom_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x, self.y+1):
+                    and not self.map.mino_on_case(self.x, self.y + 1):
                 return True
 
         return False
@@ -101,7 +101,7 @@ class Person:
                 if self.map.case_have_bottom_wall(self.x, self.y):
                     break
 
-                if self.map.mino_on_case(self.x, self.y+1):
+                if self.map.mino_on_case(self.x, self.y + 1):
                     break
 
                 self.y += 1
@@ -113,7 +113,7 @@ class Person:
         if self.type == Person.ARIANE \
                 or self.type == Person.HORIZONTAL_MINAUTORE:
             if not self.map.case_have_left_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x-1, self.y):
+                    and not self.map.mino_on_case(self.x - 1, self.y):
                 return True
 
         if self.type == Person.THESEE:
@@ -126,7 +126,7 @@ class Person:
             ariane = self.map.get_ariane()
             if self.y == ariane.y \
                     and not self.map.case_have_left_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x-1, self.y):
+                    and not self.map.mino_on_case(self.x - 1, self.y):
                 return True
 
         return False
@@ -148,7 +148,7 @@ class Person:
                 if self.map.case_have_left_wall(self.x, self.y):
                     break
 
-                if self.map.mino_on_case(self.x-1, self.y):
+                if self.map.mino_on_case(self.x - 1, self.y):
                     break
 
                 self.x -= 1
@@ -160,7 +160,7 @@ class Person:
         if self.type == Person.ARIANE \
                 or self.type == Person.HORIZONTAL_MINAUTORE:
             if not self.map.case_have_right_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x+1, self.y):
+                    and not self.map.mino_on_case(self.x + 1, self.y):
                 return True
 
         if self.type == Person.THESEE:
@@ -173,7 +173,7 @@ class Person:
             ariane = self.map.get_ariane()
             if self.y == ariane.y \
                     and not self.map.case_have_right_wall(self.x, self.y) \
-                    and not self.map.mino_on_case(self.x+1, self.y):
+                    and not self.map.mino_on_case(self.x + 1, self.y):
                 return True
 
         return False
@@ -195,10 +195,34 @@ class Person:
                 if self.map.case_have_right_wall(self.x, self.y):
                     break
 
-                if self.map.mino_on_case(self.x+1, self.y):
+                if self.map.mino_on_case(self.x + 1, self.y):
                     break
 
                 self.x += 1
+
+        return self
+
+    def can_move_to(self, direction) -> bool:
+        if direction == "Up":
+            return self.can_move_up()
+        elif direction == "Down":
+            return self.can_move_down()
+        elif direction == "Left":
+            return self.can_move_left()
+        elif direction == "Right":
+            return self.can_move_right()
+
+        return False
+
+    def move_to(self, direction):
+        if direction == "Up":
+            self.move_up()
+        elif direction == "Down":
+            self.move_down()
+        elif direction == "Left":
+            self.move_left()
+        elif direction == "Right":
+            self.move_right()
 
         return self
 

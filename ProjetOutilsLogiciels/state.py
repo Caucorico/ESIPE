@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from person import Person
-from copy import deepcopy
-from copy import copy
 
 
 # Min python = 3.7
@@ -24,6 +22,46 @@ class State:
             self.minos_h = []
         else:
             self.minos_h = minos_h
+
+    def __eq__(self, other):
+        if self.ariane.x != other.ariane.x:
+            return False
+        if self.ariane.y != other.ariane.y:
+            return False
+        if len(self.minos_h) != len(other.minos_h):
+            return False
+        for i in range(0, len(self.minos_h)):
+            if self.minos_h[i].x != other.minos_h[i].x:
+                return False
+            if self.minos_h[i].y != other.minos_h[i].y:
+                return False
+        if len(self.minos_v) != len(other.minos_v):
+            return False
+        for i in range(0, len(self.minos_v)):
+            if self.minos_v[i].x != other.minos_v[i].x:
+                return False
+            if self.minos_v[i].y != other.minos_v[i].y:
+                return False
+        if self.thesee.x != other.thesee.x:
+            return False
+        return self.thesee.y == other.thesee.y
+
+    def __hash__(self):
+        data_list = [self.ariane.x, self.ariane.y, self.thesee.x, self.thesee.y, self.door.x, self.door.y]
+        compute_hash = 0
+
+        for mino_h in self.minos_h:
+            data_list.append(mino_h.x)
+            data_list.append(mino_h.y)
+
+        for mino_v in self.minos_v:
+            data_list.append(mino_v.x)
+            data_list.append(mino_v.y)
+
+        for i in range(0, len(data_list)):
+            compute_hash += data_list[i]*(10**i)
+
+        return compute_hash
 
     def set_ariane(self, ariane: Person) -> State:
         self.ariane = ariane

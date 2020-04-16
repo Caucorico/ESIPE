@@ -3,6 +3,7 @@ from draw import Draw
 from map import Map
 from state import State
 from copy import deepcopy
+from solver import Solver
 
 
 def mino_h_turn(mino_h):
@@ -40,7 +41,7 @@ class Logic:
 
     def __init__(self):
         self.map = Map()
-        self.map.make_map_with_file("./maps/defi/defi0.txt")
+        self.map.make_map_with_file("./maps/defi/defi1.txt")
         self.drawer = Draw(1000, self.map.get_size())
         self.history = []
 
@@ -102,6 +103,15 @@ class Logic:
 
             if ev[1] == "r":
                 self.return_to_last_state()
+
+            if ev[1] == "c":
+                solver = Solver.from_logic(self)
+                if solver.backtracking_check_validity():
+                    self.drawer.display_chance(True)
+                    print("Configuration gagnante !")
+                else:
+                    self.drawer.display_chance(False)
+                    print("Configutation perdante !")
 
         return False
 

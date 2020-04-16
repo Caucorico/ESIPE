@@ -11,6 +11,8 @@ class Draw:
         self.size = size
         self.map_size = map_size
         self.resolution = (int((self.size - 20) / self.map_size), int((self.size - 20) / self.map_size))
+        self.show_chance = False
+        self.chance = False
 
     def get_images(self):
         self.ARIANE_IMAGE_PATH = "./tmp/ariane.png"
@@ -106,6 +108,28 @@ class Draw:
 
         for entity in entities:
             self.draw_entity(entity)
+
+        if self.show_chance:
+            self.draw_chance()
+            self.show_chance = False
+
+    @staticmethod
+    def draw_winnable():
+        upemtk.texte(0, 0, "Winnable", couleur='green', taille=30)
+
+    @staticmethod
+    def draw_loosed():
+        upemtk.texte(0, 0, "Not winnable", couleur='red', taille=30)
+
+    def draw_chance(self):
+        if self.chance:
+            Draw.draw_winnable()
+        else:
+            Draw.draw_loosed()
+
+    def display_chance(self, chance):
+        self.chance = chance
+        self.show_chance = True
 
     def loose_screen(self):
         upemtk.rectangle(0, 0, self.size, self.size, couleur='', remplissage='white')
