@@ -64,6 +64,7 @@ Il est possible d'obtenir d'obtenir des valeurs booléennes en utilisant des op�
 | >         | supérieur à                  |
 | <=        | inférieur ou égal            |
 | >=        | supérieur ou égal            |
+| is        | égalité de pointeur          |
 
 Exemple :
 ```python
@@ -103,6 +104,20 @@ x = ( a >= b )
 print(x) # => False
 
 x = ( a <= c )
+print(x) # => True
+
+# Egalité de pointeur :
+c = [ 1, 2 ]
+d = [ 1, 2 ]
+
+x = ( c == d )
+print(x) # => True
+
+x = ( c is d )
+print(x) # => False
+
+e = d
+x = ( e is d )
 print(x) # => True
 ```
 
