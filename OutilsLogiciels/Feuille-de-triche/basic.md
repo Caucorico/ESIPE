@@ -62,3 +62,49 @@ def fonction():
   print("In fonction()")
   # etc...
 ```
+
+# Récupérer les paramètres passés en argument du programme :
+Pour récupérer les paramètres passés en arguments du programme, il faut tout d'abord importer la librairie __sys__ :
+
+```python
+import sys
+```
+
+Une fois __sys__ importé, ont peut accéder aux paramètres comme ci-dessous :
+```python
+import sys
+
+param0 = sys.argv[0]
+param1 = sys.argv[1]
+```
+
+> Attention, le paramètre n°0 est le nom du programme !
+
+Exemple :
+```bash
+./script.py coucou
+```
+
+```python
+import sys
+
+param0 = sys.argv[0]
+print(param0) # => ./script.py
+
+param1 = sys.argv[1]
+print(param1) # => coucou
+```
+> Attention, si le nombre d'argument au programme est inférieur au nombre d'argument récupérés, le programme plantera.
+
+Exemple :
+```bash
+./script.py coucou
+```
+
+Pour récupérer le nombre d'argument, nous pouvons simplement faire :
+```python
+import sys
+
+nbr_argument = len(sys.argv)
+print(nbr_argument) # => 2
+```
