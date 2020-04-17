@@ -32,6 +32,5 @@ hs_err_pid*
 #Java-2 projects
 Java-2/TD-01/out/
 Java-2/TD-02/out/
-
-#Pyzo cache
-OutilsLogiciels/TP-*/__pycache__/
+OutilsLogiciels/TP-01/__pycache__/
+ProjetOutilsLogiciels/__pycache__/
