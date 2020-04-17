@@ -59,5 +59,6 @@ Pour ce faire, il est possible d'indiquer au début du script quel outil utilise
 #!/bin/python3
 
 def fonction():
+  print("In fonction()")
   # etc...
 ```

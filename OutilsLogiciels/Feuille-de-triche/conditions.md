@@ -13,6 +13,7 @@ if x == 2:
   print(x)
   # some code
 else:
+  print(x)
   # Other code
 ```
 ### Le else if :
@@ -22,7 +23,7 @@ if x == 2:
 elif x == 3:
   print(x)
 else:
-
+  print(x)
 ```
 
 ### Les opérateurs de comparaison :
