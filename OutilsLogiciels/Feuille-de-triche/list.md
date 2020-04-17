@@ -95,6 +95,15 @@ a = x[3:]
 print(a) # La liste contenant les valeurs [ 3, 4, 5, 6, 7, 8, 9 ].
 ```
 
+Et il est également possible d'omettre les __n__ derniers éléments de la liste :
+```python
+x = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+
+# Omettre les 3 derniers éléments :
+a = x[:-3]
+print(a) # La liste contenant les valeurs [ 1, 2, 3, 4, 5, 6 ].
+```
+
 Il est possible de sélectionner un élément sur 2 :
 ```python
 x = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
@@ -112,3 +121,47 @@ x = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 a = x[::-1]
 print(a) # La liste contenant les valeurs [ 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 ].
 ```
+___
+
+## Concaténer deux listes :
+
+Il est possible de concaténer deux liste en python :
+- En utilisant la méthode __extend()__ :
+```python
+a = [ 1, 2, 3 ]
+b = [ 4, 5, 6 ]
+x = a.extend(b)
+print(x) # => La liste contenant les valeurs [ 1, 2, 3, 4, 5, 6 ]
+```
+- En utilisant le symbole __+__ :
+```python
+a = [ 1, 2, 3 ]
+b = [ 4, 5, 6 ]
+x = a + b
+print(x) # => La liste contenant les valeurs [ 1, 2, 3, 4, 5, 6 ]
+```
+___
+
+## Copier une liste :
+
+En python, faire simplement `liste1 = liste2` ne marchera pas pour copier une liste. Faire cette opération signifie seulement que __liste2__ pointe désormais sur __liste1__.
+
+Pour copier une liste, nous pouvons donc :
+- Utiliser l'accès `:` :
+```python
+liste = [ 1, 2, 3 ]
+liste2 = liste[:]
+print(liste2) # => [ 1, 2, 3 ]
+print(liste == liste2) # => True
+print(liste is liste2) # => False
+```
+- Utiliser les méthodes __copy__/__deepcopy__ :
+```python
+from copy import copy
+liste = [ 1, 2, 3 ]
+liste2 = copy(liste)
+print(liste2) # => [ 1, 2, 3 ]
+print(liste == liste2) # => True
+print(liste is liste2) # => False
+```
+> Il est bien-entendu possible d'utiliser  __deepcopy__ pout copier les objets à l'intérieur de la liste également.
