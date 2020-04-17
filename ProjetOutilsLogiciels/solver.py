@@ -1,6 +1,7 @@
 from __future__ import annotations
 from copy import deepcopy
 import logic
+import time
 
 
 class Solver:
@@ -13,7 +14,10 @@ class Solver:
 
     @staticmethod
     def from_logic(logic, drawer):
-        return Solver(deepcopy(logic), drawer)
+        new_logic = deepcopy(logic)
+        new_first_state = new_logic.history.pop()
+        new_logic.history = [new_first_state]
+        return Solver(new_logic, drawer)
 
     def backtracking_check_validity(self, visual=False):
         state = self.logic.check_state()
@@ -50,3 +54,14 @@ class Solver:
     def backtracking_solution(self):
         return self.solution
 
+    def display_solution(self):
+        self.reset_state()
+        for direction in self.solution:
+            self.logic.extern_round(direction)
+            time.sleep(0.5)
+
+    def reset_state(self):
+        first_state = self.logic.history[0]
+        self.logic.history = []
+        self.logic.add_state_to_history(first_state)
+        self.logic.map.set_state(first_state)

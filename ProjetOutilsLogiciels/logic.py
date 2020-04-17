@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import upemtk
 from draw import Draw
 from map import Map
@@ -126,6 +128,14 @@ class Logic:
                 else:
                     self.drawer.display_chance(False)
 
+            if ev[1] == "d":
+                print("Visual Solution")
+                solver = Solver.from_logic(self, self.drawer)
+                if solver.backtracking_check_validity():
+                    print(solver.backtracking_solution())
+                    solver.display_solution()
+                else:
+                    self.drawer.display_chance(False)
 
         return False
 
@@ -171,6 +181,13 @@ class Logic:
             return 1
 
         return 0
+
+    def extern_round(self, direction: str) -> None:
+        self.map.get_ariane().move_to(direction)
+        self.thesee_round()
+        self.minos_v_turn()
+        self.minos_h_turn()
+        self.drawer.draw_laby(self.map, self.map.get_entities_list())
 
     def round(self):
         self.drawer.draw_laby(self.map, self.map.get_entities_list())
