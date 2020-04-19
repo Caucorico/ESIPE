@@ -41,9 +41,9 @@ class Logic:
     IN_PROGRESS = 0
     LOOSE = -1
 
-    def __init__(self):
+    def __init__(self, map_name):
         self.map = Map()
-        self.map.make_map_with_file("./maps/sandbox.txt")
+        self.map.make_map_with_file(map_name)
         self.drawer = Draw(1000, self.map.get_size())
         self.history = []
 
