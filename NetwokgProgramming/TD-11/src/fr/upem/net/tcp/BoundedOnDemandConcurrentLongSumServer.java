@@ -70,10 +70,12 @@ public class BoundedOnDemandConcurrentLongSumServer {
                 try {
                     if ( !readFully(sc, byteBuffer) ){
                         logger.info(STOPPED_INFO);
+                        semaphore.release();
                         return;
                     }
                 } catch (IOException e) {
                     logger.log(Level.SEVERE, "first readFully failed", e);
+                    semaphore.release();
                     return;
                 }
 
@@ -99,10 +101,12 @@ public class BoundedOnDemandConcurrentLongSumServer {
                     try {
                         if ( !readFully(sc, byteBuffer) ){
                             logger.info(STOPPED_INFO);
-                            break;
+                            semaphore.release();
+                            return;
                         }
                     } catch (IOException e) {
                         logger.log(Level.SEVERE, "second readFully failed", e);
+                        semaphore.release();
                         return;
                     }
 
@@ -126,7 +130,9 @@ public class BoundedOnDemandConcurrentLongSumServer {
                 try {
                     sc.write(byteBuffer);
                 } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                    logger.info("Write failed.");
+                    semaphore.release();
+                    return;
                 }
 
                 if ( byteBuffer.hasRemaining() ) {
@@ -142,6 +148,7 @@ public class BoundedOnDemandConcurrentLongSumServer {
                 sc.close();
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "The close failed", e);
+                semaphore.release();
                 return;
             }
             logger.info("Serve succesfuly terminated");
@@ -180,6 +187,10 @@ public class BoundedOnDemandConcurrentLongSumServer {
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException, InterruptedException {
+        if ( args.length != 2 ) {
+            System.err.println("Usage : java class_name <port> <max_thread>");
+            return;
+        }
         BoundedOnDemandConcurrentLongSumServer server = new BoundedOnDemandConcurrentLongSumServer(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
         server.launch();
     }
