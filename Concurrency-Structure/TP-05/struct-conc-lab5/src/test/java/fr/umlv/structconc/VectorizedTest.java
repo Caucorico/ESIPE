@@ -23,4 +23,16 @@ public class VectorizedTest {
   public void sum(int[] array, int expected) {
     assertEquals(expected, Vectorized.sumLoop(array));
   }
+
+  @ParameterizedTest
+  @MethodSource("provideIntArrays")
+  public void sumReduceLane(int[] array, int expected) {
+    assertEquals(expected, Vectorized.sumReduceLane(array));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideIntArrays")
+  public void sumLanewise(int[] array, int expected) {
+    assertEquals(expected, Vectorized.sumLanewise(array));
+  }
 }

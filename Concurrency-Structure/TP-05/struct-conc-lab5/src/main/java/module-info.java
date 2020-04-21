@@ -1,4 +1,4 @@
-module fr.umlv.structconc {
+open module fr.umlv.structconc {
   requires jdk.incubator.vector;
 
   requires jmh.core;   // annotations
