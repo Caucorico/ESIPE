@@ -13,7 +13,7 @@ public class AdjGraph implements Graph {
         this.n = n;
         this.adj = new ArrayList<>(n);
         for ( var i = 0 ; i < n ; i++ ) {
-            this.adj.set(i, new LinkedList<>());
+            this.adj.add(new LinkedList<>());
         }
     }
 

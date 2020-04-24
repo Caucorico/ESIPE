@@ -1,9 +1,8 @@
 package fr.umlv.info2.graphs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.LongAdder;
 
 public class Graphs {
 
@@ -68,6 +67,11 @@ public class Graphs {
     private static class DeepVertex {
         int firstPass = -1;
         int lastPass = -1;
+        final int number;
+
+        public DeepVertex(int number) {
+            this.number = number;
+        }
 
         public void visit(int n) {
             firstPass = n;
@@ -77,7 +81,7 @@ public class Graphs {
             lastPass = n;
         }
 
-        public boolean visited(int n) {
+        public boolean visited() {
             return firstPass != -1 || lastPass != -1;
         }
     }
@@ -169,15 +173,35 @@ public class Graphs {
         return adjGraph;
     }
 
+    private static List<Integer> visitDFS(Graph g, int v0, HashMap<Integer, DeepVertex> hm) {
+        ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
+        var currentVertice = hm.get(v0);
+
+        bone.add(currentVertice.number);
+        currentVertice.visit(0);
+        g.forEachEdge(v0, edge -> {
+            var subVertice = hm.get(edge.getEnd());
+            if ( !subVertice.visited() ) {
+                 bone.addAll(visitDFS(g, subVertice.number, hm));
+            }
+        });
+
+        return bone;
+    }
+
     public static List<Integer> DFS(Graph g, int v0) {
         HashMap<Integer, DeepVertex> hm = new HashMap<>();
 
-        return null;
+        for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
+            hm.put(i, new DeepVertex(i));
+        }
+
+        return visitDFS(g, v0, hm);
     }
 
     public static List<Integer> BFS(Graph g, int v0) {
         HashMap<Integer, ColorizedVertex> hm = new HashMap<>();
-        ArrayList<ColorizedVertex> queue = new ArrayList<>(g.numberOfVertices());
+        Queue<ColorizedVertex> queue = new ArrayBlockingQueue<>(g.numberOfVertices());
         ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
 
         for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
@@ -190,7 +214,7 @@ public class Graphs {
         var globalDeepth = 1;
 
         while ( !queue.isEmpty() ) {
-            var currentVertice = queue.get(0);
+            var currentVertice = queue.remove();
             /* TODO : created vistit method */
             currentVertice.color = ColorizedVertex.Color.BLACK;
 
@@ -208,7 +232,76 @@ public class Graphs {
 
             bone.add(currentVertice.number);
         }
-        
+
         return bone;
+    }
+
+    public static int[][] timedDepthFirstSearch(Graph g, int s0) {
+        var nbVertices = g.numberOfVertices();
+        var tab = new int[nbVertices][2];
+        var adder = new LongAdder();
+        var passed = new boolean[nbVertices];
+
+        passed[s0] = true;
+        tab[s0][0] = adder.intValue();
+        adder.increment();
+        g.forEachEdge(s0, (e) -> {
+            if (!passed[e.getEnd()]) {
+                timedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+            }
+        });
+        tab[s0][1] = adder.intValue();
+        adder.increment();
+
+        for (int i=0; i<nbVertices; i++) {
+            if (!passed[i]) {
+                passed[i] = true;
+                tab[i][0] = adder.intValue();
+                adder.increment();
+                g.forEachEdge(i, (e) -> {
+                    if (!passed[e.getEnd()]) {
+                        timedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+                    }
+                });
+                tab[i][1] = adder.intValue();
+                adder.increment();
+            }
+        }
+        return tab;
+
+    }
+
+    private static void timedDepthFirstRec(Graph g, int i, boolean[] passed, LongAdder adder, int[][] tab) {
+        passed[i] = true;
+        tab[i][0] = adder.intValue();
+        adder.increment();
+        g.forEachEdge(i, (e) -> {
+            if (!passed[e.getEnd()]) {
+                timedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+            }
+        });
+        tab[i][1] = adder.intValue();
+        adder.increment();
+    }
+
+    private static void topologicalSortNoCycle(Graph g, int i, boolean[] tab, List<Integer> l) {
+        tab[i] = true;
+        l.add(i);
+        g.forEachEdge(i, (s) -> {
+            if (!tab[s.getEnd()]) {
+                topologicalSortNoCycle(g, s.getEnd(), tab, l);
+            }
+        });
+    }
+
+    public static List<Integer> topologicalSort(Graph g, boolean cycleDetect) {
+        List<Integer> l = new ArrayList<>();
+        boolean[] tab = new boolean[g.numberOfVertices()];
+        for (int i=0; i<g.numberOfVertices(); i++) {
+            if (!tab[i]) {
+                topologicalSortNoCycle(g, i, tab, l);
+            }
+        }
+        return l;
     }
 }
