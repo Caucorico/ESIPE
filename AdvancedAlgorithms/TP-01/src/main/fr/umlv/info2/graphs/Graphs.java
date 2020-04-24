@@ -190,6 +190,7 @@ public class Graphs {
     }
 
     public static List<Integer> DFS(Graph g, int v0) {
+        /* TODO : replace the HashMap by a */
         HashMap<Integer, DeepVertex> hm = new HashMap<>();
 
         for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
@@ -236,31 +237,43 @@ public class Graphs {
         return bone;
     }
 
+    private static void visitTimedDepthFirstRec(Graph g, int i, boolean[] passed, LongAdder adder, int[][] tab) {
+        passed[i] = true;
+        tab[i][0] = adder.intValue();
+        adder.increment();
+        g.forEachEdge(i, (e) -> {
+            if (!passed[e.getEnd()]) {
+                visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+            }
+        });
+        tab[i][1] = adder.intValue();
+        adder.increment();
+    }
+
     public static int[][] timedDepthFirstSearch(Graph g, int s0) {
-        var nbVertices = g.numberOfVertices();
-        var tab = new int[nbVertices][2];
+        var tab = new int[g.numberOfVertices()][2];
         var adder = new LongAdder();
-        var passed = new boolean[nbVertices];
+        var passed = new boolean[g.numberOfVertices()];
 
         passed[s0] = true;
         tab[s0][0] = adder.intValue();
         adder.increment();
         g.forEachEdge(s0, (e) -> {
             if (!passed[e.getEnd()]) {
-                timedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+                visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
             }
         });
         tab[s0][1] = adder.intValue();
         adder.increment();
 
-        for (int i=0; i<nbVertices; i++) {
+        for (int i=0; i<g.numberOfVertices(); i++) {
             if (!passed[i]) {
                 passed[i] = true;
                 tab[i][0] = adder.intValue();
                 adder.increment();
                 g.forEachEdge(i, (e) -> {
                     if (!passed[e.getEnd()]) {
-                        timedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+                        visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
                     }
                 });
                 tab[i][1] = adder.intValue();
@@ -269,19 +282,6 @@ public class Graphs {
         }
         return tab;
 
-    }
-
-    private static void timedDepthFirstRec(Graph g, int i, boolean[] passed, LongAdder adder, int[][] tab) {
-        passed[i] = true;
-        tab[i][0] = adder.intValue();
-        adder.increment();
-        g.forEachEdge(i, (e) -> {
-            if (!passed[e.getEnd()]) {
-                timedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
-            }
-        });
-        tab[i][1] = adder.intValue();
-        adder.increment();
     }
 
     private static void topologicalSortNoCycle(Graph g, int i, boolean[] tab, List<Integer> l) {
