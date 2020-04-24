@@ -14,8 +14,8 @@ public class ThreadData {
     public ThreadData setSocketChannel(SocketChannel clientConnectedSocketChannel) {
         synchronized (lockClientConnectedSocketChannel) {
             this.clientConnectedSocketChannel = clientConnectedSocketChannel;
-            tick();
         }
+        tick();
         return this;
     }
 
@@ -37,6 +37,7 @@ public class ThreadData {
                 /* TODO : Ask to the teacher if close input first? */
 
                 clientConnectedSocketChannel.close();
+                clientConnectedSocketChannel = null;
             }
         }
     }
@@ -44,6 +45,12 @@ public class ThreadData {
     public void closeIfInactive(int timeout) throws IOException {
         if ( lastActivity + timeout < System.currentTimeMillis() ) {
             close();
+        }
+    }
+
+    public boolean isActive() {
+        synchronized (lockClientConnectedSocketChannel) {
+            return clientConnectedSocketChannel != null;
         }
     }
 }
