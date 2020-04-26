@@ -201,7 +201,8 @@ public class Graphs {
     }
 
     public static List<Integer> BFS(Graph g, int v0) {
-        HashMap<Integer, ColorizedVertex> hm = new HashMap<>();
+        //HashMap<Integer, ColorizedVertex> hm = new HashMap<>();
+        boolean[] visited = new boolean[g.numberOfVertices()];
         Queue<ColorizedVertex> queue = new ArrayBlockingQueue<>(g.numberOfVertices());
         ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
 
