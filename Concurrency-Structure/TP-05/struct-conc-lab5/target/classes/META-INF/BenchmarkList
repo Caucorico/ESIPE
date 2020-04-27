@@ -1,0 +1,3 @@
+JMH S 38 fr.umlv.structconc.VectorizedBenchMark S 72 fr.umlv.structconc.generated.VectorizedBenchMark_sum_reduce_lane_jmhTest S 15 sum_reduce_lane S 11 AverageTime E A 1 1 1 E I 1 5 T 3 5 s E I 1 5 T 3 5 s E I 1 1 E E E E E E U 12 MICROSECONDS E E 
+JMH S 38 fr.umlv.structconc.VectorizedBenchMark S 65 fr.umlv.structconc.generated.VectorizedBenchMark_sum_loop_jmhTest S 8 sum_loop S 11 AverageTime E A 1 1 1 E I 1 5 T 3 5 s E I 1 5 T 3 5 s E I 1 1 E E E E E E U 12 MICROSECONDS E E 
+JMH S 38 fr.umlv.structconc.VectorizedBenchMark S 69 fr.umlv.structconc.generated.VectorizedBenchMark_sum_lanewise_jmhTest S 12 sum_lanewise S 11 AverageTime E A 1 1 1 E I 1 5 T 3 5 s E I 1 5 T 3 5 s E I 1 1 E E E E E E U 12 MICROSECONDS E E 

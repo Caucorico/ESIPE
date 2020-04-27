@@ -1,0 +1,4 @@
+--patch-module
+fr.umlv.structconc=_
+--add-reads
+fr.umlv.structconc=ALL-UNNAMED
