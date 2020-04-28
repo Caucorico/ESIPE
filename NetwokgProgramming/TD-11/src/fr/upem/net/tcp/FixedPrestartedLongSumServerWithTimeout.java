@@ -5,9 +5,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -136,7 +133,7 @@ public class FixedPrestartedLongSumServerWithTimeout {
      * In second, we do the sum.
      * Finally, we send the sum.
      */
-    private void doLongSumServerProtocol(ByteBuffer byteBuffer) {
+    private void serve(ByteBuffer byteBuffer) {
 
         /* this is not the server that close the connection, so we can only wait : */
         while( true ) {
@@ -204,7 +201,7 @@ public class FixedPrestartedLongSumServerWithTimeout {
                         var clientConnectedSocketChannel = serverSocketChannel.accept();
                         threads.get(Thread.currentThread()).setSocketChannel(clientConnectedSocketChannel);
                         /* On each client request, we need to do the protocol : */
-                        doLongSumServerProtocol(byteBuffer); /* <=> serve */
+                        serve(byteBuffer); /* <=> serve */
 
                         /* TODO : Ask to the teacher if it's better to use condition/optional or Exception */
                     }
