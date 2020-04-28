@@ -3,12 +3,11 @@ package fr.upem.net.tcp;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FixedPrestartedLongSumServer {
@@ -34,22 +33,17 @@ public class FixedPrestartedLongSumServer {
                 + " starts on port " + port);
     }
 
-    private static boolean readFully(SocketChannel sc, ByteBuffer bb) {
-        try {
-            while(bb.hasRemaining()) {
-                if (sc.read(bb)==-1){
-                    logger.info("Input stream closed");
-                    return false;
-                }
+    private static boolean readFully(SocketChannel sc, ByteBuffer bb) throws IOException {
+        while(bb.hasRemaining()) {
+            if (sc.read(bb)==-1){
+                logger.info("Input stream closed");
+                return false;
             }
-            return true;
-        } catch(IOException e) {
-            logger.info("ReadFully failed");
-            return false;
         }
+        return true;
     }
 
-    private static Optional<ArrayList<Long>> recoverLongSumProtocolNumbers(SocketChannel clientConnectedSocketChannel, ByteBuffer byteBuffer) {
+    private static Optional<ArrayList<Long>> recoverLongSumProtocolNumbers(SocketChannel clientConnectedSocketChannel, ByteBuffer byteBuffer) throws IOException {
         /* We don't trust the ByteBuffer content. So, we clear it : */
         byteBuffer.clear();
 
@@ -129,7 +123,7 @@ public class FixedPrestartedLongSumServer {
      * In second, we do the sum.
      * Finally, we send the sum.
      */
-    private static boolean doLongSumServerProtocol(SocketChannel clientConnectedSocketChannel, ByteBuffer byteBuffer) {
+    private static boolean doLongSumServerProtocol(SocketChannel clientConnectedSocketChannel, ByteBuffer byteBuffer) throws IOException {
         /* We read all the numbers send by the client :*/
         var optionalNumbers = recoverLongSumProtocolNumbers(clientConnectedSocketChannel, byteBuffer);
 
@@ -165,12 +159,10 @@ public class FixedPrestartedLongSumServer {
                 try {
                     /* First, we need to wait a request with the accept : */
                     clientConnectedSocketChannel = serverSocketChannel.accept();
+                } catch (AsynchronousCloseException e) {
+                    logger.info("The thread was interrupted during the accept.");
+                    break;
                 } catch (IOException e) {
-                    /* TODO : Ask to the teacher how to catch these exceptions :
-                    *    - ClosedChannelException. ( Close the thread if the channel is close ? )
-                    *    - AsynchronousCloseException ( Do I try to close the SocketChannel in this situation ? )
-                    *    - ClosedByInterruptException ( Do I try to close the SocketChannel in this situation ? )
-                    */
                     logger.severe("The accept failed, the thread is broken, we stopp it");
                     return;
                 }
@@ -178,7 +170,16 @@ public class FixedPrestartedLongSumServer {
                 /* this is not the server that close the connection, so we can only wait : */
                 while ( true ) {
                     /* On each client request, we need to do the protocol : */
-                    var res = doLongSumServerProtocol(clientConnectedSocketChannel, byteBuffer);
+                    boolean res;
+                    try {
+                        res = doLongSumServerProtocol(clientConnectedSocketChannel, byteBuffer);
+                    } catch (AsynchronousCloseException e) {
+                        logger.info("The thread was interrupted during the accept.");
+                        break;
+                    } catch (IOException e) {
+                        logger.severe("IOException");
+                        return;
+                    }
 
                     /* If the protocol return false, wa can stop the connection with the client. */
                     if ( !res ) break;
@@ -188,9 +189,6 @@ public class FixedPrestartedLongSumServer {
                 try {
                     clientConnectedSocketChannel.close();
                 } catch (IOException e) {
-                    /* TODO : Ask to the teacher how to catch these exceptions :
-                     *    - IOException. ( If the close fail, should we close the thread or try to continue ? )
-                     */
                     logger.severe("The close failed, the thread is broken, we stopp it");
                     return;
                 }
