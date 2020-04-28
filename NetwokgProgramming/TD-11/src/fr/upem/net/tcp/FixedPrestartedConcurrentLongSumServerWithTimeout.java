@@ -43,26 +43,19 @@ public class FixedPrestartedConcurrentLongSumServerWithTimeout {
         this.open = true;
     }
 
-    private boolean readFully(ByteBuffer bb) throws AsynchronousCloseException {
-        try {
-            while (bb.hasRemaining()) {
-                if (threads.get(Thread.currentThread()).getSocketChannel().read(bb) == -1) {
-                    logger.info("Input stream closed");
-                    return false;
-                }
-
-                threads.get(Thread.currentThread()).tick();
+    private boolean readFully(ByteBuffer bb) throws IOException {
+        while (bb.hasRemaining()) {
+            if (threads.get(Thread.currentThread()).getSocketChannel().read(bb) == -1) {
+                logger.info("Input stream closed");
+                return false;
             }
-            return true;
-        } catch (AsynchronousCloseException e) {
-            throw e;
-        } catch(IOException e) {
-            logger.info("ReadFully failed");
-            return false;
+
+            threads.get(Thread.currentThread()).tick();
         }
+        return true;
     }
 
-    private Optional<Long> recoverLongSumProtocolNumbers(ByteBuffer byteBuffer) throws AsynchronousCloseException {
+    private Optional<Long> recoverLongSumProtocolNumbers(ByteBuffer byteBuffer) throws IOException {
         /* We don't trust the ByteBuffer content. So, we clear it : */
         byteBuffer.clear();
 
@@ -142,7 +135,7 @@ public class FixedPrestartedConcurrentLongSumServerWithTimeout {
      * In second, we do the sum.
      * Finally, we send the sum.
      */
-    private void doLongSumServerProtocol(ByteBuffer byteBuffer) throws AsynchronousCloseException {
+    private void doLongSumServerProtocol(ByteBuffer byteBuffer) throws IOException {
 
         /* this is not the server that close the connection, so we can only wait : */
         while( true ) {
@@ -270,16 +263,16 @@ public class FixedPrestartedConcurrentLongSumServerWithTimeout {
                             }
                         }
 
-                        /* First, we need to wait a request with the accept : */
-                        var clientConnectedSocketChannel = serverSocketChannel.accept();
-                        threads.get(Thread.currentThread()).setSocketChannel(clientConnectedSocketChannel);
-                        /* On each client request, we need to do the protocol : */
-                        doLongSumServerProtocol(byteBuffer); /* <=> serve */
-
-                        /* TODO : Ask to the teacher if it's better to use condition/optional or Exception */
+                        try {
+                            /* First, we need to wait a request with the accept : */
+                            var clientConnectedSocketChannel = serverSocketChannel.accept();
+                            threads.get(Thread.currentThread()).setSocketChannel(clientConnectedSocketChannel);
+                            /* On each client request, we need to do the protocol : */
+                            doLongSumServerProtocol(byteBuffer);
+                        }catch (AsynchronousCloseException e) {
+                            logger.info("Thread closed by AsynchronousCloseException.");
+                        }
                     }
-                } catch (AsynchronousCloseException e) {
-                    logger.info("Thread closed by AsynchronousCloseException.");
                 } catch (IOException e) {
                     logger.log(Level.SEVERE, "Thead closed by IOException.");
                 }

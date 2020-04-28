@@ -31,18 +31,22 @@ public class OnDemandConcurrentLongSumServer {
 
     public void launch() throws IOException {
         logger.info("Server started");
-        while(!Thread.interrupted()) {
-            SocketChannel client = serverSocketChannel.accept();
-            try {
-                logger.info("Connection accepted from " + client.getRemoteAddress());
-                serve(client);
-            } catch (IOException ioe) {
-                logger.log(Level.INFO,"Connection terminated with client by IOException",ioe.getCause());
-            } catch (InterruptedException ie) {
-                logger.info("Server interrupted");
-                break;
+            while(!Thread.interrupted()) {
+                SocketChannel client = serverSocketChannel.accept();
+
+                new Thread(() -> {
+                    try {
+                        logger.info("Connection accepted from " + client.getRemoteAddress());
+                        serve(client);
+                    } catch (IOException ioe) {
+                        logger.log(Level.INFO,"Connection terminated with client by IOException",ioe.getCause());
+                    } catch (InterruptedException ie) {
+                        logger.info("Server interrupted");
+                    } finally {
+                        silentlyClose(client);
+                    }
+                }).start();
             }
-        }
     }
 
     /**
@@ -57,94 +61,69 @@ public class OnDemandConcurrentLongSumServer {
         var STOPPED_INFO = "The server has stopped to serve the client.";
         ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-        Thread t = new Thread(() -> {
-            while ( true ) {
-                /* Prepare the buffer to receive an int : */
-                byteBuffer.limit(Integer.BYTES);
+        while ( true ) {
+            /* Prepare the buffer to receive an int : */
+            byteBuffer.limit(Integer.BYTES);
 
-                /* Receive the int : */
-                try {
-                    if ( !readFully(sc, byteBuffer) ){
-                        logger.info(STOPPED_INFO);
-                        return;
-                    }
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE, "first readFully failed", e);
-                    return;
+            /* Receive the int : */
+            if ( !readFully(sc, byteBuffer) ){
+                logger.info(STOPPED_INFO);
+                return;
+            }
+
+            /* Pass the buffer in read mode : */
+            byteBuffer.flip();
+
+            /* Get the int : */
+            int sumSize = byteBuffer.getInt();
+            int sumByteSize = sumSize * Long.BYTES;
+
+            /* Create the array that will contains all the Long : */
+            var longs = new ArrayList<Long>(sumSize);
+
+            /* Compact the buffer to optimize it and repass in write mode : */
+            byteBuffer.compact();
+
+            while ( sumSize > 0 ) {
+                if ( sumByteSize < BUFFER_SIZE ) {
+                    byteBuffer.limit(sumByteSize);
                 }
 
-                /* Pass the buffer in read mode : */
-                byteBuffer.flip();
-
-                /* Get the int : */
-                int sumSize = byteBuffer.getInt();
-                int sumByteSize = sumSize * Long.BYTES;
-
-                /* Create the array that will contains all the Long : */
-                var longs = new ArrayList<Long>(sumSize);
-
-                /* Compact the buffer to optimize it and repass in write mode : */
-                byteBuffer.compact();
-
-                while ( sumSize > 0 ) {
-                    if ( sumByteSize < BUFFER_SIZE ) {
-                        byteBuffer.limit(sumByteSize);
-                    }
-
-                    /* Receive the list of longs : */
-                    try {
-                        if ( !readFully(sc, byteBuffer) ){
-                            logger.info(STOPPED_INFO);
-                            break;
-                        }
-                    } catch (IOException e) {
-                        logger.log(Level.SEVERE, "second readFully failed", e);
-                        return;
-                    }
-
-                    /* Get the longs in the buffer ans put them in the array : */
-                    byteBuffer.flip();
-                    while ( byteBuffer.hasRemaining()) {
-                        longs.add(byteBuffer.getLong());
-                        sumSize--;
-                        sumByteSize -= Long.BYTES;
-                    }
-
-                    byteBuffer.clear();
-                }
-
-                /* Do the sum : */
-                long sum = longs.stream().reduce(0L, Long::sum);
-                byteBuffer.putLong(sum);
-
-                /* Send the calculated sum to the client : */
-                byteBuffer.flip();
-                try {
-                    sc.write(byteBuffer);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-
-                if ( byteBuffer.hasRemaining() ) {
-                    logger.info("Output stream closed");
+                /* Receive the list of longs : */
+                if ( !readFully(sc, byteBuffer) ){
                     logger.info(STOPPED_INFO);
                     break;
+                }
+
+                /* Get the longs in the buffer ans put them in the array : */
+                byteBuffer.flip();
+                while ( byteBuffer.hasRemaining()) {
+                    longs.add(byteBuffer.getLong());
+                    sumSize--;
+                    sumByteSize -= Long.BYTES;
                 }
 
                 byteBuffer.clear();
             }
 
-            try {
-                sc.close();
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "The close failed", e);
-                return;
+            /* Do the sum : */
+            long sum = longs.stream().reduce(0L, Long::sum);
+            byteBuffer.putLong(sum);
+
+            /* Send the calculated sum to the client : */
+            byteBuffer.flip();
+            sc.write(byteBuffer);
+
+            if ( byteBuffer.hasRemaining() ) {
+                logger.info("Output stream closed");
+                logger.info(STOPPED_INFO);
+                break;
             }
-            logger.info("Serve succesfuly terminated");
-        });
 
-        t.start();
+            byteBuffer.clear();
+        }
 
+        logger.info("Serve succesfuly terminated");
 	 }
 
     /**
@@ -162,8 +141,6 @@ public class OnDemandConcurrentLongSumServer {
             }
         }
     }
-
-
 
     static boolean readFully(SocketChannel sc, ByteBuffer bb) throws IOException {
         while(bb.hasRemaining()) {
