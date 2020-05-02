@@ -4,11 +4,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import fr.uge.atomsyndicator.atom.AtomParser
 
-class EntryAdapter(val entries: ArrayList<AtomParser.Entry>) : RecyclerView.Adapter<EntryAdapter.ViewHolder>() {
+class EntryAdapter(private val entries: ArrayList<AtomParser.Entry>, private val itemClickListener: View.OnClickListener)
+    : RecyclerView.Adapter<EntryAdapter.ViewHolder>() {
+
+    val dateService: DateService = DateService()
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val cardView = itemView.findViewById<CardView>(R.id.item_entry_card_view)
         val title = itemView.findViewById<TextView>(R.id.item_entry_title)
         val date = itemView.findViewById<TextView>(R.id.item_entry_date)
         val resume = itemView.findViewById<TextView>(R.id.item_entry_resume)
@@ -24,10 +30,11 @@ class EntryAdapter(val entries: ArrayList<AtomParser.Entry>) : RecyclerView.Adap
         val entry = entries[position]
 
         holder.title.text = entry.title
-        holder.date.text = entry.date.toString()
+        holder.date.text = dateService.getFormatedDuration(entry.date)
         holder.resume.text = entry.summary
 
-
+        holder.cardView.tag = position
+        holder.cardView.setOnClickListener(itemClickListener)
     }
 
     override fun getItemCount(): Int {
