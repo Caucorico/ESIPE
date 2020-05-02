@@ -55,10 +55,6 @@ public class ServerSumOneShot {
 			if (key.isValid() && key.isReadable()) {
 				doRead(key);
 			}
-		} catch (AsynchronousCloseException e) {
-			logger.log(Level.INFO, "Client close the connection");
-			silentlyClose(key);
-			/* TODO : Ask to the teacher if close the connection remove the key from the list */
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error during the IO", e);
 			throw new UncheckedIOException(e);
