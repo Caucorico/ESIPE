@@ -7,86 +7,6 @@ import java.util.concurrent.atomic.LongAdder;
 public class Graphs {
 
     /**
-     * The inter class that represent a colorized vertex.
-     * This class is useful for the BFS algorithm.
-     */
-    private static class ColorizedVertex {
-
-        /**
-         * This enum represent the three possible color for BFS.
-         */
-        enum Color {
-            WHITE, GRAY, BLACK
-        }
-
-        /**
-         * The color of the edge.
-         */
-        Color color;
-
-        /**
-         * The parent of the edge. Null if root.
-         */
-        ColorizedVertex parent;
-
-        /**
-         * The depth of the edge. 0 if root.
-         */
-        int depth;
-
-        /**
-         * The id of the edge.
-         */
-        int number;
-
-        ColorizedVertex(int number) {
-            this.color = Color.WHITE;
-            this.parent = null;
-            this.depth = -1;
-            this.number = number;
-        }
-
-        /**
-         * Get the color of the edge.
-         *
-         * @return The color.
-         */
-        public Color getColor() {
-            return color;
-        }
-
-        /**
-         * Transform the edge in a root.
-         */
-        void root() {
-            color = Color.GRAY;
-            depth = 0;
-        }
-    }
-
-    private static class DeepVertex {
-        int firstPass = -1;
-        int lastPass = -1;
-        final int number;
-
-        public DeepVertex(int number) {
-            this.number = number;
-        }
-
-        public void visit(int n) {
-            firstPass = n;
-        }
-
-        public void leave(int n) {
-            lastPass = n;
-        }
-
-        public boolean visited() {
-            return firstPass != -1 || lastPass != -1;
-        }
-    }
-
-    /**
      * This function return a random int > minValue && < maxValue.
      *
      * @param minValue The min value.
@@ -173,66 +93,100 @@ public class Graphs {
         return adjGraph;
     }
 
-    private static List<Integer> visitDFS(Graph g, int v0, HashMap<Integer, DeepVertex> hm) {
+    /**
+     * This function execute the BFS algorithm and return the vertices traveled order.
+     *
+     * @param g The graph to travel.
+     * @param v0 The initial vertex of the travel.
+     * @return Return the list that contains all the traveled vertices in order.
+     */
+    public static List<Integer> BFS(Graph g, int v0) {
         ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
-        var currentVertice = hm.get(v0);
 
-        bone.add(currentVertice.number);
-        currentVertice.visit(0);
-        g.forEachEdge(v0, edge -> {
-            var subVertice = hm.get(edge.getEnd());
-            if ( !subVertice.visited() ) {
-                 bone.addAll(visitDFS(g, subVertice.number, hm));
+        /* If the graph doesn't have any vertex, return empty list */
+        if ( g.numberOfVertices() == 0 ) {
+            return bone;
+        }
+
+        /* Create an array that contains if the vertex is discovered or not. */
+        BitSet bitSet = new BitSet(g.numberOfVertices());
+
+        /* While all the vertices not discovered : */
+        while ( bitSet.cardinality() < g.numberOfVertices() ) {
+            Queue<Integer> queue = new ArrayBlockingQueue<>(g.numberOfVertices());
+
+            int root;
+            if ( !bitSet.get(v0) ) {
+                root = v0;
+            } else {
+                root = bitSet.nextClearBit(0);
             }
-        });
+
+            bitSet.set(root);
+            queue.add(root);
+
+            while ( !queue.isEmpty() ) {
+                var currentVertice = queue.remove();
+
+                g.forEachEdge(currentVertice, edge -> {
+                    if ( !bitSet.get(edge.getEnd()) ) {
+                        queue.add(edge.getEnd());
+                        bitSet.set(edge.getEnd());
+                    }
+                });
+
+                bone.add(currentVertice);
+            }
+        }
 
         return bone;
     }
 
+    /**
+     * This function execute the DFS algorithm and return the vertices traveled order.
+     *
+     * @param g The graph to travel.
+     * @param v0 The initial vertex of the travel.
+     * @return Return the list that contains all the traveled vertices in order.
+     */
     public static List<Integer> DFS(Graph g, int v0) {
-        /* TODO : replace the HashMap by a */
-        HashMap<Integer, DeepVertex> hm = new HashMap<>();
-
-        for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
-            hm.put(i, new DeepVertex(i));
-        }
-
-        return visitDFS(g, v0, hm);
-    }
-
-    public static List<Integer> BFS(Graph g, int v0) {
-        //HashMap<Integer, ColorizedVertex> hm = new HashMap<>();
-        boolean[] visited = new boolean[g.numberOfVertices()];
-        Queue<ColorizedVertex> queue = new ArrayBlockingQueue<>(g.numberOfVertices());
         ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
 
-        for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
-            hm.put(i, new ColorizedVertex(i));
+        /* If the graph doesn't have any vertex, return empty list */
+        if ( g.numberOfVertices() == 0 ) {
+            return bone;
         }
 
-        var s = hm.get(v0);
-        s.root();
-        queue.add(s);
-        var globalDeepth = 1;
+        /* Create an array that contains if the vertex is discovered or not. */
+        BitSet bitSet = new BitSet(g.numberOfVertices());
 
-        while ( !queue.isEmpty() ) {
-            var currentVertice = queue.remove();
-            /* TODO : created vistit method */
-            currentVertice.color = ColorizedVertex.Color.BLACK;
+        /* While all the vertices not discovered : */
+        while ( bitSet.cardinality() < g.numberOfVertices() ) {
+            Deque<Integer> stack = new ArrayDeque<>();
 
-            g.forEachEdge(currentVertice.number, edge -> {
-                var neighbour = hm.get(edge.getEnd());
-                /* TODO : create isUnknown method */
-                if ( neighbour.color == ColorizedVertex.Color.WHITE ) {
-                    neighbour.color = ColorizedVertex.Color.GRAY;
-                    neighbour.depth = globalDeepth;
-                    neighbour.parent = currentVertice;
+            int root;
+            if ( !bitSet.get(v0) ) {
+                root = v0;
+            } else {
+                root = bitSet.nextClearBit(0);
+            }
 
-                    queue.add(neighbour);
-                }
-            });
+            bitSet.set(root);
+            stack.push(root);
 
-            bone.add(currentVertice.number);
+            while (!stack.isEmpty()) {
+                var currentVertice = stack.pop();
+
+                /* TODO : use inverted forEach : */
+                g.forEachEdge(currentVertice, edge -> {
+                    if ( !bitSet.get(edge.getEnd()) ) {
+                        stack.push(edge.getEnd());
+                        bitSet.set(edge.getEnd());
+                    }
+                });
+
+                bone.add(currentVertice);
+            }
         }
 
         return bone;
