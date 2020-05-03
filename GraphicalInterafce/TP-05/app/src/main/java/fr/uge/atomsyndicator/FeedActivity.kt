@@ -1,6 +1,8 @@
 package fr.uge.atomsyndicator
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -61,8 +63,22 @@ class FeedActivity : AppCompatActivity(), View.OnClickListener {
         if ( v.tag != null ) {
             val index = v.tag as Int
             val entry = entries[index]
+            val orientation = this.resources.configuration.orientation
 
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(entry.url)))
+            val af = ArticleFragment()
+            af.url = entry.url
+
+            if ( orientation == Configuration.ORIENTATION_PORTRAIT ) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.activity_feed_container, af)
+                    .addToBackStack(null)
+                    .commit()
+            } else if ( orientation == Configuration.ORIENTATION_LANDSCAPE ) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.activity_feed_article_fragment_container, af)
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
