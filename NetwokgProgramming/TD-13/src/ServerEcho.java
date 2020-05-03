@@ -30,13 +30,23 @@ public class ServerEcho {
 		 * The convention is that buff is in write-mode.
 		 */
 		private void updateInterestOps() {
-			if ( bb.hasRemaining() && bb.position() > 0) {
-				key.interestOps(SelectionKey.OP_READ|SelectionKey.OP_WRITE);
-			} else if ( bb.hasRemaining() ) {
-				key.interestOps(SelectionKey.OP_READ);
-			} else if ( bb.position() > 0 ) {
-				key.interestOps(SelectionKey.OP_WRITE);
+			var interestOps = 0x0;
+
+			if ( !closed && bb.hasRemaining() ) {
+				interestOps |= SelectionKey.OP_READ;
+
 			}
+
+			if ( bb.position() > 0 ) {
+				interestOps |= SelectionKey.OP_WRITE;
+			}
+
+			if ( interestOps == 0 ) {
+				silentlyClose();
+				return;
+			}
+
+			key.interestOps(interestOps);
 		}
 
 		/**
@@ -52,7 +62,7 @@ public class ServerEcho {
 
 			if ( res == -1 ) {
 				logger.info("Connection closed with the client.");
-				silentlyClose();
+				closed = true;
 			}
 
 			updateInterestOps();
@@ -134,7 +144,6 @@ public class ServerEcho {
 	}
 
 	private void doAccept(SelectionKey key) throws IOException {
-		ServerSocketChannel serverSocketChannel = (ServerSocketChannel)key.channel();
 		SocketChannel sc = serverSocketChannel.accept();
 		if ( sc == null ) {
 			logger.log(Level.WARNING, "Bad hint");
