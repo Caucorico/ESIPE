@@ -9,6 +9,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 import fr.uge.atomsyndicator.atom.AtomParser
 import fr.uge.atomsyndicator.atom.AtomService
@@ -20,23 +21,28 @@ class FeedActivity : AppCompatActivity(), View.OnClickListener {
 
     private val atomService = AtomService()
 
+    lateinit var queue: RequestQueue
+
+    var url = "http://android-developers.blogspot.com/feeds/posts/default"
+
+    lateinit var adapter: EntryAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_feed)
 
         val recyclerView = findViewById<RecyclerView>(R.id.activity_feed_recycler_view)
-        val adapter = EntryAdapter(entries, this)
+        adapter = EntryAdapter(entries, this)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        if ( savedInstanceState != null ) {
+        queue = Volley.newRequestQueue(this)
+
+        if ( savedInstanceState != null /*&& requestFinished*/ ) {
             entries.addAll(savedInstanceState.getSerializable("entries") as ArrayList<AtomParser.Entry>)
+            url = savedInstanceState.getString("url") as String
             Log.i(FeedActivity::class.java.name, "Entries list recover")
         } else {
-            // Instantiate the RequestQueue.
-            val queue = Volley.newRequestQueue(this)
-            val url = "http://android-developers.blogspot.com/feeds/posts/default"
-
             atomService.updateEntries(queue, url, entries, adapter)
 
             Log.i(FeedActivity::class.java.name, "Entries list will be getted by Volley request")
@@ -48,6 +54,7 @@ class FeedActivity : AppCompatActivity(), View.OnClickListener {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putSerializable("entries", entries)
+        outState.putString("url", url)
     }
 
     override fun onClick(v: View) {
@@ -83,9 +90,11 @@ class FeedActivity : AppCompatActivity(), View.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.main_menu_refresh -> {
+                atomService.updateEntries(queue, url, entries, adapter)
                 return true
             }
             R.id.main_menu_change_data_source -> {
+                /* TODO : display dialog fragment */
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
