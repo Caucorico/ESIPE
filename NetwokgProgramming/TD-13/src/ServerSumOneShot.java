@@ -31,7 +31,7 @@ public class ServerSumOneShot {
 			try {
 				selector.select(this::treatKey);
 			} catch (UncheckedIOException e) {
-				throw e.getCause();
+				throw new IOException(e.getCause());
 			}
 
 			System.out.println("Select finished");
@@ -45,6 +45,7 @@ public class ServerSumOneShot {
 				doAccept(key);
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Error during the accept", e);
+				silentlyClose(key);
 				throw new UncheckedIOException(e);
 			}
 		}
@@ -56,16 +57,14 @@ public class ServerSumOneShot {
 				doRead(key);
 			}
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Error during the IO", e);
-			throw new UncheckedIOException(e);
+			logger.log(Level.INFO, "Error during the IO with a client");
+			silentlyClose(key);
 		}
 	}
 
 	private void doAccept(SelectionKey key) throws IOException {
-		ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
-		SocketChannel sc = ssc.accept();
+		SocketChannel sc = serverSocketChannel.accept();
 		if ( sc == null ) {
-			/* TODO : ask to the teacher if warning ? */
 			logger.log(Level.WARNING, "Bad hint");
 			return;
 		}
@@ -85,42 +84,35 @@ public class ServerSumOneShot {
 			return;
 		}
 
-		if ( !byteBuffer.hasRemaining() ) {
-			key.interestOps(SelectionKey.OP_WRITE);
-			byteBuffer.flip();
+		if ( byteBuffer.hasRemaining() ) {
+			return;
 		}
-	}
 
-	/**
-	 *
-	 * @param socketChannel
-	 * @param byteBuffer ByteBuffer in read mode.
-	 * @return
-	 * @throws IOException
-	 */
-	private static boolean writeFully(SocketChannel socketChannel, ByteBuffer byteBuffer) throws IOException {
-		socketChannel.write(byteBuffer);
-		return !byteBuffer.hasRemaining();
+		key.interestOps(SelectionKey.OP_WRITE);
+		byteBuffer.flip();
+
+		var integer1 = byteBuffer.getInt();
+		var integer2 = byteBuffer.getInt();
+		var sum = integer1 + integer2;
+		byteBuffer.clear();
+		byteBuffer.putInt(sum);
 	}
 
 	private void doWrite(SelectionKey key) throws IOException {
 		var byteBuffer = (ByteBuffer)key.attachment();
 		var socketChannel = (SocketChannel)key.channel();
-		var integer1 = byteBuffer.getInt();
-		var integer2 = byteBuffer.getInt();
 
-		var sum = integer1 + integer2;
-
-		byteBuffer.clear();
-		byteBuffer.putInt(sum);
 		byteBuffer.flip();
-		if ( writeFully(socketChannel, byteBuffer) ) {
-			/* TODO : close socket channel and remove it from keys */
-			// ex 1 : silentlyClose(key);
 
-			key.interestOps(SelectionKey.OP_READ);
-			byteBuffer.clear();
+		socketChannel.write(byteBuffer);
+		byteBuffer.compact();
+		if (byteBuffer.position() != 0) {
+			return;
 		}
+
+		// ex 1 : silentlyClose(key);
+
+		key.interestOps(SelectionKey.OP_READ);
 	}
 
 	private void silentlyClose(SelectionKey key) {
