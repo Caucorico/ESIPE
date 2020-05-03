@@ -1,25 +1,24 @@
 package fr.uge.atomsyndicator
 
-import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import fr.uge.atomsyndicator.atom.AtomParser
+import fr.uge.atomsyndicator.atom.AtomService
 
 
 class FeedActivity : AppCompatActivity(), View.OnClickListener {
 
     private val entries = ArrayList<AtomParser.Entry>()
+
+    private val atomService = AtomService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,16 +37,8 @@ class FeedActivity : AppCompatActivity(), View.OnClickListener {
             val queue = Volley.newRequestQueue(this)
             val url = "http://android-developers.blogspot.com/feeds/posts/default"
 
-            // Request a string response from the provided URL.
-            val stringRequest = StringRequest(Request.Method.GET, url,
-                Response.Listener<String> { response ->
-                    AtomParser(response.reader()).parse(entries)
-                    adapter.notifyDataSetChanged()
-                },
-                Response.ErrorListener { entries.add(AtomParser.Entry(null, "That didn't work!", null, null, null)) })
+            atomService.updateEntries(queue, url, entries, adapter)
 
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest)
             Log.i(FeedActivity::class.java.name, "Entries list will be getted by Volley request")
 
             /* TODO : treat the case where the request is not finished before the rotation. */
@@ -83,4 +74,21 @@ class FeedActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     /* TODO : update the visible ViewHolder every minutes. */
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.main_menu_refresh -> {
+                return true
+            }
+            R.id.main_menu_change_data_source -> {
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
 }
