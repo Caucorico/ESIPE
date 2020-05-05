@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/main_menu_refresh"
+        android:title="Rafraichir"/>
+    <item android:id="@+id/main_menu_change_data_source"
+        android:title="Changer la source des données"/>
+</menu>
