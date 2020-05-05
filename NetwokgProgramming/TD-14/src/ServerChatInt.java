@@ -37,7 +37,7 @@ public class ServerChatInt {
          */
         private void processIn() {
 			bbin.flip();
-			if ( bbin.remaining() >= Integer.BYTES ) {
+			while ( bbin.remaining() >= Integer.BYTES ) {
 				server.broadcast(bbin.getInt());
 			}
 
@@ -113,7 +113,16 @@ public class ServerChatInt {
          * @throws IOException
          */
         private void doRead() throws IOException {
-        	// TODO
+			if ( !bbin.hasRemaining() ) { //
+				logger.warning("Call do read but bbin doesn't have enough place !");
+			}
+
+        	var res = sc.read(bbin);
+			if ( res == -1 ) {
+				closed = true;
+			}
+
+			processIn();
         }
 
         /**
@@ -126,7 +135,15 @@ public class ServerChatInt {
          */
 
         private void doWrite() throws IOException {
-        	// TODO
+        	if ( bbout.position() == 0) {
+				logger.warning("Call do write but bbout doesn't have data !");
+			}
+
+        	bbout.flip();
+        	sc.write(bbout);
+			bbout.compact();
+
+			processOut();
         }
 
     }
@@ -208,7 +225,7 @@ public class ServerChatInt {
      * @param msg
      */
     private void broadcast(Integer msg) {
-    	selector.keys().forEach( key -> {
+    	selector.keys().stream().filter(key -> key.interestOps() != SelectionKey.OP_ACCEPT).forEach(key -> {
     		var context = (Context)key.attachment();
     		context.queueMessage(msg);
 		});
