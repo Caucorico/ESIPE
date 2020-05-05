@@ -1,16 +1,16 @@
+package fr.upem.net.tcp.nonblocking;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ServerChatInt {
+public class ServerSumBetter {
 
     static private class Context {
 
@@ -18,52 +18,35 @@ public class ServerChatInt {
         final private SocketChannel sc;
         final private ByteBuffer bbin = ByteBuffer.allocate(BUFFER_SIZE);
         final private ByteBuffer bbout = ByteBuffer.allocate(BUFFER_SIZE);
-        final private Queue<Integer> queue = new LinkedList<>();
-        final private ServerChatInt server;
         private boolean closed = false;
 
-        private Context(ServerChatInt server, SelectionKey key){
+        private Context(SelectionKey key){
             this.key = key;
             this.sc = (SocketChannel) key.channel();
-            this.server = server;
         }
 
         /**
-         * Process the content of bbin
+         * Process the content of bbin into bbout
          *
-         * The convention is that bbin is in write-mode before the call
+         * The convention is that both buffers are in write-mode before the call
          * to process and after the call
          *
          */
-        private void processIn() {
-			bbin.flip();
-			while ( bbin.remaining() >= Integer.BYTES ) {
-				server.broadcast(bbin.getInt());
+
+        private void process() {
+
+        	/* Put buffer in read mode : */
+            bbin.flip();
+
+            /* If there is enough place, put the sum in the write buffer : */
+            while ( (bbin.remaining() >= (2*Integer.BYTES)) && ((bbout.position()+Integer.BYTES) <= bbout.capacity()) ) {
+            	var sum = bbin.getInt() + bbin.getInt();
+            	/* bbout is already in write mode, so put int. */
+				bbout.putInt(sum);
 			}
 
+			/* Reset input buffer in write mode : */
 			bbin.compact();
-			updateInterestOps();
-        }
-
-        /**
-         * Add a message to the message queue, tries to fill bbOut and updateInterestOps
-         *
-         * @param msg
-         */
-        private void queueMessage(Integer msg) {
-        	queue.add(msg);
-        	processOut();
-        }
-
-        /**
-         * Try to fill bbout from the message queue
-         *
-         */
-        private void processOut() {
-			while ( bbout.remaining() >= Integer.BYTES && !queue.isEmpty()) {
-				bbout.putInt(queue.remove());
-			}
-			updateInterestOps();
         }
 
         /**
@@ -78,9 +61,9 @@ public class ServerChatInt {
          */
 
         private void updateInterestOps() {
-        	byte interestOps = 0x0;
+        	int interestOps = 0x0;
 
-        	if ( !closed &&  bbin.remaining() >= Integer.BYTES ) {
+        	if ( !closed && bbin.hasRemaining() ) {
         		interestOps |= SelectionKey.OP_READ;
 			}
 
@@ -88,8 +71,8 @@ public class ServerChatInt {
         		interestOps |= SelectionKey.OP_WRITE;
 			}
 
-        	if ( interestOps == 0x0 ) {
-        		closed = true;
+        	if ( interestOps == 0 ) {
+        		silentlyClose();
         		return;
 			}
 
@@ -112,17 +95,20 @@ public class ServerChatInt {
          *
          * @throws IOException
          */
+
         private void doRead() throws IOException {
-			if ( !bbin.hasRemaining() ) { //
-				logger.warning("Call do read but bbin doesn't have enough place !");
+        	if ( !bbin.hasRemaining() ) { //
+        		logger.warning("Call do read but bbin doesn't have enough place !");
 			}
 
-        	var res = sc.read(bbin);
-			if ( res == -1 ) {
-				closed = true;
+        	var response = sc.read(bbin);
+        	if ( response == -1 ) {
+        		logger.info("Connexion with the client has terminated");
+        		closed = true;
 			}
 
-			processIn();
+        	process();
+			updateInterestOps();
         }
 
         /**
@@ -135,26 +121,27 @@ public class ServerChatInt {
          */
 
         private void doWrite() throws IOException {
-        	if ( bbout.position() == 0) {
-				logger.warning("Call do write but bbout doesn't have data !");
-			}
-
         	bbout.flip();
-        	sc.write(bbout);
-			bbout.compact();
 
-			processOut();
+			if ( !bbout.hasRemaining() ) {
+				logger.warning("Call do write but bbout is empty !");
+			}
+			sc.write(bbout);
+
+			bbout.compact();
+			process();
+			updateInterestOps();
         }
 
     }
 
-    static private int BUFFER_SIZE = 1_024;
-    static private Logger logger = Logger.getLogger(ServerChatInt.class.getName());
+    static private int BUFFER_SIZE = 2*Integer.BYTES;
+    static private Logger logger = Logger.getLogger(ServerSumBetter.class.getName());
 
     private final ServerSocketChannel serverSocketChannel;
     private final Selector selector;
-
-    public ServerChatInt(int port) throws IOException {
+    
+    public ServerSumBetter(int port) throws IOException {
         serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.bind(new InetSocketAddress(port));
         selector = Selector.open();
@@ -200,14 +187,11 @@ public class ServerChatInt {
 
     private void doAccept(SelectionKey key) throws IOException {
     	SocketChannel sc = serverSocketChannel.accept();
-    	if ( sc == null ) {
-    		logger.warning("Bad hint during accept...");
-    		return;
-		}
 
 		sc.configureBlocking(false);
     	var newKey = sc.register(selector, SelectionKey.OP_READ);
-    	newKey.attach(new Context(this, newKey));
+		var context = new Context(newKey);
+		newKey.attach(context);
     }
 
     private void silentlyClose(SelectionKey key) {
@@ -219,24 +203,12 @@ public class ServerChatInt {
         }
     }
 
-    /**
-     * Add a message to all connected clients queue
-     *
-     * @param msg
-     */
-    private void broadcast(Integer msg) {
-    	selector.keys().stream().filter(key -> key.interestOps() != SelectionKey.OP_ACCEPT).forEach(key -> {
-    		var context = (Context)key.attachment();
-    		context.queueMessage(msg);
-		});
-    }
-
     public static void main(String[] args) throws NumberFormatException, IOException {
         if (args.length!=1){
             usage();
             return;
         }
-        new ServerChatInt(Integer.parseInt(args[0])).launch();
+        new ServerSumBetter(Integer.parseInt(args[0])).launch();
     }
 
     private static void usage(){
