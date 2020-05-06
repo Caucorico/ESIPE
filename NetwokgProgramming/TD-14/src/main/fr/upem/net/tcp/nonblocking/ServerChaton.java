@@ -66,19 +66,22 @@ public class ServerChaton {
         }
 
         private void processIn() {
-            Reader.ProcessStatus status = messageReader.process(bbin);
-            switch (status) {
-                case DONE:
-                    server.broadcast(messageReader.get());
-                    messageReader.reset();
-                    break;
-                case REFILL:
-                    return;
-                case ERROR:
-                    closed = true;
-                    logger.log(Level.WARNING, "Error durung reading !!!");
-                    return;
-            }
+            Reader.ProcessStatus status;
+            do {
+                status = messageReader.process(bbin);
+                switch (status) {
+                    case DONE:
+                        server.broadcast(messageReader.get());
+                        messageReader.reset();
+                        break;
+                    case REFILL:
+                        break;
+                    case ERROR:
+                        closed = true;
+                        logger.log(Level.WARNING, "Error durung reading !!!");
+                        break;
+                }
+            } while( status == Reader.ProcessStatus.REFILL );
 
             updateInterestOps();
         }
