@@ -63,5 +63,7 @@ public class MessageReader implements Reader<Message> {
     public void reset() {
         state = State.WAITING_PSEUDO;
         stringReader.reset();
+        pseudo = null;
+        value = null;
     }
 }
