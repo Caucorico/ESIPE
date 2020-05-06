@@ -108,7 +108,6 @@ public class ServerChaton {
             }
 
             processIn();
-            processOut();
         }
 
         public void doWrite() throws  IOException {
@@ -120,7 +119,8 @@ public class ServerChaton {
             sc.write(bbout);
             bbout.compact();
 
-            updateInterestOps();
+            processOut();
+            //updateInterestOps();
         }
 
     }
