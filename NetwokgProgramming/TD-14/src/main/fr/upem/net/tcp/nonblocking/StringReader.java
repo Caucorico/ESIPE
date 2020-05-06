@@ -93,5 +93,6 @@ public class StringReader implements Reader<String> {
         state= State.WAITING_SIZE;
         internalbb.clear();
         intReader.reset();
+        value = null;
     }
 }
