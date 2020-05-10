@@ -8,10 +8,13 @@ import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClientChat {
@@ -39,7 +42,26 @@ public class ClientChat {
          *
          */
         private void processIn() {
-           // TODO
+            Reader.ProcessStatus status;
+            do {
+                status = messageReader.process(bbin);
+                switch (status) {
+                    case DONE:
+                        displayMessage(messageReader.get());
+                        messageReader.reset();
+                        break;
+                    case REFILL:
+                        break;
+                    case ERROR:
+                        closed = true;
+                        logger.log(Level.WARNING, "Error durung reading !!!");
+                        break;
+                }
+            } while( status == Reader.ProcessStatus.REFILL );
+        }
+
+        private static void displayMessage(Message message) {
+            System.out.println("[" + message.getPseudo() + "] : " + message.getMessage() );
         }
 
         /**
@@ -135,12 +157,18 @@ public class ClientChat {
         }
 
         public void doConnect() throws IOException {
-            // TODO
+            if ( !sc.finishConnect() ) {
+                logger.warning("Bad hint during connect.");
+                return;
+            }
+
+            /* At the first moment of the connection, we want to receive. The client doesn't type any message to send. */
+            key.interestOps(SelectionKey.OP_READ);
         }
     }
 
     static private int BUFFER_SIZE = 10_000;
-    static private Logger logger = Logger.getLogger(ClientChatDone.class.getName());
+    static private Logger logger = Logger.getLogger(ClientChat.class.getName());
 
 
     private final SocketChannel sc;
@@ -150,8 +178,9 @@ public class ClientChat {
     private final Thread console;
     private final ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10);
     private Context uniqueContext;
+    private final Charset UTF_8 = StandardCharsets.UTF_8;
 
-    public ClientChatDone(String login, InetSocketAddress serverAddress) throws IOException {
+    public ClientChat(String login, InetSocketAddress serverAddress) throws IOException {
         this.serverAddress = serverAddress;
         this.login = login;
         this.sc = SocketChannel.open();
@@ -180,9 +209,11 @@ public class ClientChat {
      * @throws InterruptedException
      */
 
-
     private void sendCommand(String msg) throws InterruptedException {
-       // TODO
+       synchronized ( commandQueue ) {
+           commandQueue.put(msg);
+           selector.wakeup();
+       }
     }
 
     /**
@@ -190,7 +221,13 @@ public class ClientChat {
      */
 
     private void processCommands(){
-        // TODO
+        synchronized ( commandQueue ) {
+            var line = commandQueue.poll();
+            if ( line != null ) {
+                var message = new Message(this.login, line);
+                uniqueContext.queueMessage(message.getBufferized().flip());
+            }
+        }
     }
 
     public void launch() throws IOException {
@@ -245,7 +282,7 @@ public class ClientChat {
             usage();
             return;
         }
-        new ClientChatDone(args[0],new InetSocketAddress(args[1],Integer.parseInt(args[2]))).launch();
+        new ClientChat(args[0],new InetSocketAddress(args[1],Integer.parseInt(args[2]))).launch();
     }
 
     private static void usage(){
