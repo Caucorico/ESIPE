@@ -110,6 +110,9 @@ public class ClientChat {
             }
             if (interesOps==0){
                 silentlyClose();
+
+                /* Tell to the launch loop stop at the next iteration. */
+                Thread.currentThread().interrupt();
                 return;
             }
             key.interestOps(interesOps);
@@ -247,6 +250,8 @@ public class ClientChat {
                 throw tunneled.getCause();
             }
         }
+
+        console.interrupt();
     }
 
     private void treatKey(SelectionKey key) {
