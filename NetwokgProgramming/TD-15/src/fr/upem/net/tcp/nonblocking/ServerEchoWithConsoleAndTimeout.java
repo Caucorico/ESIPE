@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ServerEcho {
+public class ServerEchoWithConsoleAndTimeout {
 
 	static private class Context {
 
@@ -19,6 +19,7 @@ public class ServerEcho {
 		final private SocketChannel sc;
 		final private ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
 		private boolean closed = false;
+		private boolean active = true;
 
 		private Context(SelectionKey key){
 			this.key = key;
@@ -68,6 +69,7 @@ public class ServerEcho {
 				closed = true;
 			}
 
+			active = true;
 			updateInterestOps();
 		}
 
@@ -84,6 +86,7 @@ public class ServerEcho {
 			sc.write(bb);
 			bb.compact();
 
+			active = true;
 			updateInterestOps();
 		}
 
@@ -102,7 +105,8 @@ public class ServerEcho {
 	}
 
 	static private int BUFFER_SIZE = 1_024;
-	static private Logger logger = Logger.getLogger(ServerEcho.class.getName());
+	static private int TIMEOUT = 10_000;
+	static private Logger logger = Logger.getLogger(ServerEchoWithConsoleAndTimeout.class.getName());
 
 	private final ServerSocketChannel serverSocketChannel;
 	private final Selector selector;
@@ -112,7 +116,7 @@ public class ServerEcho {
 	private final Object lock = new Object();
 	private long clientNumber = 0;
 
-	public ServerEcho(int port) throws IOException {
+	public ServerEchoWithConsoleAndTimeout(int port) throws IOException {
 		serverSocketChannel = ServerSocketChannel.open();
 		serverSocketChannel.bind(new InetSocketAddress(port));
 		selector = Selector.open();
@@ -169,8 +173,23 @@ public class ServerEcho {
 		}
 	}
 
+	private void manageAfkClients() {
+		for ( var key : selector.keys() ) {
+			var context = (Context) key.attachment();
+			if ( context == null ) continue;
+
+			if ( !context.active ) {
+				context.closeReading();
+			}
+
+			context.active = false;
+		}
+	}
+
 	public void launch() throws InterruptedException {
 		serverThread = new Thread( () -> {
+			long lastClear = System.currentTimeMillis();
+
 			try {
 				serverSocketChannel.configureBlocking(false);
 				serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
@@ -183,7 +202,7 @@ public class ServerEcho {
 				printKeys(); // for debug
 				System.out.println("Starting select");
 				try {
-					selector.select(this::treatKey);
+					selector.select(this::treatKey, TIMEOUT);
 				} catch (UncheckedIOException | IOException e) {
 					logger.log(Level.SEVERE, "Error during the select of the socketChannel", e);
 					return;
@@ -208,6 +227,12 @@ public class ServerEcho {
 				if ( serverClosed ) {
 					closeServer();
 				}
+
+				if ( lastClear + TIMEOUT < System.currentTimeMillis() ) {
+					manageAfkClients();
+					lastClear = System.currentTimeMillis();
+				}
+
 			}
 			closeAllConnection();
 			System.out.println("SHUTDOWNNOW finished.");
@@ -267,7 +292,7 @@ public class ServerEcho {
 			usage();
 			return;
 		}
-		new ServerEcho(Integer.parseInt(args[0])).launch();
+		new ServerEchoWithConsoleAndTimeout(Integer.parseInt(args[0])).launch();
 	}
 
 	private static void usage(){
