@@ -142,6 +142,17 @@ public class Graphs {
         return bone;
     }
 
+    private static void internDFS(Graph g, int v0, BitSet bitSet, ArrayList<Integer> bone) {
+        bone.add(v0);
+        bitSet.set(v0);
+
+        g.forEachEdge(v0, e -> {
+            if ( !bitSet.get(e.getEnd()) ) {
+                internDFS(g, e.getEnd(), bitSet, bone);
+            }
+        });
+    }
+
     /**
      * This function execute the DFS algorithm and return the vertices traveled order.
      *
@@ -162,8 +173,6 @@ public class Graphs {
 
         /* While all the vertices not discovered : */
         while ( bitSet.cardinality() < g.numberOfVertices() ) {
-            Deque<Integer> stack = new ArrayDeque<>();
-
             int root;
             if ( !bitSet.get(v0) ) {
                 root = v0;
@@ -172,21 +181,7 @@ public class Graphs {
             }
 
             bitSet.set(root);
-            stack.push(root);
-
-            while (!stack.isEmpty()) {
-                var currentVertice = stack.pop();
-
-                /* TODO : use inverted forEach : */
-                g.forEachEdge(currentVertice, edge -> {
-                    if ( !bitSet.get(edge.getEnd()) ) {
-                        stack.push(edge.getEnd());
-                        bitSet.set(edge.getEnd());
-                    }
-                });
-
-                bone.add(currentVertice);
-            }
+            internDFS(g, root, bitSet, bone);
         }
 
         return bone;
