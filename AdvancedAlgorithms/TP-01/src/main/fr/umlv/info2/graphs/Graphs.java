@@ -1,13 +1,9 @@
 package fr.umlv.info2.graphs;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import fr.umlv.info2.graphs.exceptions.CycleFoundException;
+import fr.umlv.info2.graphs.exceptions.UncheckedCycleFoundException;
+
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -178,7 +174,7 @@ public class Graphs {
             return bone;
         }
 
-        /* Create an array that contains if the vertex is discovered or not. */
+        /* Create an array that contains if the vertex is visited or not. */
         BitSet bitSet = new BitSet(g.numberOfVertices());
 
         /* While all the vertices not discovered : */
@@ -244,71 +240,94 @@ public class Graphs {
         return loadMatGraphFromFile(name);
     }
 
-    private static void visitTimedDepthFirstRec(Graph g, int i, boolean[] passed, LongAdder adder, int[][] tab) {
-        passed[i] = true;
-        tab[i][0] = adder.intValue();
-        adder.increment();
-        g.forEachEdge(i, (e) -> {
-            if (!passed[e.getEnd()]) {
-                visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
-            }
-        });
-        tab[i][1] = adder.intValue();
-        adder.increment();
+    private static int getNextClearIdex(int[][] tab) {
+        for ( int i = 0 ; i < tab.length ; i++ ) {
+            if ( tab[i][0] == -1 ) return i;
+        }
+
+        return -1;
     }
 
-    public static int[][] timedDepthFirstSearch(Graph g, int s0) {
-        var tab = new int[g.numberOfVertices()][2];
-        var adder = new LongAdder();
-        var passed = new boolean[g.numberOfVertices()];
+    private static int[][] initTab(int size) {
+        int[][] tab = new int[size][2];
 
-        passed[s0] = true;
-        tab[s0][0] = adder.intValue();
-        adder.increment();
-        g.forEachEdge(s0, (e) -> {
-            if (!passed[e.getEnd()]) {
-                visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
-            }
-        });
-        tab[s0][1] = adder.intValue();
-        adder.increment();
-
-        for (int i=0; i<g.numberOfVertices(); i++) {
-            if (!passed[i]) {
-                passed[i] = true;
-                tab[i][0] = adder.intValue();
-                adder.increment();
-                g.forEachEdge(i, (e) -> {
-                    if (!passed[e.getEnd()]) {
-                        visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
-                    }
-                });
-                tab[i][1] = adder.intValue();
-                adder.increment();
-            }
+        for (var i = 0 ; i < size ; i++ ) {
+            tab[i][0] = -1;
+            tab[i][1] = -1;
         }
+
         return tab;
-
     }
 
-    private static void topologicalSortNoCycle(Graph g, int i, boolean[] tab, List<Integer> l) {
-        tab[i] = true;
-        l.add(i);
-        g.forEachEdge(i, (s) -> {
-            if (!tab[s.getEnd()]) {
-                topologicalSortNoCycle(g, s.getEnd(), tab, l);
-            }
-        });
-    }
+    public static void internalTimedDepthFirstSearch(Graph g, int v0, LongAdder adder, int[][] tab, boolean cycleDetect) throws CycleFoundException {
+        tab[v0][0] = adder.intValue();
+        adder.increment();
 
-    public static List<Integer> topologicalSort(Graph g, boolean cycleDetect) {
-        List<Integer> l = new ArrayList<>();
-        boolean[] tab = new boolean[g.numberOfVertices()];
-        for (int i=0; i<g.numberOfVertices(); i++) {
-            if (!tab[i]) {
-                topologicalSortNoCycle(g, i, tab, l);
-            }
+        try {
+            g.forEachEdge(v0, e -> {
+                try {
+                    if ( cycleDetect && tab[e.getEnd()][0] != -1 && tab[e.getEnd()][1] == -1 ) {
+                        throw new CycleFoundException();
+                    }
+
+                    if ( tab[e.getEnd()][0] == -1 ) {
+                        internalTimedDepthFirstSearch(g, e.getEnd(), adder, tab, cycleDetect);
+                    }
+                } catch ( CycleFoundException exception ) {
+                    throw new UncheckedCycleFoundException(exception);
+                }
+            });
+        } catch ( UncheckedCycleFoundException e ) {
+            throw new CycleFoundException(e.getCause());
         }
-        return l;
+
+
+        tab[v0][1] = adder.intValue();
+        adder.increment();
+    }
+
+    public static int[][] timedDepthFirstSearch(Graph g, int v0, boolean cycleDetect) throws CycleFoundException {
+        int[][] tab = initTab(g.numberOfVertices());
+        var adder = new LongAdder();
+
+        /* While all the vertices not discovered : */
+        while ( adder.intValue() < ( g.numberOfVertices()*2 - 1 ) ) {
+            int root;
+            if ( tab[v0][0] == -1 ) {
+                root = v0;
+            } else {
+                root = getNextClearIdex(tab);
+            }
+
+            internalTimedDepthFirstSearch(g, root, adder, tab, cycleDetect);
+        }
+
+        return tab;
+    }
+
+    public static int[][] timedDepthFirstSearch(Graph g, int v0) {
+        try {
+            return timedDepthFirstSearch(g, v0, false);
+        } catch (CycleFoundException e) {
+            /* This case can never append */
+            throw new AssertionError();
+        }
+    }
+
+    public static List<Integer> topologicalSort(Graph g, boolean cycleDetect) throws CycleFoundException {
+        if ( g.numberOfVertices() < 1 ) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<Integer> topological = new ArrayList<>();
+        int[][] order = timedDepthFirstSearch(g, 0, cycleDetect);
+        Arrays.sort(order, (a, b) -> b[1] - a[1]);
+        for ( var i = 0 ; i < order.length ; i++ ) {
+            topological.add(i);
+        }
+
+        return topological;
+
+
     }
 }
