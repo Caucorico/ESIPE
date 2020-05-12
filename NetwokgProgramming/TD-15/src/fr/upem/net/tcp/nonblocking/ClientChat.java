@@ -101,21 +101,22 @@ public class ClientChat {
          */
 
         private void updateInterestOps() {
-            var interesOps=0;
-            if (!closed && bbin.hasRemaining()){
-                interesOps=interesOps|SelectionKey.OP_READ;
+            var interestOps = 0;
+            if ( !closed && bbin.hasRemaining() ){
+                interestOps |= SelectionKey.OP_READ;
             }
-            if (bbout.position()!=0){
-                interesOps|=SelectionKey.OP_WRITE;
+            if ( bbout.position() != 0 ){
+                interestOps |= SelectionKey.OP_WRITE;
             }
-            if (interesOps==0){
+            if ( interestOps == 0 ){
                 silentlyClose();
+                logger.info("The channel is now closed !");
 
                 /* Tell to the launch loop stop at the next iteration. */
                 Thread.currentThread().interrupt();
                 return;
             }
-            key.interestOps(interesOps);
+            key.interestOps(interestOps);
         }
 
         private void silentlyClose() {
@@ -137,8 +138,10 @@ public class ClientChat {
         private void doRead() throws IOException {
             if (sc.read(bbin)==-1) {
                 closed=true;
+            } else {
+                processIn();
             }
-            processIn();
+
             updateInterestOps();
         }
 
@@ -161,7 +164,6 @@ public class ClientChat {
 
         public void doConnect() throws IOException {
             if ( !sc.finishConnect() ) {
-                logger.warning("Bad hint during connect.");
                 return;
             }
 
@@ -240,6 +242,7 @@ public class ClientChat {
         key.attach(uniqueContext);
         sc.connect(serverAddress);
 
+        console.setDaemon(true);
         console.start();
 
         while(!Thread.interrupted()) {
@@ -250,8 +253,6 @@ public class ClientChat {
                 throw tunneled.getCause();
             }
         }
-
-        console.interrupt();
     }
 
     private void treatKey(SelectionKey key) {
