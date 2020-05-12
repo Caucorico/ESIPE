@@ -1,5 +1,17 @@
 package fr.umlv.info2.graphs;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.LongAdder;
@@ -185,6 +197,53 @@ public class Graphs {
         }
 
         return bone;
+    }
+
+    public static AdjGraph loadAdjGraphFromFile(String name) throws IOException {
+        Path filePath = FileSystems.getDefault().getPath(name);
+        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+
+        var firstLine = lines.get(0);
+        AdjGraph g = new AdjGraph(Integer.parseInt(firstLine));
+
+        for ( var i = 1 ; i < lines.size() ; i++ ) {
+            String[] ends = lines.get(i).split(" ");
+            for ( var j = 0 ; j < ends.length ; j++ ) {
+                var number = Integer.parseInt(ends[j]);
+                if ( number != 0 ) {
+                    g.addEdge(i-1, j, number);
+                }
+            }
+        }
+
+        return g;
+    }
+
+    public static MatGraph loadMatGraphFromFile(String name) throws IOException {
+        Path filePath = FileSystems.getDefault().getPath(name);
+        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+
+        var firstLine = lines.get(0);
+        MatGraph g = new MatGraph(Integer.parseInt(firstLine));
+
+        for ( var i = 1 ; i < lines.size() ; i++ ) {
+            String[] ends = lines.get(i).split(" ");
+            for ( var j = 0 ; j < ends.length ; j++ ) {
+                var number = Integer.parseInt(ends[j]);
+                if ( number != 0 ) {
+                    g.addEdge(i-1, j, number);
+                }
+            }
+        }
+
+        return g;
+    }
+
+    public static Graph loadFromFile(String name, boolean adj) throws IOException {
+        if ( adj ) {
+            return loadAdjGraphFromFile(name);
+        }
+        return loadMatGraphFromFile(name);
     }
 
     private static void visitTimedDepthFirstRec(Graph g, int i, boolean[] passed, LongAdder adder, int[][] tab) {
