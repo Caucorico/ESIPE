@@ -321,13 +321,22 @@ public class Graphs {
 
         ArrayList<Integer> topological = new ArrayList<>();
         int[][] order = timedDepthFirstSearch(g, 0, cycleDetect);
-        Arrays.sort(order, (a, b) -> b[1] - a[1]);
+
+        /* The order tab will be resorted. So, to doesn't loose the identity of each element of the array,
+         * I replaced the 0 index by the id. The index 0 is not used here. So we can override it.
+         */
         for ( var i = 0 ; i < order.length ; i++ ) {
-            topological.add(i);
+            order[i][0] = i;
+        }
+
+        /* We sort the DFS result with the exit number */
+        Arrays.sort(order, (a, b) -> b[1] - a[1]);
+
+        /* We create the list to return with the ids */
+        for ( var i = 0 ; i < order.length ; i++ ) {
+            topological.add(order[i][0]);
         }
 
         return topological;
-
-
     }
 }
