@@ -11,9 +11,10 @@ public class Main {
         MatGraph graph1 = Graphs.randomMatGraph(8, 16, 1, 2);
         System.out.println(graph1.toGraphviz());
 
-        AdjGraph graph2 = Graphs.loadAdjGraphFromFile("./graphs/default-without-cycle.graph");
-        List<Integer> top = Graphs.topologicalSort(graph2, true);
-        System.out.println(top);
+        AdjGraph graph2 = Graphs.loadAdjGraphFromFile("./graphs/default-with-cycle.graph");
+        for ( var sc : Graphs.scc(graph2) ) {
+            System.out.println(sc.toString());
+        }
     }
 
 }

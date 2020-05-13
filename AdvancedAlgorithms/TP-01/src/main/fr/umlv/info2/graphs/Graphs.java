@@ -314,14 +314,7 @@ public class Graphs {
         }
     }
 
-    public static List<Integer> topologicalSort(Graph g, boolean cycleDetect) throws CycleFoundException {
-        if ( g.numberOfVertices() < 1 ) {
-            return new ArrayList<>();
-        }
-
-        ArrayList<Integer> topological = new ArrayList<>();
-        int[][] order = timedDepthFirstSearch(g, 0, cycleDetect);
-
+    private static void invertDFSResult(int[][] order) {
         /* The order tab will be resorted. So, to doesn't loose the identity of each element of the array,
          * I replaced the 0 index by the id. The index 0 is not used here. So we can override it.
          */
@@ -331,12 +324,68 @@ public class Graphs {
 
         /* We sort the DFS result with the exit number */
         Arrays.sort(order, (a, b) -> b[1] - a[1]);
+    }
+
+    public static List<Integer> topologicalSort(Graph g, boolean cycleDetect) throws CycleFoundException {
+        if ( g.numberOfVertices() < 1 ) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<Integer> topological = new ArrayList<>();
+        int[][] order = timedDepthFirstSearch(g, 0, cycleDetect);
+
+        invertDFSResult(order);
 
         /* We create the list to return with the ids */
-        for ( var i = 0 ; i < order.length ; i++ ) {
-            topological.add(order[i][0]);
+        for (int[] ints : order) {
+            topological.add(ints[0]);
         }
 
         return topological;
     }
+
+    private static int getNextIndexWithInverted(BitSet bitSet, int root, int[][] invertDFSorder ) {
+        while ( root < invertDFSorder.length ) {
+            if ( !bitSet.get(invertDFSorder[root][0]) ) break;
+            root++;
+        }
+
+        return root;
+    }
+
+    public static List<List<Integer>> scc(Graph g) {
+        if ( g.numberOfVertices() < 1 ) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<List<Integer>> sccList = new ArrayList<>();
+
+        /* Kosajaru : */
+        int[][] order;
+        try {
+            order = timedDepthFirstSearch(g, 0, false);
+        } catch (CycleFoundException e) {
+            throw new AssertionError();
+        }
+        invertDFSResult(order);
+
+        /* Create an array that contains if the vertex is visited or not. */
+        BitSet bitSet = new BitSet(g.numberOfVertices());
+
+        int root = 0;
+        Graph transpose = g.transpose();
+
+        /* While all the vertices not discovered : */
+        while ( bitSet.cardinality() < transpose.numberOfVertices() ) {
+            ArrayList<Integer> bone = new ArrayList<>();
+            internDFS(transpose, order[root][0], bitSet, bone);
+            sccList.add(bone);
+
+            root = getNextIndexWithInverted(bitSet, root, order);
+        }
+
+        return sccList;
+    }
+
+
 }
