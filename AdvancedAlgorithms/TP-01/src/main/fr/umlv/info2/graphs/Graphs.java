@@ -401,7 +401,7 @@ public class Graphs {
         for ( var i = 0 ; i < g.numberOfVertices()-2 ; i++ ) {
             for ( int j = 0 ; j < g.numberOfVertices() ; j++ ) {
                 g.forEachEdge(j, e -> {
-                    if ( weight[e.getEnd()] > ( e.getValue() + weight[e.getStart()] ) ) {
+                    if ( weight[e.getEnd()] > ( e.getValue() + weight[e.getStart()]) && weight[e.getStart()] != Integer.MAX_VALUE ) {
                         weight[e.getEnd()] = weight[e.getStart()] + e.getValue();
                         ancestors[e.getEnd()] = e.getStart();
                     }
@@ -412,7 +412,7 @@ public class Graphs {
         try {
             for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
                 g.forEachEdge(i, e -> {
-                    if ( weight[e.getStart()] + e.getValue() < weight[e.getEnd()] ) {
+                    if ( weight[e.getStart()] + e.getValue() < weight[e.getEnd()] && weight[e.getStart()] != Integer.MAX_VALUE ) {
                         throw new UncheckedNegativeCycleFoundException(new NegativeCycleFoundException());
                     }
                 });
@@ -423,5 +423,39 @@ public class Graphs {
 
         return new ShortestPathFromOneVertex(source, ancestors, weight);
 
+    }
+
+    public static ShortestPathFromOneVertex dijkstra(Graph g, int source) {
+        BitSet processed = new BitSet(g.numberOfVertices());
+
+        int[] weight = new int[g.numberOfVertices()];
+        Arrays.fill(weight, Integer.MAX_VALUE);
+
+        int[] ancestors = new int[g.numberOfVertices()];
+        Arrays.fill(ancestors, -1);
+
+        weight[source] = 0;
+
+        for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
+            var min = processed.nextClearBit(0);
+
+            for ( var j = min+1 ; j < g.numberOfVertices() ; j++ ) {
+                if ( processed.get(j) ) continue;
+
+                if ( weight[j] < weight[min] ) {
+                    min = j;
+                }
+            }
+
+            processed.set(min);
+
+            g.forEachEdge(i, e -> {
+                if ( weight[e.getStart()] + e.getValue() < e.getEnd() ) {
+                    weight[e.getEnd()] = weight[e.getStart()] + e.getValue();
+                }
+            });
+        }
+
+        return new ShortestPathFromOneVertex(source, ancestors, weight);
     }
 }

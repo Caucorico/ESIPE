@@ -2,6 +2,9 @@ package fr.umlv.info2.graphs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ShortestPathFromOneVertex {
 	private final int source;
@@ -12,6 +15,25 @@ public class ShortestPathFromOneVertex {
 		this.source = vertex;
 		this.d = d;
 		this.pi = pi;
+	}
+
+	public void printShortestPathTo(int destination) {
+		ArrayList<Integer> path = new ArrayList<>(d.length);
+
+		if ( d[destination] == -1 ) {
+			System.out.println("The vertice isn't accessible from the start.");
+		}
+
+		var current = destination;
+
+		do {
+			path.add(current);
+			current = d[current];
+		} while( current != source );
+		path.add(current);
+
+		Collections.reverse(path);
+		System.out.println(path.stream().map(Object::toString).collect(Collectors.joining(" --> ", "{", "}")));
 	}
 
 	@Override
