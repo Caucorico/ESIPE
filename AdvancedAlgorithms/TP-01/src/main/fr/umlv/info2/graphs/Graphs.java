@@ -1,9 +1,12 @@
 package fr.umlv.info2.graphs;
 
 import fr.umlv.info2.graphs.exceptions.CycleFoundException;
+import fr.umlv.info2.graphs.exceptions.NegativeCycleFoundException;
 import fr.umlv.info2.graphs.exceptions.UncheckedCycleFoundException;
+import fr.umlv.info2.graphs.exceptions.UncheckedNegativeCycleFoundException;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -387,5 +390,38 @@ public class Graphs {
         return sccList;
     }
 
+    public static ShortestPathFromOneVertex bellmanFord(Graph g, int source) throws NegativeCycleFoundException {
+        int[] ancestors = new int[g.numberOfVertices()];
+        Arrays.fill(ancestors, -1);
+        int[] weight = new int[g.numberOfVertices()];
+        Arrays.fill(weight, Integer.MAX_VALUE);
 
+        weight[source] = 0;
+
+        for ( var i = 0 ; i < g.numberOfVertices()-2 ; i++ ) {
+            for ( int j = 0 ; j < g.numberOfVertices() ; j++ ) {
+                g.forEachEdge(j, e -> {
+                    if ( weight[e.getEnd()] > ( e.getValue() + weight[e.getStart()] ) ) {
+                        weight[e.getEnd()] = weight[e.getStart()] + e.getValue();
+                        ancestors[e.getEnd()] = e.getStart();
+                    }
+                });
+            }
+        }
+
+        try {
+            for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
+                g.forEachEdge(i, e -> {
+                    if ( weight[e.getStart()] + e.getValue() < weight[e.getEnd()] ) {
+                        throw new UncheckedNegativeCycleFoundException(new NegativeCycleFoundException());
+                    }
+                });
+            }
+        } catch ( UncheckedNegativeCycleFoundException e ) {
+            throw new NegativeCycleFoundException(e.getCause());
+        }
+
+        return new ShortestPathFromOneVertex(source, ancestors, weight);
+
+    }
 }
