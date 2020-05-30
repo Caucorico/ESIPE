@@ -22,6 +22,7 @@ public class ShortestPathFromOneVertex {
 
 		if ( d[destination] == -1 ) {
 			System.out.println("The vertice isn't accessible from the start.");
+			return;
 		}
 
 		var current = destination;

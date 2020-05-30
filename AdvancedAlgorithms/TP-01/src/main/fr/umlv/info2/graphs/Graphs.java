@@ -426,6 +426,8 @@ public class Graphs {
     }
 
     public static ShortestPathFromOneVertex dijkstra(Graph g, int source) {
+
+        /* Processed vertex : */
         BitSet processed = new BitSet(g.numberOfVertices());
 
         int[] weight = new int[g.numberOfVertices()];
@@ -457,5 +459,56 @@ public class Graphs {
         }
 
         return new ShortestPathFromOneVertex(source, ancestors, weight);
+    }
+
+    private static class FMEntries {
+
+        /**
+         * Current paths
+         */
+        final int[][] d;
+
+        /**
+         * Predecessors index
+         */
+        final int[][] pi;
+
+        FMEntries(Graph g) {
+            d = new int[g.numberOfVertices()][];
+            pi = new int[g.numberOfVertices()][];
+
+            for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
+                d[i] = new int[g.numberOfVertices()];
+                pi[i] = new int[g.numberOfVertices()];
+                Arrays.fill(d[i], Integer.MAX_VALUE);
+                Arrays.fill(pi[i], -1);
+                d[i][i] = 0;
+                pi[i][i] = i;
+
+                g.forEachEdge(i, e -> {
+                    if ( e.getValue() < d[e.getStart()][e.getEnd()] ) {
+                        d[e.getStart()][e.getEnd()] = e.getValue();
+                        pi[e.getStart()][e.getEnd()] = e.getStart();
+                    }
+                });
+            }
+        }
+    }
+
+    public static ShortestPathFromAllVertices floydWarshall(Graph g) {
+        var fmEntries = new FMEntries(g);
+
+        for ( var k = 0 ; k < g.numberOfVertices() ; k++ ) {
+            for ( var s = 0 ; s < g.numberOfVertices() ; s++ ) {
+                for ( var t = 0 ; t < g.numberOfVertices() ; t++ ) {
+                    if ( fmEntries.d[s][k] != Integer.MAX_VALUE && fmEntries.d[k][t] != Integer.MAX_VALUE && fmEntries.d[s][t] > fmEntries.d[s][k] + fmEntries.d[k][t]) {
+                        fmEntries.d[s][t] = fmEntries.d[s][k] + fmEntries.d[k][t];
+                        fmEntries.pi[s][t] = fmEntries.pi[k][t];
+                    }
+                }
+            }
+        }
+
+        return new ShortestPathFromAllVertices(fmEntries.d, fmEntries.pi);
     }
 }

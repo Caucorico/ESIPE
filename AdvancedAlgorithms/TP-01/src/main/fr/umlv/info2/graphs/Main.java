@@ -8,14 +8,16 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException, CycleFoundException, NegativeCycleFoundException {
-        MatGraph graph1 = Graphs.randomMatGraph(8, 16, 1, 2);
-        System.out.println(graph1.toGraphviz());
-
         AdjGraph graph2 = Graphs.loadAdjGraphFromFile("./graphs/default-with-cycle.graph");
+        System.out.println(graph2.toGraphviz());
         var result = Graphs.bellmanFord(graph2, 0);
         result.printShortestPathTo(3);
-        result = Graphs.bellmanFord(graph2, 0);
+        result = Graphs.dijkstra(graph2, 0);
         result.printShortestPathTo(3);
+
+        var result2 = Graphs.floydWarshall(graph2);
+        System.out.println(result2.toString());
+        result2.printShortestPath(0, 3);
     }
 
 }
