@@ -28,6 +28,11 @@ public class ShortestPathFromAllVertices {
 		ArrayList<Integer> path = new ArrayList<>();
 		int currentPos = destination;
 
+		if ( pi[source][destination] == -1 ) {
+			System.out.println("The vertice isn't accessible from the start.");
+			return;
+		}
+
 		while ( currentPos != source ) {
 			path.add(currentPos);
 			currentPos = pi[source][currentPos];
