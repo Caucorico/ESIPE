@@ -11,13 +11,14 @@ public class Main {
         AdjGraph graph2 = Graphs.loadAdjGraphFromFile("./graphs/default-with-cycle.graph");
         System.out.println(graph2.toGraphviz());
         var result = Graphs.bellmanFord(graph2, 0);
-        result.printShortestPathTo(3);
+        result.printShortestPathTo(4);
         result = Graphs.dijkstra(graph2, 0);
-        result.printShortestPathTo(3);
+        System.out.println(result.toString());
+        result.printShortestPathTo(4);
 
         var result2 = Graphs.floydWarshall(graph2);
         System.out.println(result2.toString());
-        result2.printShortestPath(0, 3);
+        result2.printShortestPath(0, 4);
     }
 
 }

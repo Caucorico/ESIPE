@@ -421,7 +421,7 @@ public class Graphs {
             throw new NegativeCycleFoundException(e.getCause());
         }
 
-        return new ShortestPathFromOneVertex(source, ancestors, weight);
+        return new ShortestPathFromOneVertex(source, weight, ancestors);
 
     }
 
@@ -451,14 +451,16 @@ public class Graphs {
 
             processed.set(min);
 
-            g.forEachEdge(i, e -> {
-                if ( weight[e.getStart()] + e.getValue() < e.getEnd() ) {
+            if ( weight[min] == Integer.MAX_VALUE ) continue;
+            g.forEachEdge(min, e -> {
+                if ( weight[e.getStart()] + e.getValue() < weight[e.getEnd()] ) {
                     weight[e.getEnd()] = weight[e.getStart()] + e.getValue();
+                    ancestors[e.getEnd()] = e.getStart();
                 }
             });
         }
 
-        return new ShortestPathFromOneVertex(source, ancestors, weight);
+        return new ShortestPathFromOneVertex(source, weight, ancestors);
     }
 
     private static class FMEntries {

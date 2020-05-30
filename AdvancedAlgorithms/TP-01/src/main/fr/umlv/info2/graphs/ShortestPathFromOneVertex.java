@@ -20,7 +20,7 @@ public class ShortestPathFromOneVertex {
 	public void printShortestPathTo(int destination) {
 		ArrayList<Integer> path = new ArrayList<>(d.length);
 
-		if ( d[destination] == -1 ) {
+		if ( pi[destination] == -1 ) {
 			System.out.println("The vertice isn't accessible from the start.");
 			return;
 		}
@@ -29,7 +29,7 @@ public class ShortestPathFromOneVertex {
 
 		do {
 			path.add(current);
-			current = d[current];
+			current = pi[current];
 		} while( current != source );
 		path.add(current);
 
