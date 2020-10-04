@@ -6,5 +6,5 @@ public interface Figure {
 
     void draw(Graphics2D graphics);
 
-    void distance()
+    double distanceFromPointSquared(int x, int y);
 }

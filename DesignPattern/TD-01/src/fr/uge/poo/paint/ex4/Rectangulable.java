@@ -13,4 +13,17 @@ abstract class Rectangulable implements Figure {
         this.length = length;
         this.height = height;
     }
+
+    private double xCenter() {
+        return x1 + (length/2.0);
+    }
+
+    private double yCenter() {
+        return y1 + (height/2.0);
+    }
+
+    @Override
+    public double distanceFromPointSquared(int x, int y) {
+        return Math.pow(x - xCenter(), 2) + Math.pow(y - yCenter(), 2);
+    }
 }

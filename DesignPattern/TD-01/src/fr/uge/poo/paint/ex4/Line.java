@@ -16,8 +16,21 @@ public class Line implements Figure {
         this.y2 = y2;
     }
 
+    private double xCenter() {
+        return (x1 + x2)/2.0;
+    }
+
+    private double yCenter() {
+        return (y1 + y2)/2.0;
+    }
+
     @Override
     public void draw(Graphics2D graphics) {
         graphics.drawLine(this.x1, this.y1, this.x2, this.y2);
+    }
+
+    @Override
+    public double distanceFromPointSquared(int x, int y) {
+        return Math.pow(x - xCenter(), 2) + Math.pow(y - yCenter(), 2);
     }
 }

@@ -1,5 +1,6 @@
 package fr.uge.poo.paint.ex4;
 
+import fr.uge.poo.paint.ex4.listener.ClickListener;
 import fr.uge.poo.simplegraphics.SimpleGraphics;
 
 import java.awt.*;
@@ -10,19 +11,14 @@ public class Ex4 {
     public static void main(String[] args) throws IOException {
 
         if ( args.length != 1 ) {
-            throw new IllegalArgumentException("Usage : Ex3 <filename>");
+            throw new IllegalArgumentException("Usage : Ex4 <filename>");
         }
 
-        var figureList = SimpleGraphicsFileReader.readFile(args[0]);
-
         SimpleGraphics area = new SimpleGraphics("area", 800, 600);
-        area.clear(Color.WHITE);
-        area.render((graphics) -> {
-            graphics.setColor(Color.BLACK);
-            figureList.forEach( figure -> {
-                figure.draw(graphics);
-            });
-        });
+        var clickListener = new ClickListener(area);
+        var figureSet = FigureSet.fromFile(args[0]);
+        figureSet.draw(area);
+        clickListener.register(figureSet::displayNearestFigureInTerminal);
     }
 
 }
