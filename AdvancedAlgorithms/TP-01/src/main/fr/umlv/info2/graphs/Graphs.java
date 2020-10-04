@@ -1,90 +1,19 @@
 package fr.umlv.info2.graphs;
 
+import fr.umlv.info2.graphs.exceptions.CycleFoundException;
+import fr.umlv.info2.graphs.exceptions.NegativeCycleFoundException;
+import fr.umlv.info2.graphs.exceptions.UncheckedCycleFoundException;
+import fr.umlv.info2.graphs.exceptions.UncheckedNegativeCycleFoundException;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.LongAdder;
 
 public class Graphs {
-
-    /**
-     * The inter class that represent a colorized vertex.
-     * This class is useful for the BFS algorithm.
-     */
-    private static class ColorizedVertex {
-
-        /**
-         * This enum represent the three possible color for BFS.
-         */
-        enum Color {
-            WHITE, GRAY, BLACK
-        }
-
-        /**
-         * The color of the edge.
-         */
-        Color color;
-
-        /**
-         * The parent of the edge. Null if root.
-         */
-        ColorizedVertex parent;
-
-        /**
-         * The depth of the edge. 0 if root.
-         */
-        int depth;
-
-        /**
-         * The id of the edge.
-         */
-        int number;
-
-        ColorizedVertex(int number) {
-            this.color = Color.WHITE;
-            this.parent = null;
-            this.depth = -1;
-            this.number = number;
-        }
-
-        /**
-         * Get the color of the edge.
-         *
-         * @return The color.
-         */
-        public Color getColor() {
-            return color;
-        }
-
-        /**
-         * Transform the edge in a root.
-         */
-        void root() {
-            color = Color.GRAY;
-            depth = 0;
-        }
-    }
-
-    private static class DeepVertex {
-        int firstPass = -1;
-        int lastPass = -1;
-        final int number;
-
-        public DeepVertex(int number) {
-            this.number = number;
-        }
-
-        public void visit(int n) {
-            firstPass = n;
-        }
-
-        public void leave(int n) {
-            lastPass = n;
-        }
-
-        public boolean visited() {
-            return firstPass != -1 || lastPass != -1;
-        }
-    }
 
     /**
      * This function return a random int > minValue && < maxValue.
@@ -173,136 +102,415 @@ public class Graphs {
         return adjGraph;
     }
 
-    private static List<Integer> visitDFS(Graph g, int v0, HashMap<Integer, DeepVertex> hm) {
-        ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
-        var currentVertice = hm.get(v0);
-
-        bone.add(currentVertice.number);
-        currentVertice.visit(0);
-        g.forEachEdge(v0, edge -> {
-            var subVertice = hm.get(edge.getEnd());
-            if ( !subVertice.visited() ) {
-                 bone.addAll(visitDFS(g, subVertice.number, hm));
-            }
-        });
-
-        return bone;
-    }
-
-    public static List<Integer> DFS(Graph g, int v0) {
-        /* TODO : replace the HashMap by a */
-        HashMap<Integer, DeepVertex> hm = new HashMap<>();
-
-        for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
-            hm.put(i, new DeepVertex(i));
-        }
-
-        return visitDFS(g, v0, hm);
-    }
-
+    /**
+     * This function execute the BFS algorithm and return the vertices traveled order.
+     *
+     * @param g The graph to travel.
+     * @param v0 The initial vertex of the travel.
+     * @return Return the list that contains all the traveled vertices in order.
+     */
     public static List<Integer> BFS(Graph g, int v0) {
-        //HashMap<Integer, ColorizedVertex> hm = new HashMap<>();
-        boolean[] visited = new boolean[g.numberOfVertices()];
-        Queue<ColorizedVertex> queue = new ArrayBlockingQueue<>(g.numberOfVertices());
         ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
 
-        for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
-            hm.put(i, new ColorizedVertex(i));
+        /* If the graph doesn't have any vertex, return empty list */
+        if ( g.numberOfVertices() == 0 ) {
+            return bone;
         }
 
-        var s = hm.get(v0);
-        s.root();
-        queue.add(s);
-        var globalDeepth = 1;
+        /* Create an array that contains if the vertex is discovered or not. */
+        BitSet bitSet = new BitSet(g.numberOfVertices());
 
-        while ( !queue.isEmpty() ) {
-            var currentVertice = queue.remove();
-            /* TODO : created vistit method */
-            currentVertice.color = ColorizedVertex.Color.BLACK;
+        /* While all the vertices not discovered : */
+        while ( bitSet.cardinality() < g.numberOfVertices() ) {
+            Queue<Integer> queue = new ArrayBlockingQueue<>(g.numberOfVertices());
 
-            g.forEachEdge(currentVertice.number, edge -> {
-                var neighbour = hm.get(edge.getEnd());
-                /* TODO : create isUnknown method */
-                if ( neighbour.color == ColorizedVertex.Color.WHITE ) {
-                    neighbour.color = ColorizedVertex.Color.GRAY;
-                    neighbour.depth = globalDeepth;
-                    neighbour.parent = currentVertice;
-
-                    queue.add(neighbour);
-                }
-            });
-
-            bone.add(currentVertice.number);
-        }
-
-        return bone;
-    }
-
-    private static void visitTimedDepthFirstRec(Graph g, int i, boolean[] passed, LongAdder adder, int[][] tab) {
-        passed[i] = true;
-        tab[i][0] = adder.intValue();
-        adder.increment();
-        g.forEachEdge(i, (e) -> {
-            if (!passed[e.getEnd()]) {
-                visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+            int root;
+            if ( !bitSet.get(v0) ) {
+                root = v0;
+            } else {
+                root = bitSet.nextClearBit(0);
             }
-        });
-        tab[i][1] = adder.intValue();
-        adder.increment();
-    }
 
-    public static int[][] timedDepthFirstSearch(Graph g, int s0) {
-        var tab = new int[g.numberOfVertices()][2];
-        var adder = new LongAdder();
-        var passed = new boolean[g.numberOfVertices()];
+            bitSet.set(root);
+            queue.add(root);
 
-        passed[s0] = true;
-        tab[s0][0] = adder.intValue();
-        adder.increment();
-        g.forEachEdge(s0, (e) -> {
-            if (!passed[e.getEnd()]) {
-                visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
-            }
-        });
-        tab[s0][1] = adder.intValue();
-        adder.increment();
+            while ( !queue.isEmpty() ) {
+                var currentVertice = queue.remove();
 
-        for (int i=0; i<g.numberOfVertices(); i++) {
-            if (!passed[i]) {
-                passed[i] = true;
-                tab[i][0] = adder.intValue();
-                adder.increment();
-                g.forEachEdge(i, (e) -> {
-                    if (!passed[e.getEnd()]) {
-                        visitTimedDepthFirstRec(g, e.getEnd(), passed, adder, tab);
+                g.forEachEdge(currentVertice, edge -> {
+                    if ( !bitSet.get(edge.getEnd()) ) {
+                        queue.add(edge.getEnd());
+                        bitSet.set(edge.getEnd());
                     }
                 });
-                tab[i][1] = adder.intValue();
-                adder.increment();
+
+                bone.add(currentVertice);
             }
         }
-        return tab;
 
+        return bone;
     }
 
-    private static void topologicalSortNoCycle(Graph g, int i, boolean[] tab, List<Integer> l) {
-        tab[i] = true;
-        l.add(i);
-        g.forEachEdge(i, (s) -> {
-            if (!tab[s.getEnd()]) {
-                topologicalSortNoCycle(g, s.getEnd(), tab, l);
+    private static void internDFS(Graph g, int v0, BitSet bitSet, ArrayList<Integer> bone) {
+        bone.add(v0);
+        bitSet.set(v0);
+
+        g.forEachEdge(v0, e -> {
+            if ( !bitSet.get(e.getEnd()) ) {
+                internDFS(g, e.getEnd(), bitSet, bone);
             }
         });
     }
 
-    public static List<Integer> topologicalSort(Graph g, boolean cycleDetect) {
-        List<Integer> l = new ArrayList<>();
-        boolean[] tab = new boolean[g.numberOfVertices()];
-        for (int i=0; i<g.numberOfVertices(); i++) {
-            if (!tab[i]) {
-                topologicalSortNoCycle(g, i, tab, l);
+    /**
+     * This function execute the DFS algorithm and return the vertices traveled order.
+     *
+     * @param g The graph to travel.
+     * @param v0 The initial vertex of the travel.
+     * @return Return the list that contains all the traveled vertices in order.
+     */
+    public static List<Integer> DFS(Graph g, int v0) {
+        ArrayList<Integer> bone = new ArrayList<>(g.numberOfVertices());
+
+        /* If the graph doesn't have any vertex, return empty list */
+        if ( g.numberOfVertices() == 0 ) {
+            return bone;
+        }
+
+        /* Create an array that contains if the vertex is visited or not. */
+        BitSet bitSet = new BitSet(g.numberOfVertices());
+
+        /* While all the vertices not discovered : */
+        while ( bitSet.cardinality() < g.numberOfVertices() ) {
+            int root;
+            if ( !bitSet.get(v0) ) {
+                root = v0;
+            } else {
+                root = bitSet.nextClearBit(0);
+            }
+
+            bitSet.set(root);
+            internDFS(g, root, bitSet, bone);
+        }
+
+        return bone;
+    }
+
+    public static AdjGraph loadAdjGraphFromFile(String name) throws IOException {
+        Path filePath = FileSystems.getDefault().getPath(name);
+        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+
+        var firstLine = lines.get(0);
+        AdjGraph g = new AdjGraph(Integer.parseInt(firstLine));
+
+        for ( var i = 1 ; i < lines.size() ; i++ ) {
+            String[] ends = lines.get(i).split(" ");
+            for ( var j = 0 ; j < ends.length ; j++ ) {
+                var number = Integer.parseInt(ends[j]);
+                if ( number != 0 ) {
+                    g.addEdge(i-1, j, number);
+                }
             }
         }
-        return l;
+
+        return g;
+    }
+
+    public static MatGraph loadMatGraphFromFile(String name) throws IOException {
+        Path filePath = FileSystems.getDefault().getPath(name);
+        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+
+        var firstLine = lines.get(0);
+        MatGraph g = new MatGraph(Integer.parseInt(firstLine));
+
+        for ( var i = 1 ; i < lines.size() ; i++ ) {
+            String[] ends = lines.get(i).split(" ");
+            for ( var j = 0 ; j < ends.length ; j++ ) {
+                var number = Integer.parseInt(ends[j]);
+                if ( number != 0 ) {
+                    g.addEdge(i-1, j, number);
+                }
+            }
+        }
+
+        return g;
+    }
+
+    public static Graph loadFromFile(String name, boolean adj) throws IOException {
+        if ( adj ) {
+            return loadAdjGraphFromFile(name);
+        }
+        return loadMatGraphFromFile(name);
+    }
+
+    private static int getNextClearIdex(int[][] tab) {
+        for ( int i = 0 ; i < tab.length ; i++ ) {
+            if ( tab[i][0] == -1 ) return i;
+        }
+
+        return -1;
+    }
+
+    private static int[][] initTab(int size) {
+        int[][] tab = new int[size][2];
+
+        for (var i = 0 ; i < size ; i++ ) {
+            tab[i][0] = -1;
+            tab[i][1] = -1;
+        }
+
+        return tab;
+    }
+
+    public static void internalTimedDepthFirstSearch(Graph g, int v0, LongAdder adder, int[][] tab, boolean cycleDetect) throws CycleFoundException {
+        tab[v0][0] = adder.intValue();
+        adder.increment();
+
+        try {
+            g.forEachEdge(v0, e -> {
+                try {
+                    if ( cycleDetect && tab[e.getEnd()][0] != -1 && tab[e.getEnd()][1] == -1 ) {
+                        throw new CycleFoundException();
+                    }
+
+                    if ( tab[e.getEnd()][0] == -1 ) {
+                        internalTimedDepthFirstSearch(g, e.getEnd(), adder, tab, cycleDetect);
+                    }
+                } catch ( CycleFoundException exception ) {
+                    throw new UncheckedCycleFoundException(exception);
+                }
+            });
+        } catch ( UncheckedCycleFoundException e ) {
+            throw new CycleFoundException(e.getCause());
+        }
+
+
+        tab[v0][1] = adder.intValue();
+        adder.increment();
+    }
+
+    public static int[][] timedDepthFirstSearch(Graph g, int v0, boolean cycleDetect) throws CycleFoundException {
+        int[][] tab = initTab(g.numberOfVertices());
+        var adder = new LongAdder();
+
+        /* While all the vertices not discovered : */
+        while ( adder.intValue() < ( g.numberOfVertices()*2 - 1 ) ) {
+            int root;
+            if ( tab[v0][0] == -1 ) {
+                root = v0;
+            } else {
+                root = getNextClearIdex(tab);
+            }
+
+            internalTimedDepthFirstSearch(g, root, adder, tab, cycleDetect);
+        }
+
+        return tab;
+    }
+
+    public static int[][] timedDepthFirstSearch(Graph g, int v0) {
+        try {
+            return timedDepthFirstSearch(g, v0, false);
+        } catch (CycleFoundException e) {
+            /* This case can never append */
+            throw new AssertionError();
+        }
+    }
+
+    private static void invertDFSResult(int[][] order) {
+        /* The order tab will be resorted. So, to doesn't loose the identity of each element of the array,
+         * I replaced the 0 index by the id. The index 0 is not used here. So we can override it.
+         */
+        for ( var i = 0 ; i < order.length ; i++ ) {
+            order[i][0] = i;
+        }
+
+        /* We sort the DFS result with the exit number */
+        Arrays.sort(order, (a, b) -> b[1] - a[1]);
+    }
+
+    public static List<Integer> topologicalSort(Graph g, boolean cycleDetect) throws CycleFoundException {
+        if ( g.numberOfVertices() < 1 ) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<Integer> topological = new ArrayList<>();
+        int[][] order = timedDepthFirstSearch(g, 0, cycleDetect);
+
+        invertDFSResult(order);
+
+        /* We create the list to return with the ids */
+        for (int[] ints : order) {
+            topological.add(ints[0]);
+        }
+
+        return topological;
+    }
+
+    private static int getNextIndexWithInverted(BitSet bitSet, int root, int[][] invertDFSorder ) {
+        while ( root < invertDFSorder.length ) {
+            if ( !bitSet.get(invertDFSorder[root][0]) ) break;
+            root++;
+        }
+
+        return root;
+    }
+
+    public static List<List<Integer>> scc(Graph g) {
+        if ( g.numberOfVertices() < 1 ) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<List<Integer>> sccList = new ArrayList<>();
+
+        /* Kosajaru : */
+        int[][] order;
+        try {
+            order = timedDepthFirstSearch(g, 0, false);
+        } catch (CycleFoundException e) {
+            throw new AssertionError();
+        }
+        invertDFSResult(order);
+
+        /* Create an array that contains if the vertex is visited or not. */
+        BitSet bitSet = new BitSet(g.numberOfVertices());
+
+        int root = 0;
+        Graph transpose = g.transpose();
+
+        /* While all the vertices not discovered : */
+        while ( bitSet.cardinality() < transpose.numberOfVertices() ) {
+            ArrayList<Integer> bone = new ArrayList<>();
+            internDFS(transpose, order[root][0], bitSet, bone);
+            sccList.add(bone);
+
+            root = getNextIndexWithInverted(bitSet, root, order);
+        }
+
+        return sccList;
+    }
+
+    public static ShortestPathFromOneVertex bellmanFord(Graph g, int source) throws NegativeCycleFoundException {
+        int[] ancestors = new int[g.numberOfVertices()];
+        Arrays.fill(ancestors, -1);
+        int[] weight = new int[g.numberOfVertices()];
+        Arrays.fill(weight, Integer.MAX_VALUE);
+
+        weight[source] = 0;
+
+        for ( var i = 0 ; i < g.numberOfVertices()-2 ; i++ ) {
+            for ( int j = 0 ; j < g.numberOfVertices() ; j++ ) {
+                g.forEachEdge(j, e -> {
+                    if ( weight[e.getEnd()] > ( e.getValue() + weight[e.getStart()]) && weight[e.getStart()] != Integer.MAX_VALUE ) {
+                        weight[e.getEnd()] = weight[e.getStart()] + e.getValue();
+                        ancestors[e.getEnd()] = e.getStart();
+                    }
+                });
+            }
+        }
+
+        try {
+            for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
+                g.forEachEdge(i, e -> {
+                    if ( weight[e.getStart()] + e.getValue() < weight[e.getEnd()] && weight[e.getStart()] != Integer.MAX_VALUE ) {
+                        throw new UncheckedNegativeCycleFoundException(new NegativeCycleFoundException());
+                    }
+                });
+            }
+        } catch ( UncheckedNegativeCycleFoundException e ) {
+            throw new NegativeCycleFoundException(e.getCause());
+        }
+
+        return new ShortestPathFromOneVertex(source, weight, ancestors);
+
+    }
+
+    public static ShortestPathFromOneVertex dijkstra(Graph g, int source) {
+
+        /* Processed vertex : */
+        BitSet processed = new BitSet(g.numberOfVertices());
+
+        int[] weight = new int[g.numberOfVertices()];
+        Arrays.fill(weight, Integer.MAX_VALUE);
+
+        int[] ancestors = new int[g.numberOfVertices()];
+        Arrays.fill(ancestors, -1);
+
+        weight[source] = 0;
+
+        for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
+            var min = processed.nextClearBit(0);
+
+            for ( var j = min+1 ; j < g.numberOfVertices() ; j++ ) {
+                if ( processed.get(j) ) continue;
+
+                if ( weight[j] < weight[min] ) {
+                    min = j;
+                }
+            }
+
+            processed.set(min);
+
+            if ( weight[min] == Integer.MAX_VALUE ) continue;
+            g.forEachEdge(min, e -> {
+                if ( weight[e.getStart()] + e.getValue() < weight[e.getEnd()] ) {
+                    weight[e.getEnd()] = weight[e.getStart()] + e.getValue();
+                    ancestors[e.getEnd()] = e.getStart();
+                }
+            });
+        }
+
+        return new ShortestPathFromOneVertex(source, weight, ancestors);
+    }
+
+    private static class FMEntries {
+
+        /**
+         * Current paths
+         */
+        final int[][] d;
+
+        /**
+         * Predecessors index
+         */
+        final int[][] pi;
+
+        FMEntries(Graph g) {
+            d = new int[g.numberOfVertices()][];
+            pi = new int[g.numberOfVertices()][];
+
+            for ( var i = 0 ; i < g.numberOfVertices() ; i++ ) {
+                d[i] = new int[g.numberOfVertices()];
+                pi[i] = new int[g.numberOfVertices()];
+                Arrays.fill(d[i], Integer.MAX_VALUE);
+                Arrays.fill(pi[i], -1);
+                d[i][i] = 0;
+                pi[i][i] = i;
+
+                g.forEachEdge(i, e -> {
+                    if ( e.getValue() < d[e.getStart()][e.getEnd()] ) {
+                        d[e.getStart()][e.getEnd()] = e.getValue();
+                        pi[e.getStart()][e.getEnd()] = e.getStart();
+                    }
+                });
+            }
+        }
+    }
+
+    public static ShortestPathFromAllVertices floydWarshall(Graph g) {
+        var fmEntries = new FMEntries(g);
+
+        for ( var k = 0 ; k < g.numberOfVertices() ; k++ ) {
+            for ( var s = 0 ; s < g.numberOfVertices() ; s++ ) {
+                for ( var t = 0 ; t < g.numberOfVertices() ; t++ ) {
+                    if ( fmEntries.d[s][k] != Integer.MAX_VALUE && fmEntries.d[k][t] != Integer.MAX_VALUE && fmEntries.d[s][t] > fmEntries.d[s][k] + fmEntries.d[k][t]) {
+                        fmEntries.d[s][t] = fmEntries.d[s][k] + fmEntries.d[k][t];
+                        fmEntries.pi[s][t] = fmEntries.pi[k][t];
+                    }
+                }
+            }
+        }
+
+        return new ShortestPathFromAllVertices(fmEntries.d, fmEntries.pi);
     }
 }

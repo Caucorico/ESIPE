@@ -41,8 +41,11 @@ public class AdjGraph implements Graph {
         LinkedList<Edge> neighbour = adj.get(i);
 
         if ( isEdge(i, j) ) {
-            for ( Edge edge : neighbour ) {
-                
+            /* This test increase complexity, really important ? */
+            for ( int k = 0 ; k < neighbour.size() ; k++ ) {
+                if ( neighbour.get(k).getEnd() == newEdge.getEnd() ) {
+                    neighbour.set(k, newEdge);
+                }
             }
         } else {
             neighbour.add(newEdge);

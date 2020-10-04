@@ -14,9 +14,21 @@ public interface Graph {
 
     int getWeight(int i, int j);
 
-    public Iterator<Edge> edgeIterator(int i);
+    Iterator<Edge> edgeIterator(int i);
 
     void forEachEdge(int i, Consumer<Edge> consumer);
 
     String toGraphviz();
+
+    default Graph transpose() {
+        AdjGraph newGraph = new AdjGraph(numberOfVertices());
+
+        for ( var i = 0 ; i < numberOfVertices() ; i++ ) {
+            forEachEdge(i, e -> {
+               newGraph.addEdge(e.getEnd(), e.getStart(), e.getValue());
+            });
+        }
+
+        return newGraph;
+    }
 }
