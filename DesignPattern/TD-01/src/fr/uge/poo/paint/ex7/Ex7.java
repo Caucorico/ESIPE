@@ -12,13 +12,24 @@ public class Ex7 {
 
     public static void main(String[] args) throws IOException {
 
-        boolean legacy = false;
+        boolean legacy;
+        String filename;
 
-        if ( args.length != 1 ) {
+        if ( args.length == 1 ) {
+            legacy = false;
+            filename = args[0];
+        } else if ( args.length == 2 ) {
+            if ( args[0].equals("-legacy") ) {
+                legacy = true;
+                filename = args[1];
+            } else {
+                throw new IllegalArgumentException("Usage : Ex7 <-legacy> <filename>");
+            }
+        }  else {
             throw new IllegalArgumentException("Usage : Ex7 <-legacy> <filename>");
         }
 
-        var figureSet = FigureSet.fromFile(args[0]);
+        var figureSet = FigureSet.fromFile(filename);
         var width = figureSet.getMinWidth();
         var height = figureSet.getMinHeight();
 
