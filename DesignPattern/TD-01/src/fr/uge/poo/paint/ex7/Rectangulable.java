@@ -1,4 +1,4 @@
-package fr.uge.poo.paint.ex7;import java.awt.*;
+package fr.uge.poo.paint.ex7;
 
 
 abstract class Rectangulable implements Figure {
@@ -26,5 +26,15 @@ abstract class Rectangulable implements Figure {
     @Override
     public double distanceFromPointSquared(int x, int y) {
         return Math.pow(x - xCenter(), 2) + Math.pow(y - yCenter(), 2);
+    }
+
+    @Override
+    public int getMaxHeight() {
+        return y1 + height;
+    }
+
+    @Override
+    public int getMaxWidth() {
+        return x1 + length;
     }
 }

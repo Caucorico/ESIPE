@@ -1,11 +1,8 @@
 package fr.uge.poo.paint.ex7;
 
 import fr.uge.poo.paint.ex7.canvas.Canvas;
-import fr.uge.poo.simplegraphics.SimpleGraphics;
 
-import java.awt.*;
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
 
 public class FigureSet {
@@ -66,6 +63,24 @@ public class FigureSet {
         draw(canvas);
 
         optional.ifPresent( (figure) -> figure.draw(canvas, Canvas.Color.ORANGE));
+    }
+
+    public int getMinHeight() {
+        var optional = figures.values().stream().map(Figure::getMaxHeight).max(Integer::compareTo);
+        if (optional.isEmpty()) {
+            return 0;
+        }
+
+        return optional.get();
+    }
+
+    public int getMinWidth() {
+        var optional = figures.values().stream().map(Figure::getMaxWidth).max(Integer::compareTo);
+        if (optional.isEmpty()) {
+            return 0;
+        }
+
+        return optional.get();
     }
 
 }

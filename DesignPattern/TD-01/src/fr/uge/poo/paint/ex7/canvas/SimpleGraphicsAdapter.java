@@ -2,8 +2,6 @@ package fr.uge.poo.paint.ex7.canvas;
 
 import fr.uge.poo.simplegraphics.SimpleGraphics;
 
-import java.awt.*;
-
 public class SimpleGraphicsAdapter implements Canvas {
 
     private final SimpleGraphics simpleGraphics;

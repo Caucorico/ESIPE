@@ -33,4 +33,14 @@ public class Line implements Figure {
     public double distanceFromPointSquared(int x, int y) {
         return Math.pow(x - xCenter(), 2) + Math.pow(y - yCenter(), 2);
     }
+
+    @Override
+    public int getMaxHeight() {
+        return y2;
+    }
+
+    @Override
+    public int getMaxWidth() {
+        return x2;
+    }
 }

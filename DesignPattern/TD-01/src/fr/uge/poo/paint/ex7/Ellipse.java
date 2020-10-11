@@ -9,7 +9,7 @@ public class Ellipse extends Rectangulable {
     }
 
     @Override
-    public void draw(Canvas canvas, fr.uge.poo.paint.ex7.canvas.Canvas.Color color) {
+    public void draw(Canvas canvas, Canvas.Color color) {
         canvas.drawEllipse(this.x1, this.y1, this.length, this.height, color);
     }
 
