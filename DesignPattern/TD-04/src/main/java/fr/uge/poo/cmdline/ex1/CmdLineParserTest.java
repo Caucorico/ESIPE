@@ -2,7 +2,7 @@ package fr.uge.poo.cmdline.ex1;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import fr.uge.poo.cmdline.ex0.CmdLineParser;
+import fr.uge.poo.cmdline.ex1.CmdLineParser;
 import org.junit.jupiter.api.Test;
 
 
