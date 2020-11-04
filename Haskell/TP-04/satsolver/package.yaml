@@ -1,0 +1,61 @@
+name:                satsolver
+version:             0.1.0.0
+github:              "githubuser/satsolver"
+license:             BSD3
+author:              "Guillaume Cau"
+maintainer:          "guillaume.cau77@gmail.com"
+copyright:           "MIT License Copyright (c) 2020 Guillaume Cau"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/satsolver#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- containers >= 0.6
+- split >= 0
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Data.Algorithm.SatSolver.Clause
+    - Data.Algorithm.SatSolver.Clause.Some
+    - Data.Algorithm.SatSolver.Fml
+    - Data.Algorithm.SatSolver.Fml.Some
+    - Data.Algorithm.SatSolver.Lit
+    - Data.Algorithm.SatSolver.Lit.Some
+    - Data.Algorithm.SatSolver.Solver
+    - Data.Algorithm.SatSolver.Utils
+    - Data.Algorithm.SatSolver.Var
+    - Data.Algorithm.SatSolver.Var.Some
+
+#executables:
+#  satsolver-exe:
+#    main:                Main.hs
+#    source-dirs:         app
+#    ghc-options:
+#    - -threaded
+#    - -rtsopts
+#    - -with-rtsopts=-N
+#    dependencies:
+#    - satsolver
+
+tests:
+  satsolver-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - satsolver

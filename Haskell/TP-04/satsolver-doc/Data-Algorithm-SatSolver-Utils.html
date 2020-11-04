@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Data.Algorithm.SatSolver.Utils</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><link rel="stylesheet" type="text/css" href="quick-jump.css" /><script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="src/Data.Algorithm.SatSolver.Utils.html">Source</a></li><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption empty">&nbsp;</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>Safe</td></tr></table><p class="caption">Data.Algorithm.SatSolver.Utils</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">List</a></li><li><a href="#g:2">String</a></li></ul></div><div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn"><li class="src short"><a href="#v:safeHead">safeHead</a> :: [a] -&gt; Maybe a</li><li class="src short"><a href="#v:safeLast">safeLast</a> :: [a] -&gt; Maybe a</li><li class="src short"><a href="#v:trim">trim</a> :: String -&gt; String</li></ul></details></div><div id="interface"><a href="#g:1" id="g:1"><h1>List</h1></a><div class="top"><p class="src"><a id="v:safeHead" class="def">safeHead</a> :: [a] -&gt; Maybe a <a href="src/Data.Algorithm.SatSolver.Utils.html#safeHead" class="link">Source</a> <a href="#v:safeHead" class="selflink">#</a></p><div class="doc"><p><code><a href="Data-Algorithm-SatSolver-Utils.html#v:safeHead" title="Data.Algorithm.SatSolver.Utils">safeHead</a></code> <code>xs</code> return the first element of list <code>xs</code> if it is
+ not empty and <code>Nothing</code> otherwise.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>safeHead []
+</code></strong>Nothing
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>safeHead [1]
+</code></strong>Just 1
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>safeHead [1..5]
+</code></strong>Just 1
+</pre></div></div><div class="top"><p class="src"><a id="v:safeLast" class="def">safeLast</a> :: [a] -&gt; Maybe a <a href="src/Data.Algorithm.SatSolver.Utils.html#safeLast" class="link">Source</a> <a href="#v:safeLast" class="selflink">#</a></p><div class="doc"><p><code><a href="Data-Algorithm-SatSolver-Utils.html#v:safeHead" title="Data.Algorithm.SatSolver.Utils">safeHead</a></code> <code>xs</code> return the last element of list <code>xs</code> if it is
+ not empty and <code>Nothing</code> otherwise.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>safeLast []
+</code></strong>Nothing
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>safeLast [1]
+</code></strong>Just 1
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>safeLast [1..5]
+</code></strong>Just 5
+</pre></div></div><a href="#g:2" id="g:2"><h1>String</h1></a><div class="top"><p class="src"><a id="v:trim" class="def">trim</a> :: String -&gt; String <a href="src/Data.Algorithm.SatSolver.Utils.html#trim" class="link">Source</a> <a href="#v:trim" class="selflink">#</a></p><div class="doc"><p><code><a href="Data-Algorithm-SatSolver-Utils.html#v:trim" title="Data.Algorithm.SatSolver.Utils">trim</a></code> <code>xs</code> deletes the leading and trailing whitespace of <code>xs</code>.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>trim &quot;  ab c de  &quot;
+</code></strong>&quot;ab c de&quot;
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>trim &quot;  ab c de&quot;
+</code></strong>&quot;ab c de&quot;
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>trim &quot;ab c de  &quot;
+</code></strong>&quot;ab c de&quot;
+&gt;&gt; trim &quot;  &quot;
+&quot;&quot;
+</pre></div></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.20.0</p></div></body></html>
