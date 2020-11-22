@@ -3,26 +3,36 @@
 
 class cuStopwatch{
     // todo: add your internal data structure, all in private
-    
+    private:
+        cudaEvent_t start_event;
+        cudaEvent_t end_event;
+        bool is_watching;
+
     public:
         cuStopwatch();
         ~cuStopwatch();
-        int start();
+        void start();
         float stop();
 };
 
 cuStopwatch::cuStopwatch(){
-    // todo: constructor
+    cudaEventCreate(&start_event);
+    cudaEventCreate(&end_event);
 }
 
 cuStopwatch::~cuStopwatch(){
-    // todo: destructor
+    cudaEventDestroy(start_event);
+    cudaEventDestroy(end_event);
 }
 
 void cuStopwatch::start(){
-    // todo: start the stopwatch, and ignore double start
+    cudaEventRecord(start_event);
 }
 
 float cuStopwatch::stop(){
-    // todo: stop the stopwatch and return elapsed time, ignore invalid stops (e.g. stop when not yet started or double stop)
+    float elapsed_time;
+    cudaEventRecord(end_event);
+    cudaEventSynchronize(end_event);
+    cudaEventElapsedTime(&elapsed_time, start_event, end_event);
+    return elapsed_time;
 }
