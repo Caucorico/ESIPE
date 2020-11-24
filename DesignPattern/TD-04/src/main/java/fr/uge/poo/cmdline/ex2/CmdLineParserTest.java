@@ -1,6 +1,5 @@
 package fr.uge.poo.cmdline.ex2;
 
-import fr.uge.poo.cmdline.ex0.CmdLineParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
