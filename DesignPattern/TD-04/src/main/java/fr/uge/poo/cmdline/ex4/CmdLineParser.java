@@ -9,38 +9,78 @@ public class CmdLineParser {
     private final HashMap<String, PaintOption> registeredOptions = new HashMap<>();
 
     private static class PaintOption {
-
+        final boolean required;
         final int paramNumber;
         final String name;
         final Consumer<List<String>> consumer;
 
-        PaintOption(int paramNumber, String name, Consumer<List<String>> consumer) {
-            this.paramNumber = paramNumber;
-            this.name = name;
-            this.consumer = consumer;
+        PaintOption(PaintOptionBuilder builder) {
+            this.paramNumber = builder.paramNumber;
+            this.name = builder.name;
+            this.consumer = builder.consumer;
+            this.required = builder.required;
         }
 
     }
 
-    public void registerOption(String option, Runnable runnable) {
-        Objects.requireNonNull(option);
-        Objects.requireNonNull(runnable);
+    public static class PaintOptionBuilder {
 
-        registerOption(option, 0, __ -> runnable.run());
+        private int paramNumber;
+        private String name;
+        private Consumer<List<String>> consumer;
+        private boolean required;
+        /*private List<String> aliases;*/
+
+        public PaintOptionBuilder setParamNumber(int paramNumber) {
+            if ( paramNumber < 0 ) {
+                throw new IllegalArgumentException();
+            }
+            this.paramNumber = paramNumber;
+            return this;
+        }
+
+        public PaintOptionBuilder setName(String name) {
+            this.name = Objects.requireNonNull(name);
+            return this;
+        }
+
+        public PaintOptionBuilder setConsumer(Consumer<List<String>> consumer) {
+            this.consumer = Objects.requireNonNull(consumer);
+            return this;
+        }
+
+        public void setRequired(boolean required) {
+            this.required = required;
+        }
+
+        /*public PaintOptionBuilder setAliases(List<String> aliases) {
+            this.aliases = Objects.requireNonNull(aliases);
+            return this;
+        }
+
+        public PaintOptionBuilder addAlias(String alias) {
+            Objects.requireNonNull(alias);
+            this.aliases.add(alias);
+            return this;
+        }*/
+
+        public PaintOption build() {
+            /* Todo : check if all requirements are ok */
+            return new PaintOption(this);
+        }
     }
 
-    public void registerOption(String option, int argumentNumber, Consumer<List<String>> consumer) {
-        Objects.requireNonNull(option);
-        Objects.requireNonNull(consumer);
-        option = "-" + option;
+    public void registerOption(PaintOption paintOption) {
+        Objects.requireNonNull(paintOption);
 
-        var stockRun = registeredOptions.get(option);
+        var stockOpt = registeredOptions.get(paintOption.name);
 
-        if ( stockRun != null ) {
+        if ( stockOpt != null ) {
             throw new IllegalStateException("Argument already defined !");
         }
 
-        registeredOptions.put(option, new PaintOption(argumentNumber, option, consumer));
+        registeredOptions.put(paintOption.name, paintOption);
+
     }
 
     public List<String> process(String[] arguments) throws ParseException {

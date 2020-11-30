@@ -1,4 +1,4 @@
-package fr.uge.poo.cmdline.ex4;
+package fr.uge.poo.cmdline.ex5;
 
 import java.nio.file.Path;
 import java.text.ParseException;
@@ -55,46 +55,26 @@ public class Application {
 
         String[] arguments={"-legacy","-border-width", "65", "-min-size", "12", "12", "filename1","filename2"};
         var cmdParser = new CmdLineParser();
-        var optionBuilder = new CmdLineParser.PaintOptionBuilder();
 
-        optionBuilder
-                .setName("-legacy")
-                .setParamNumber(0)
-                .setConsumer(argss -> optionsBuilder.setLegacy(true));
+        var optionBuilder = new CmdLineParser.PaintOptionBuilder(0, "-legacy", argss -> optionsBuilder.setLegacy(true));
         cmdParser.registerOption(optionBuilder.build());
 
-        optionBuilder = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder
-                .setName("-with-borders")
-                .setParamNumber(0)
-                .setConsumer( argss -> optionsBuilder.setBordered(true));
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(0, "-with-borders", argss -> optionsBuilder.setBordered(true));
         cmdParser.registerOption(optionBuilder.build());
 
-        optionBuilder = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder
-                .setName("-no-borders")
-                .setParamNumber(0)
-                .setConsumer( argss -> optionsBuilder.setBordered(false));
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(0, "-no-borders", argss -> optionsBuilder.setBordered(false));
         cmdParser.registerOption(optionBuilder.build());
 
-        optionBuilder = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder
-                .setName("-border-width")
-                .setParamNumber(1)
-                .setConsumer( argss -> {
-                    optionsBuilder.setBordered(true);
-                    System.out.println("coucou " + argss.get(0));
-                });
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(1, "-border-width", argss -> {
+            optionsBuilder.setBordered(true);
+            System.out.println("coucou " + argss.get(0));
+        });
         cmdParser.registerOption(optionBuilder.build());
 
-
-        optionBuilder
-                .setName("-min-size")
-                .setParamNumber(2)
-                .setConsumer( argss -> {
-                    optionsBuilder.setBordered(true);
-                    System.out.println("coucou2 " + argss.get(0) + " " + argss.get(1));
-                });
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(2, "-min-size", argss -> {
+            optionsBuilder.setBordered(true);
+            System.out.println("coucou2 " + argss.get(0) + " " + argss.get(1));
+        });
         cmdParser.registerOption(optionBuilder.build());
 
         List<String> result = cmdParser.process(arguments);

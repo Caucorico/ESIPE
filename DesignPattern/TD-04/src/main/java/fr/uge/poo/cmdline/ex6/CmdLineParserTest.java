@@ -1,4 +1,4 @@
-package fr.uge.poo.cmdline.ex4;
+package fr.uge.poo.cmdline.ex6;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,24 +20,20 @@ class CmdLineParserTest {
     @Test
     public void registerOptionOptionShouldFailFastOnNullArgument(){
         var parser = new CmdLineParser();
-        assertThrows(NullPointerException.class, () -> parser.registerOption(null));
+        assertThrows(NullPointerException.class, () -> parser.registerOption(null, () -> {}));
+    }
+
+    @Test
+    public void registerRunnableOptionShouldFailFastOnNullArgument(){
+        var parser = new CmdLineParser();
+        assertThrows(NullPointerException.class, () -> parser.registerOption("not null", null));
     }
 
     @Test
     public void registerAlreadyRegisteredOptionShouldFail() {
         var parser = new CmdLineParser();
-        var optionBuilder = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder
-                .setName("-test")
-                .setConsumer( args -> {});
-        parser.registerOption(optionBuilder.build());
-
-        var optionBuilder2 = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder2
-                .setName("-test")
-                .setConsumer( args -> {});
-
-        assertThrows(IllegalStateException.class, () -> parser.registerOption(optionBuilder2.build()));
+        parser.registerOption("test", () -> {});
+        assertThrows(IllegalStateException.class, () -> parser.registerOption("test", () -> {}));
     }
 
     @Test
@@ -45,12 +41,7 @@ class CmdLineParserTest {
         String[] arguments = { "-test" };
         AtomicInteger i = new AtomicInteger(0);
         var parser = new CmdLineParser();
-        var optionBuilder = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder
-                .setName("-test")
-                .setConsumer( args -> i.set(1));
-
-        parser.registerOption(optionBuilder.build());
+        parser.registerOption("test", () -> i.set(1));
 
         parser.process(arguments);
         assertEquals(1, i.get(), "The 'test' option was not executed !");
@@ -62,18 +53,8 @@ class CmdLineParserTest {
         BitSet bs = new BitSet(2);
         var parser = new CmdLineParser();
 
-        var optionBuilder = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder
-                .setName("-test1")
-                .setConsumer( args -> bs.set(0));
-
-        parser.registerOption(optionBuilder.build());
-
-        optionBuilder = new CmdLineParser.PaintOptionBuilder();
-        optionBuilder
-                .setName("-test2")
-                .setConsumer(args -> bs.set(1));
-        parser.registerOption(optionBuilder.build() );
+        parser.registerOption("test1", () -> bs.set(0));
+        parser.registerOption("test2", () -> bs.set(1));
 
         parser.process(arguments);
 
@@ -95,13 +76,7 @@ class CmdLineParserTest {
         String[] arguments = { "-arg1", "663" };
         AtomicInteger i = new AtomicInteger(0);
         var parser = new CmdLineParser();
-
-        var builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg1")
-                .setParamNumber(1)
-                .setConsumer( args -> i.set(Integer.parseInt(args.get(0))));
-        parser.registerOption(builder.build() );
+        parser.registerOption("arg1", 1, args -> i.set(Integer.parseInt(args.get(0))));
 
         parser.process(arguments);
         assertEquals(663, i.get(), "The 'arg1' option was not executed !");
@@ -112,13 +87,7 @@ class CmdLineParserTest {
         String[] arguments = { "-arg1", "663", "file.txt" };
         AtomicInteger i = new AtomicInteger(0);
         var parser = new CmdLineParser();
-
-        var builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg1")
-                .setParamNumber(1)
-                .setConsumer( args -> i.set(Integer.parseInt(args.get(0))));
-        parser.registerOption(builder.build() );
+        parser.registerOption("arg1", 1, args -> i.set(Integer.parseInt(args.get(0))));
 
         var files = parser.process(arguments);
         assertEquals(663, i.get(), "The 'arg1' option was not executed !");
@@ -131,19 +100,8 @@ class CmdLineParserTest {
         String[] arguments = { "-arg1", "-arg2" };
         var parser = new CmdLineParser();
 
-        var builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg1")
-                .setParamNumber(1)
-                .setConsumer( args -> {});
-        parser.registerOption(builder.build() );
-
-        builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg2")
-                .setParamNumber(1)
-                .setConsumer( args -> {});
-        parser.registerOption(builder.build() );
+        parser.registerOption("arg1", 1, args -> {});
+        parser.registerOption("arg2", 1, args -> {});
 
         assertThrows(ParseException.class, () -> parser.process(arguments));
     }
@@ -154,19 +112,8 @@ class CmdLineParserTest {
         var parser = new CmdLineParser();
         var bs = new BitSet(8);
 
-        var builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg1")
-                .setParamNumber(1)
-                .setConsumer( args -> bs.set(Integer.parseInt(args.get(0))));
-        parser.registerOption(builder.build() );
-
-        builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg2")
-                .setParamNumber(1)
-                .setConsumer( args -> bs.set(Integer.parseInt(args.get(0))));
-        parser.registerOption(builder.build() );
+        parser.registerOption("arg1", 1, args -> bs.set(Integer.parseInt(args.get(0))) );
+        parser.registerOption("arg2", 1, args -> bs.set(Integer.parseInt(args.get(0))) );
 
         parser.process(arguments);
 
@@ -180,15 +127,10 @@ class CmdLineParserTest {
         var parser = new CmdLineParser();
         var bs = new BitSet(8);
 
-        var builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg1")
-                .setParamNumber(2)
-                .setConsumer( args -> {
-                    bs.set(Integer.parseInt(args.get(0)));
-                    bs.set(Integer.parseInt(args.get(1)));
-                });
-        parser.registerOption(builder.build() );
+        parser.registerOption("arg1", 2, args -> {
+            bs.set(Integer.parseInt(args.get(0)));
+            bs.set(Integer.parseInt(args.get(1)));
+        } );
 
         parser.process(arguments);
 
@@ -201,15 +143,10 @@ class CmdLineParserTest {
         var parser = new CmdLineParser();
         var bs = new BitSet(8);
 
-        var builder = new CmdLineParser.PaintOptionBuilder();
-        builder
-                .setName("-arg1")
-                .setParamNumber(2)
-                .setConsumer( args -> {
-                    bs.set(Integer.parseInt(args.get(0)));
-                    bs.set(Integer.parseInt(args.get(1)));
-                });
-        parser.registerOption(builder.build() );
+        parser.registerOption("arg1", 2, args -> {
+            bs.set(Integer.parseInt(args.get(0)));
+            bs.set(Integer.parseInt(args.get(1)));
+        } );
 
         assertThrows(ParseException.class, () -> parser.process(arguments));
     }
