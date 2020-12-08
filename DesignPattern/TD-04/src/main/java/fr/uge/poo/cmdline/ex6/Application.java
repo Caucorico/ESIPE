@@ -51,26 +51,36 @@ public class Application {
     }
 
     public static void main(String[] args) throws ParseException {
-        var builder = new PaintOptionsBuilder();
+        var optionsBuilder = new PaintOptionsBuilder();
 
         String[] arguments={"-legacy","-border-width", "65", "-min-size", "12", "12", "filename1","filename2"};
         var cmdParser = new CmdLineParser();
-        cmdParser.registerOption("-legacy", () -> builder.setLegacy(true));
-        cmdParser.registerOption("-with-borders", () -> builder.setBordered(true));
-        cmdParser.registerOption("-no-borders", () -> builder.setBordered(false));
-        cmdParser.registerOption("-border-width", 1, argss -> {
-            builder.setBordered(true);
+
+        var optionBuilder = new CmdLineParser.PaintOptionBuilder(0, "-legacy", argss -> optionsBuilder.setLegacy(true));
+        cmdParser.registerOption(optionBuilder.build());
+
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(0, "-with-borders", argss -> optionsBuilder.setBordered(true));
+        cmdParser.registerOption(optionBuilder.build());
+
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(0, "-no-borders", argss -> optionsBuilder.setBordered(false));
+        cmdParser.registerOption(optionBuilder.build());
+
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(1, "-border-width", argss -> {
+            optionsBuilder.setBordered(true);
             System.out.println("coucou " + argss.get(0));
         });
-        cmdParser.registerOption("-min-size", 2, argss -> {
-            builder.setBordered(true);
+        cmdParser.registerOption(optionBuilder.build());
+
+        optionBuilder = new CmdLineParser.PaintOptionBuilder(2, "-min-size", argss -> {
+            optionsBuilder.setBordered(true);
             System.out.println("coucou2 " + argss.get(0) + " " + argss.get(1));
         });
+        cmdParser.registerOption(optionBuilder.build());
 
         List<String> result = cmdParser.process(arguments);
         List<Path> files = result.stream().map(Path::of).collect(Collectors.toList());
 
-        var options = builder.build();
+        var options = optionsBuilder.build();
 
         // this code replaces the rest of the application
         files.forEach(System.out::println);
