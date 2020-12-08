@@ -9,15 +9,17 @@ import java.util.function.IntConsumer;
 
 public class CmdLineParser {
 
-    private final HashMap<String, PaintOption> registeredOptions = new HashMap<>();
+    private final OptionsManager optionsManager = new OptionsManager();
+    private final DocumentationObserver documentationObserver = new DocumentationObserver();
 
-    private static class PaintOption {
-        final boolean required;
-        final int paramNumber;
-        final String name;
-        final Consumer<List<String>> consumer;
-        final List<String> aliases;
-        final String documentation;
+    public static class PaintOption {
+        private final boolean required;
+        private final int paramNumber;
+        private final String name;
+        private final Consumer<List<String>> consumer;
+        private final List<String> aliases;
+        private final List<String> conflicts;
+        private final String documentation;
         private boolean used;
 
         PaintOption(PaintOptionBuilder builder) {
@@ -26,9 +28,41 @@ public class CmdLineParser {
             this.consumer = builder.consumer;
             this.required = builder.required;
             this.aliases = builder.aliases;
+            this.conflicts = builder.conflicts;
             this.documentation = builder.documentation;
         }
 
+        public boolean isRequired() {
+            return required;
+        }
+
+        public int getParamNumber() {
+            return paramNumber;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Consumer<List<String>> getConsumer() {
+            return consumer;
+        }
+
+        public List<String> getAliases() {
+            return aliases;
+        }
+
+        public List<String> getConflicts() {
+            return conflicts;
+        }
+
+        public String getDocumentation() {
+            return documentation;
+        }
+
+        public boolean isUsed() {
+            return used;
+        }
     }
 
     public static class PaintOptionBuilder {
@@ -38,6 +72,7 @@ public class CmdLineParser {
         private Consumer<List<String>> consumer;
         private boolean required;
         private List<String> aliases = new ArrayList<>(1);
+        private List<String> conflicts = new ArrayList<>(1);
         private String documentation;
 
         public PaintOptionBuilder(int paramNumber, String name, Consumer<List<String>> consumer) {
@@ -55,7 +90,7 @@ public class CmdLineParser {
         }
 
         public PaintOptionBuilder setDocumentation(String documentation) {
-            this.documentation = documentation;
+            this.documentation = Objects.requireNonNull(documentation);
             return this;
         }
 
@@ -67,6 +102,18 @@ public class CmdLineParser {
         public PaintOptionBuilder addAlias(String alias) {
             Objects.requireNonNull(alias);
             this.aliases.add(alias);
+            return this;
+        }
+
+        public PaintOptionBuilder setConflicts(List<String> conflicts) {
+            Objects.requireNonNull(conflicts);
+            this.conflicts = conflicts;
+            return this;
+        }
+
+        public PaintOptionBuilder addConflict(String conflict) {
+            Objects.requireNonNull(conflict);
+            this.conflicts.add(conflict);
             return this;
         }
 
@@ -99,41 +146,243 @@ public class CmdLineParser {
         }
     }
 
-    public static class IntegerPaintOptionBuilder {
-        
+    interface OptionsObserver {
+
+        void onRegisteredOption(OptionsManager optionsManager, PaintOption option);
+
+        void onProcessedOption(OptionsManager optionsManager, PaintOption option);
+
+        void onFinishedProcess(OptionsManager optionsManager) throws ParseException;
+    }
+
+    static class LoggerObserver implements OptionsObserver {
+        @Override
+        public void onRegisteredOption(OptionsManager optionsManager, PaintOption option) {
+            System.out.println("Option "+option+ " is registered");
+        }
+
+        @Override
+        public void onProcessedOption(OptionsManager optionsManager, PaintOption option) {
+            System.out.println("Option "+option+ " is processed");
+        }
+
+        @Override
+        public void onFinishedProcess(OptionsManager optionsManager) {
+            System.out.println("Process method is finished");
+        }
+    }
+
+    private static class RequireObserver implements OptionsObserver {
+        @Override
+        public void onRegisteredOption(OptionsManager optionsManager, PaintOption option) {
+        }
+
+        @Override
+        public void onProcessedOption(OptionsManager optionsManager, PaintOption option) {
+            if ( option == null ) return;
+            option.used = true;
+        }
+
+        @Override
+        public void onFinishedProcess(OptionsManager optionsManager) throws ParseException {
+            for ( var option : optionsManager.byName.values()) {
+                if ( option.required && !option.used ) {
+                    throw new ParseException("Option " + option.name + " ", 0);
+                }
+            }
+        }
+    }
+
+    static class DocumentationObserver implements OptionsObserver {
+        List<PaintOption> options = new ArrayList<>(1);
+
+        @Override
+        public void onRegisteredOption(OptionsManager optionsManager, PaintOption option) {
+            options.add(option);
+        }
+
+        @Override
+        public void onProcessedOption(OptionsManager optionsManager, PaintOption option) {
+        }
+
+        @Override
+        public void onFinishedProcess(OptionsManager optionsManager) {
+        }
+
+        public String usage() {
+            StringBuilder builder = new StringBuilder();
+            for ( var option : options ) {
+                builder.append(option.name).append(" : ").append(option.documentation).append('\n');
+            }
+
+            return builder.toString();
+        }
+    }
+
+    private static class ConflictObserver implements OptionsObserver {
+
+        private final List<PaintOption> optionList = new ArrayList<>(1);
+
+        @Override
+        public void onRegisteredOption(OptionsManager optionsManager, PaintOption option) {
+        }
+
+        @Override
+        public void onProcessedOption(OptionsManager optionsManager, PaintOption option) {
+            if( option == null ) return;
+            optionList.add(option);
+        }
+
+        @Override
+        public void onFinishedProcess(OptionsManager optionsManager) throws ParseException {
+            Objects.requireNonNull(optionsManager);
+
+            for ( int i = 0 ; i < optionList.size() ; i++ ) {
+                var option = optionList.get(i);
+
+                for ( int j = i+1 ; j < optionList.size() ; j++ ) {
+                    var check = optionList.get(j);
+
+                    /* Check if we don't use the same argument twice */
+                    if ( option.name.equals(check.name) ) {
+                        throw new ParseException("Argument " + option.name + " in conflict with " + check.name + ".", 0);
+                    }
+
+                    /* Check if we don't use the same argument twice with its aliases */
+                    for ( var alias : option.aliases ) {
+                        if ( check.name.equals(alias) ) {
+                            throw new ParseException("Argument " + check.name + " in conflict with " + alias + ".", 0);
+                        }
+                    }
+
+                    /* Check if the argument isn't in conflict with the current argument : */
+                    for ( var conflict : option.conflicts ) {
+                        if ( check.name.equals(conflict) ) {
+                            throw new ParseException("Argument " + check.name + " in conflict with " + conflict + ".", 0);
+                        }
+
+                        for ( var alias : check.aliases ) {
+                            if ( alias.equals(conflict) ) {
+                                throw new ParseException("Argument " + alias + " in conflict with " + conflict + ".", 0);
+                            }
+                        }
+                    }
+
+                    /* Check if the current argument isn't in conflict with the argument : */
+                    for ( var conflict : check.conflicts ) {
+                        if ( option.name.equals(conflict) ) {
+                            throw new ParseException("Argument " + option.name + " in conflict with " + conflict + ".", 0);
+                        }
+
+                        for ( var alias : option.aliases ) {
+                            if ( alias.equals(conflict) ) {
+                                throw new ParseException("Argument " + alias + " in conflict with " + conflict + ".", 0);
+                            }
+                        }
+                    }
+                }
+            }
+
+            optionList.clear();
+        }
+    }
+
+    private static class OptionsManager {
+
+        private final HashMap<String, PaintOption> byName = new HashMap<>();
+
+        private final List<OptionsObserver> observers = new ArrayList<>();
+
+        /**
+         * Register the option with all its possible names
+         * @param option
+         */
+        void register(PaintOption option) {
+            Objects.requireNonNull(option);
+
+            /* Notify all the observers */
+            for ( var observer : observers ) {
+                observer.onRegisteredOption(this, option);
+            }
+
+            register(option.name, option);
+            for (var alias : option.aliases) {
+                register(alias, option);
+            }
+        }
+
+        private void register(String name, PaintOption option) {
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(option);
+
+            /* Notify all the observers */
+            for ( var observer : observers ) {
+                observer.onRegisteredOption(this, option);
+            }
+
+            if (byName.containsKey(name)) {
+                throw new IllegalStateException("Option " + name + " is already registered.");
+            }
+            byName.put(name, option);
+        }
+
+        /**
+         * This method is called to signal that an option is encountered during
+         * a command line process
+         *
+         * @param optionName
+         * @return the corresponding object option if it exists
+         */
+
+        Optional<PaintOption> processOption(String optionName) throws ParseException {
+            Objects.requireNonNull(optionName);
+
+            var option = this.byName.get(optionName);
+            var optional = Optional.ofNullable(option);
+
+            /* Notify all the observers */
+            for ( var observer : observers ) {
+                if ( optional.isPresent() ) {
+                    observer.onProcessedOption(this, optional.get());
+                } else {
+                    observer.onProcessedOption(this, null);
+                }
+            }
+
+            return optional;
+        }
+
+        /**
+         * This method is called to signal the method process of the CmdLineParser is finished
+         */
+        void finishProcess() throws ParseException {
+            /* Notify all the observers */
+            for ( var observer : observers ) {
+                observer.onFinishedProcess(this);
+            }
+        }
+
+        void registerOptionsObserver(OptionsObserver observer) {
+            Objects.requireNonNull(observer);
+            observers.add(observer);
+        }
+    }
+
+    public CmdLineParser() {
+        CmdLineParser.OptionsObserver observer = new CmdLineParser.RequireObserver();
+        CmdLineParser.OptionsObserver observer2 = new CmdLineParser.ConflictObserver();
+        optionsManager.observers.add(observer);
+        optionsManager.observers.add(observer2);
+        optionsManager.observers.add(documentationObserver);
     }
 
     public void registerOption(PaintOption paintOption) {
         Objects.requireNonNull(paintOption);
-
-        var stockOpt = registeredOptions.get(paintOption.name);
-
-        if ( stockOpt != null ) {
-            throw new IllegalStateException("Argument " + paintOption.name + " already defined !");
-        }
-
-        registeredOptions.put(paintOption.name, paintOption);
-
-        for ( var alias : paintOption.aliases ) {
-            stockOpt = registeredOptions.get(alias);
-            if ( stockOpt != null ) {
-                throw new IllegalStateException("Argument " + paintOption.name + " already defined !");
-            }
-            registeredOptions.put(alias, paintOption);
-        }
-
+        optionsManager.register(paintOption);
     }
 
-    public Optional<PaintOption> getOption(String optionName) throws ParseException {
-        Objects.requireNonNull(optionName);
-        var option = this.registeredOptions.get(optionName);
-        var optional = Optional.ofNullable(option);
-        if ( optional.isPresent() && option.used ) {
-            throw new ParseException("Argument already used", 0);
-        }
-
-        optional.ifPresent( o -> o.used = true);
-        return optional;
+    public void registerObserver( OptionsObserver observer ) {
+        optionsManager.registerOptionsObserver(observer);
     }
 
     public List<String> process(String[] arguments) throws ParseException {
@@ -144,7 +393,7 @@ public class CmdLineParser {
 
         while ( i < arguments.length ) {
             var argument = arguments[i];
-            var existing = this.getOption(argument);
+            var existing = this.optionsManager.processOption(argument);
             if ( existing.isPresent() ) {
                 var option = existing.get();
                 if ( arguments.length - i <= option.paramNumber ) {
@@ -160,13 +409,22 @@ public class CmdLineParser {
                     }
                 }
 
-                registeredOptions.get(argument).consumer.accept(params);
+                existing.get().consumer.accept(params);
                 i += ( option.paramNumber + 1);
             } else {
                 files.add(argument);
                 i++;
             }
         }
+
+        /* In the finally ?*/
+        optionsManager.finishProcess();
+
         return files;
     }
+
+    public void usage() {
+        System.out.println(documentationObserver.usage());
+    }
+
 }
