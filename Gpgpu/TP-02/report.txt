@@ -1,0 +1,6 @@
+Exercice 2 :
+
+In starve1, only one thread was called in the first call but many in the second call. So the second call is faster.
+In starve2, some threads finished their work before the others in the first call, so they have to wait. In the second call this behavior is preveted.
+In starve3, in the second method, we use a cache, so the thread spent less time to access the memory than the first cll.
+In starve4, in the second method, the warp access to consecutive memory block so, they can access it with cache. So, the second method is faster than the first that access to memory but not in a consecutive zone.
