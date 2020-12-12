@@ -1,4 +1,4 @@
-package fr.uge.poo.cmdline.ex2;
+package fr.uge.poo.cmdline.ex3;
 
 import java.text.ParseException;
 import java.util.*;
@@ -6,15 +6,15 @@ import java.util.function.Consumer;
 
 public class CmdLineParser {
 
-    private final HashMap<String, Argumentor> registeredOptions = new HashMap<>();
+    private final HashMap<String, PaintOption> registeredOptions = new HashMap<>();
 
-    private static class Argumentor {
+    private static class PaintOption {
 
         final int paramNumber;
         final String name;
         final Consumer<List<String>> consumer;
 
-        Argumentor(int paramNumber, String name, Consumer<List<String>> consumer) {
+        PaintOption(int paramNumber, String name, Consumer<List<String>> consumer) {
             this.paramNumber = paramNumber;
             this.name = name;
             this.consumer = consumer;
@@ -39,7 +39,7 @@ public class CmdLineParser {
             throw new IllegalStateException("Argument already defined !");
         }
 
-        registeredOptions.put(option, new Argumentor(argumentNumber, option, consumer));
+        registeredOptions.put(option, new PaintOption(argumentNumber, option, consumer));
     }
 
     public List<String> process(String[] arguments) throws ParseException {

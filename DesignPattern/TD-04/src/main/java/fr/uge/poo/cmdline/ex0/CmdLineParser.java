@@ -4,20 +4,23 @@ import java.util.*;
 
 public class CmdLineParser {
 
-    private final HashMap<String, Runnable> registeredOptions = new HashMap<>();
+    private final HashSet<String> registeredOptions = new HashSet<>();
+    private final HashSet<String> optionsSeen = new HashSet<>();
 
-    public void registerOption(String option, Runnable runnable) {
+    public void registerOption(String option) {
         Objects.requireNonNull(option);
-        Objects.requireNonNull(runnable);
-        registeredOptions.put(option, runnable);
+        registeredOptions.add(option);
+    }
+
+    public Set<String> getOptionsSeen() {
+        return Collections.unmodifiableSet(optionsSeen);
     }
 
     public List<String> process(String[] arguments) {
-        Objects.requireNonNull(arguments);
         ArrayList<String> files = new ArrayList<>();
         for (String argument : arguments) {
-            if (registeredOptions.containsKey(argument)) {
-                registeredOptions.get(argument).run();
+            if (registeredOptions.contains(argument)) {
+                optionsSeen.add(argument);
             } else {
                 files.add(argument);
             }

@@ -1,5 +1,6 @@
-package fr.uge.poo.cmdline.ex2;
+package fr.uge.poo.cmdline.ex3;
 
+import fr.uge.poo.cmdline.ex0.CmdLineParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SuppressWarnings("static-method")
 class CmdLineParserTest {
 
-    @Test
+   /* @Test
     public void processShouldFailFastOnNullArgument(){
         var parser = new CmdLineParser();
         assertThrows(NullPointerException.class, () -> parser.process(null));
@@ -30,6 +31,6 @@ class CmdLineParserTest {
         var parser = new CmdLineParser();
         parser.registerOption("test", () -> {});
         assertThrows(IllegalStateException.class, () -> parser.registerOption("test", () -> {}));
-    }
+    }*/
 
 }
