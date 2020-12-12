@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SuppressWarnings("static-method")
 class CmdLineParserTest {
 
-    @Test
+   /* @Test
     public void processShouldFailFastOnNullArgument(){
         var parser = new CmdLineParser();
         assertThrows(NullPointerException.class, () -> parser.process(null));
@@ -31,6 +31,6 @@ class CmdLineParserTest {
         var parser = new CmdLineParser();
         parser.registerOption("test", () -> {});
         assertThrows(IllegalStateException.class, () -> parser.registerOption("test", () -> {}));
-    }
+    }*/
 
 }
