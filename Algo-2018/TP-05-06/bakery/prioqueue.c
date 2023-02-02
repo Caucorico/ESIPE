@@ -57,38 +57,32 @@ int size_pq(prioqueue *q)
 
 void insert_pq(prioqueue *q, event *e)
 {
-    link* buff;
-    link* new_link = (link*)malloc(sizeof(link));
-    if ( new_link != NULL )
-    {
-        new_link->e = e;
-        if ( q->first == NULL )
-        {
-            new_link->next = NULL;
-            q->first = new_link;
-            q->size++;
-        }
-        else
-        {
-            buff = q->first;
+	link* new_link = (link*)malloc(sizeof(link));
+	if(new_link != NULL){
+		new_link->e = e;
+		if(q->first == NULL){
+			new_link->next = NULL;
+			q->first = new_link;
+			q->size++;
+		}
+		else{
+			link* empty_link = q->first;
+			q->size++;
 
-            if ( buff->e->etime >= e->etime )
-            {
-                new_link->next = buff;
-                q->first = new_link;
-                q->size++;
-            }
-            else
-            {
-                while ( buff->next != NULL && buff->next->e->etime < e->etime )
-                    buff = buff->next;
+			if(empty_link->e->etime >= e->etime){
+				new_link->next = empty_link;
+				q->first = new_link;
+			}
+			else{
+				while(empty_link->next != NULL && empty_link->next->e->etime < e->etime){
+					empty_link = empty_link->next;
+				}
 
-                new_link->next = buff->next;
-                buff->next = new_link;
-                q->size++;
-            }
-        }
-    }
+				new_link->next = empty_link->next;
+				empty_link->next = new_link;
+			}
+		}
+	}
 }
 
 void display_pq(prioqueue *pq)
